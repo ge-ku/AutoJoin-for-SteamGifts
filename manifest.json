@@ -1,0 +1,27 @@
+{
+   "background": {
+      "persistent": true,
+      "scripts": [ "jquery.min.js", "backgroundpage.js" ]
+   },
+   "content_scripts": [ {
+      "css": [ "general.css" ],
+      "js": [ "jquery.min.js", "autoentry.js" ],
+      "matches": [ "*://www.steamgifts.com/", "*://www.steamgifts.com/giveaways/search?*", "*://steamgifts.com/", "*://steamgifts.com/giveaways/search?*" ]
+   }, {
+      "js": [ "jquery.min.js", "night.js" ],
+      "matches": [ "*://steamgifts.com/giveaways/created/*", "*://www.steamgifts.com/giveaways/created/*", "*://steamgifts.com/giveaways/entered/*", "*://www.steamgifts.com/giveaways/entered/*", "*://steamgifts.com/giveaways/won/*", "*://www.steamgifts.com/giveaways/won/*", "*://steamgifts.com/trades/*", "*://www.steamgifts.com/trades/*", "*://steamgifts.com/sales/*", "*://www.steamgifts.com/sales/*", "*://steamgifts.com/discussions/*", "*://www.steamgifts.com/discussions/*", "*://steamgifts.com/discussion/*", "*://www.steamgifts.com/discussion/*", "*://steamgifts.com/about/*", "*://www.steamgifts.com/about/*", "*://steamgifts.com/support/*", "*://www.steamgifts.com/support/*", "*://steamgifts.com/messages/*", "*://www.steamgifts.com/messages/*", "*://steamgifts.com/account/*", "*://www.steamgifts.com/account/*", "*://steamgifts.com/trade/*", "*://www.steamgifts.com/trade/*", "*://steamgifts.com/users/*", "*://www.steamgifts.com/users/*", "*://steamgifts.com/user/*", "*://www.steamgifts.com/user/*", "*://steamgifts.com/giveaway/*", "*://www.steamgifts.com/giveaway/*", "*://steamgifts.com/legal/*", "*://www.steamgifts.com/legal/*" ]
+   } ],
+   "description": "Automatically enters giveaways from a Steamgifts.com page (main, wishlist or any other)",
+   "icons": {
+      "128": "autologo.png",
+      "16": "autologo16.png",
+      "48": "autologo48.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm/FQjecKEYQPsR+QswcsO4zN8TGAhkJVRR3fVSk28RSIXyDq8RXBHvGVJZnubt6YCX5N3ub/YWAsP+IrOnBkJ5UiEEZ0ldcRXPqmtKqX6XPYwKO4D2U2OKgVq9lLqOo3zP4P1r8dnQWz0c6DAbLpvN5IMA9/J8HLTKzUOOfPfHtJMiWvxGzrPpm17ctmIWp3yN82BZtkoyOxuOSiKqxfK+piQRpXGecQsl8SfIcI6WKx7zxbuFanM3D9SkMUtl5wCatDixcbw9Jnk4df2/tBCjYIBagKbLo4+eN+ARf9G4pUjnA8PV+fc9vAk0v67qVSOd+e4ZeSKtDJMb/76uSDPwIDAQAB",
+   "manifest_version": 2,
+   "name": "AutoJoin for SteamGifts",
+   "permissions": [ "alarms", "notifications", "storage", "tabs", "*://www.steamgifts.com/*", "*://store.steampowered.com/*" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "1.1.9",
+   "web_accessible_resources": [ "night.css" ]
+}

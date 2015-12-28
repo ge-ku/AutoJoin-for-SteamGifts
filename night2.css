@@ -1,0 +1,27 @@
+div.page__outer-wrap {
+    -webkit-filter: invert(100%);
+    filter: invert(100%);
+}
+
+div.global__image-inner-wrap {
+    -webkit-filter: invert(100%);
+    filter: invert(100%);
+}
+
+div.footer__outer-wrap {
+    background-color: #141414;
+}
+
+.pointsFloating{
+	z-index: 2;
+	color: #BBBBBB !important;
+}
+
+body{
+	background-color: #141414;
+}
+
+div.global__image-outer-wrap--avatar-large{
+	-webkit-filter: invert(100%);
+    filter: invert(100%);
+}
