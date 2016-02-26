@@ -267,7 +267,7 @@ $(function(){
 	chrome.storage.sync.get("levelPriority", function(data) {
 		if (typeof data['levelPriority'] == 'undefined'){
 			settingsLevelPriority = false;
-			chrome.storage.sync.set({'nightTheme': 'false'});
+			chrome.storage.sync.set({'levelPriority': 'false'});
 		}else{
 			if (data['levelPriority'] == 'true'){
 				settingsLevelPriority = true;
