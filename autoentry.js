@@ -1,14 +1,14 @@
 var newVersionLaunched = false;
-var settingsInfiniteScrolling = true;
-var settingsShowPoints = true;
-var settingsShowButtons = true;
+var settingsInfiniteScrolling = false;
+var settingsShowPoints = false;
+var settingsShowButtons = false;
 var settingsLoadFive = false;
 var settingsHideDlc = false;
 var settingsRepeatIfOnPage = false;
 var settingsRepeatHours = 2;
 var settingsNightTheme = false;
 var settingsLevelPriority = false;
-var settingsBackgroundAJ = true;
+var settingsBackgroundAJ = false;
 var settingsLevelPriorityBG = false;
 var settingsHideEntered = false;
 var settingsPagestoload = 3;
@@ -20,277 +20,58 @@ var settingsIgnoreGroups = false;
 var settingsIgnoreGroupsBG = false;
 
 
-var loadSettingsStatus = false;
-
 var totalVarCount = 20;
-$(function(){
-	var varCount = 0;
-
-	chrome.storage.sync.get("HideGroups", function(data) {
-		if (typeof data['HideGroups'] == 'undefined'){
-			settingsHideGroups = false;
-			chrome.storage.sync.set({'HideGroups': 'false'});
-		}else{
-			if (data['HideGroups'] == 'true'){
-				settingsHideGroups = true;
-			}
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("IgnoreGroups", function(data) {
-		if (typeof data['IgnoreGroups'] == 'undefined'){
-			settingsIgnoreGroups = false;
-			chrome.storage.sync.set({'IgnoreGroups': 'false'});
-		}else{
-			if (data['IgnoreGroups'] == 'true'){
-				settingsIgnoreGroups = true;
-			}
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("IgnoreGroupsBG", function(data) {
-		if (typeof data['IgnoreGroupsBG'] == 'undefined'){
-			settingsIgnoreGroupsBG = false;
-			chrome.storage.sync.set({'IgnoreGroupsBG': 'false'});
-		}else{
-			if (data['IgnoreGroupsBG'] == 'true'){
-				settingsIgnoreGroupsBG = true;
-			}
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("HideEntered", function(data) {
-		if (typeof data['HideEntered'] == 'undefined'){
-			settingsHideEntered = false;
-			chrome.storage.sync.set({'HideEntered': 'false'});
-		}else{
-			if (data['HideEntered'] == 'true'){
-				settingsHideEntered = true;
-			}
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("PageForBG", function(data) {
-		if (typeof data['PageForBG'] == 'undefined'){
-			settingsPageForBG = "all";
-			chrome.storage.sync.set({'PageForBG': 'wishlist'});
-		}else{
-			settingsPageForBG = data['PageForBG'];
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("RepeatHoursBG", function(data) {
-		if (typeof data['RepeatHoursBG'] == 'undefined'){
-			settingsRepeatHoursBG = 2;
-			chrome.storage.sync.set({'RepeatHoursBG': '2'});
-		}else{
-			settingsRepeatHoursBG = parseInt(data['RepeatHoursBG'], 10);
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("Pagestoload", function(data) {
-		if (typeof data['Pagestoload'] == 'undefined'){
-			settingsPagestoload = 3;
-			chrome.storage.sync.set({'Pagestoload': '3'});
-		}else{
-			settingsPagestoload = parseInt(data['Pagestoload'], 10);
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("PagestoloadBG", function(data) {
-		if (typeof data['PagestoloadBG'] == 'undefined'){
-			settingsPagestoloadBG = 3;
-			chrome.storage.sync.set({'PagestoloadBG': '3'});
-		}else{
-			settingsPagestoloadBG = parseInt(data['PagestoloadBG'], 10);
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("BackgroundAJ", function(data) {
-		if (typeof data['BackgroundAJ'] == 'undefined'){
-			settingsBackgroundAJ = true;
-			chrome.storage.sync.set({'BackgroundAJ': 'true'});
-		}else{
-			if (data['BackgroundAJ'] == 'false'){
-				settingsBackgroundAJ = false;
-			}
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("LevelPriorityBG", function(data) {
-		if (typeof data['LevelPriorityBG'] == 'undefined'){
-			settingsLevelPriorityBG = false;
-			chrome.storage.sync.set({'LevelPriorityBG': 'true'});
-		}else{
-			if (data['LevelPriorityBG'] == 'true'){
-				settingsLevelPriorityBG = true;
-			}
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("lastLaunchedVersion", function(data) {
-		if (typeof data['lastLaunchedVersion'] == 'undefined'){
-			newVersionLaunched = true;
-			chrome.storage.sync.set({'lastLaunchedVersion': '1013'});
-		}else{
-			if (!(parseInt(data['lastLaunchedVersion'], 10) < 1013)){
-				newVersionLaunched = true;
-				chrome.storage.sync.set({'lastLaunchedVersion': '1013'});
-			}
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("infiniteScrolling", function(data) {
-		if (typeof data['infiniteScrolling'] == 'undefined'){
-			settingsInfiniteScrolling = true;
-			chrome.storage.sync.set({'infiniteScrolling': 'true'});
-		}else{
-			if (data['infiniteScrolling'] == 'false'){
-				settingsInfiniteScrolling = false;
-			}
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("showPoints", function(data) {
-		if (typeof data['showPoints'] == 'undefined'){
-			settingsShowPoints = true;
-			chrome.storage.sync.set({'showPoints': 'true'});
-		}else{
-			if (data['showPoints'] == 'false'){
-				settingsShowPoints = false;
-			}
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("showButtons", function(data) {
-		if (typeof data['showButtons'] == 'undefined'){
-			settingsShowButtons = true;
-			chrome.storage.sync.set({'showButtons': 'true'});
-		}else{
-			if (data['showButtons'] == 'false'){
-				settingsShowButtons = false;
-			}
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("loadFive", function(data) {
-		if (typeof data['loadFive'] == 'undefined'){
-			settingsLoadFive = false;
-			chrome.storage.sync.set({'loadFive': 'false'});
-		}else{
-			if (data['loadFive'] == 'true'){
-				settingsLoadFive = true;
-			}
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("hideDlc", function(data) {
-		if (typeof data['hideDlc'] == 'undefined'){
-			settingsHideDlc = false;
-			chrome.storage.sync.set({'hideDlc': 'false'});
-		}else{
-			if (data['hideDlc'] == 'true'){
-				settingsHideDlc = true;
-			}
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("repeatIfOnPage", function(data) {
-		if (typeof data['repeatIfOnPage'] == 'undefined'){
-			settingsRepeatIfOnPage = false;
-			chrome.storage.sync.set({'repeatIfOnPage': 'false'});
-		}else{
-			if (data['repeatIfOnPage'] == 'true'){
-				settingsRepeatIfOnPage = true;
-			}
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("repeatHours", function(data) {
-		if (typeof data['repeatHours'] == 'undefined'){
-			settingsRepeatHours = 2;
-			chrome.storage.sync.set({'repeatHours': '2'});
-		}else{
-			settingsRepeatHours = data['repeatHours'];
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("nightTheme", function(data) {
-		if (typeof data['nightTheme'] == 'undefined'){
-			settingsNightTheme = false;
-			chrome.storage.sync.set({'nightTheme': 'false'});
-		}else{
-			if (data['nightTheme'] == 'true'){
-				settingsNightTheme = true;
-			}
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-	chrome.storage.sync.get("levelPriority", function(data) {
-		if (typeof data['levelPriority'] == 'undefined'){
-			settingsLevelPriority = false;
-			chrome.storage.sync.set({'levelPriority': 'false'});
-		}else{
-			if (data['levelPriority'] == 'true'){
-				settingsLevelPriority = true;
-			}
-		}
-		varCount++;
-		if (varCount == totalVarCount) {loadSettingsStatus = true}
-	});
-	
-});
 
 $(document).ready(function() {
-		
-	function checkSettingsLoad() {
-    if(!loadSettingsStatus) {
-        setTimeout(checkSettingsLoad, 50);
-        return;
-    }
-		onPageLoad();
-	}
-
-checkSettingsLoad();
+	chrome.storage.sync.get({
+		HideGroups: 'false',
+		IgnoreGroups: 'false',
+		IgnoreGroupsBG: 'false',
+		HideEntered: 'false',
+		PageForBG: 'wishlist',
+		RepeatHoursBG: '2',
+		Pagestoload: '3',
+		PagestoloadBG: '3',
+		BackgroundAJ: 'true',
+		LevelPriorityBG: 'true',
+		lastLaunchedVersion: '20160226',
+		infiniteScrolling: 'true',
+		showPoints: 'true',
+		showButtons: 'true',
+		loadFive: 'false',
+		hideDlc: 'false',
+		repeatIfOnPage: 'false',
+		repeatHours: '2',
+		nightTheme: 'false',
+		levelPriority: 'false'
+		}, function(data) {
+			if (data['HideGroups'] == 'true'){ settingsHideGroups = true }
+			if (data['IgnoreGroups'] == 'true'){ settingsIgnoreGroups = true }
+			if (data['IgnoreGroupsBG'] == 'true'){ settingsIgnoreGroupsBG = true }
+			if (data['HideEntered'] == 'true'){ settingsHideEntered = true }
+			settingsPageForBG = data['PageForBG'];
+			settingsRepeatHoursBG = parseInt(data['RepeatHoursBG'], 10);
+			settingsPagestoload = parseInt(data['Pagestoload'], 10);
+			settingsPagestoloadBG = parseInt(data['PagestoloadBG'], 10);
+			if (data['BackgroundAJ'] == 'true'){ settingsBackgroundAJ = true }
+			if (data['LevelPriorityBG'] == 'true'){	settingsLevelPriorityBG = true }
+			if (!(parseInt(data['lastLaunchedVersion'], 10) < 20160226)){
+				newVersionLaunched = true;
+				chrome.storage.sync.set({'lastLaunchedVersion': '20160226'});
+			}
+			if (data['infiniteScrolling'] == 'true'){ settingsInfiniteScrolling = true }
+			if (data['showPoints'] == 'true'){ settingsShowPoints = true }
+			if (data['showButtons'] == 'true'){ settingsShowButtons = true }
+			if (data['loadFive'] == 'true'){ settingsLoadFive = true }
+			if (data['hideDlc'] == 'true'){	settingsHideDlc = true }
+			if (data['repeatIfOnPage'] == 'true'){ settingsRepeatIfOnPage = true }
+			settingsRepeatHours = parseInt(data['repeatHours'], 10);
+			if (data['nightTheme'] == 'true'){ settingsNightTheme = true }
+			if (data['levelPriority'] == 'true'){ settingsLevelPriority = true }
+			onPageLoad();
+		}
 	
+	);
 });
 
 function onPageLoad(){
@@ -318,7 +99,6 @@ function onPageLoad(){
 		if (settingsIgnoreGroups){$('#chkIgnoreGroups').prop('checked', true)};
 		if (settingsIgnoreGroupsBG){$('#chkIgnoreGroupsBG').prop('checked', true)};
 		$('#hoursField').val(settingsRepeatHours);
-		//new
 		$('#pagestoload').val(settingsPagestoload);
 		$('#pagestoloadBG').val(settingsPagestoloadBG);
 		if (settingsBackgroundAJ){$('#chkEnableBG').prop('checked', true)};
