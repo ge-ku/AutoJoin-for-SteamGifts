@@ -203,7 +203,7 @@ function onPageLoad(){
 			$.post("/ajax.php",{
 					xsrf_token : token,
 					do : "entry_insert",
-					code : this.href.substr(35,5)
+					code : this.href.split('/')[4]
 			},
 			function(response){
 				var json_response = jQuery.parseJSON(response);
