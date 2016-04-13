@@ -483,16 +483,18 @@ function onPageLoad(){
 	}
 	
 	$("#posts").on("click",".giveaway__hide", function(){
-		var gameid = $(this).attr('data-game-id');
+		var thisPost = $(this).parent().parent().parent().parent();
+		var gameid = thisPost.attr('data-game-id');
+		console.log(gameid);
 		$(this).attr('class', 'giveaway__icon giveaway__hide trigger-popup fa fa-refresh fa-spin');
-		$.post("/",{
+		$.post("/ajax.php",{
 				xsrf_token : token,
 				game_id : gameid,
 				do : "hide_giveaways_by_game_id"
 			},
 			function(response){
-				$('i[data-game-id="'+gameid+'"]').parent().parent().parent().parent().fadeOut("slow", function() {
-					this.hide();
+				thisPost.fadeOut("slow", function() {
+					thisPost.hide();
 				});
 			}
 		);
