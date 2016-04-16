@@ -219,7 +219,7 @@ function onPageLoad(){
 				}else if(entered == 1){
 					$('#info').text('Entered 1 giveaway.');
 				}else{
-					$('#info').text('Entered '+entered+' giveaways.');
+					$('#info').text('Entered ' + entered + ' giveaways.');
 				}
 			});
 		});
@@ -485,7 +485,7 @@ function onPageLoad(){
 	$("#posts").on("click",".giveaway__hide", function(){
 		var thisPost = $(this).parent().parent().parent().parent();
 		var gameid = thisPost.attr('data-game-id');
-		console.log(gameid);
+		console.log("hiding " + gameid);
 		$(this).attr('class', 'giveaway__icon giveaway__hide trigger-popup fa fa-refresh fa-spin');
 		$.post("/ajax.php",{
 				xsrf_token : token,
@@ -493,8 +493,10 @@ function onPageLoad(){
 				do : "hide_giveaways_by_game_id"
 			},
 			function(response){
-				thisPost.fadeOut("slow", function() {
-					thisPost.hide();
+				$("[data-game-id='"+gameid+"']").each(function(val){
+					$(this).fadeOut("slow", function() {
+						$(this).hide();
+					});	
 				});
 			}
 		);
