@@ -15,8 +15,12 @@ function notify() {
             iconUrl: "autologosteam.png"
         };
         chrome.notifications.create("won_notification", e, function() {
-            var e = new Audio("audio.mp3");
-            e.play()
+			chrome.storage.sync.get({PlayAudio: 'true'}, function (data) {
+				if (data.PlayAudio == 'true'){
+					var e = new Audio("audio.mp3");
+					e.play()
+				}
+			});
         })
     })
 }
@@ -70,9 +74,9 @@ function settingsloaded() {
     }))
 }
 
-/*function testNotification(){
+function testNotification(){
 	setTimeout(function(){ notify(); }, 10000);
-}*/
+}
 
 function loadsettings() {
     var e = 0,
