@@ -48,9 +48,12 @@ function scanpage(e) {
 }
 
 function loadnextpages(e, t) {
-    for (var n = 2; !(n > t); n++) $.get(link + n, function(e) {
-        scanpage(e)
-    })
+    for (var n = 2; !(n > t); n++) {
+		if (n > 5) break;
+		$.get(link + n, function(e) {
+			scanpage(e)
+		})
+	}
 }
 
 function pagesloaded() {
@@ -68,7 +71,8 @@ function settingsloaded() {
         var t = $(e).filter(".popup--gift-received").get(0);
         "undefined" != typeof $(t).html() && notify()
     }) : (timepassed = 0, link = "https://www.steamgifts.com/giveaways/search?type=" + settingsPageForBG + "&page=", arr.length = 0, $.get(link + 1, function(e) {
-        pagestemp = pages, token = $(e).find("input[name=xsrf_token]").val(), mylevel = $(e).find('a[href="/account"]').find("span").next().html().match(/(\d+)/)[1];
+        if (pages > 5 || pages < 1) { pagestemp = 3 } else { pagestemp = pages }
+		token = $(e).find("input[name=xsrf_token]").val(), mylevel = $(e).find('a[href="/account"]').find("span").next().html().match(/(\d+)/)[1];
         var t = $(e).filter(".popup--gift-received").get(0);
         "undefined" != typeof $(t).html() && notify(), scanpage(e), pages > 1 && loadnextpages(link, pages)
     }))
