@@ -181,9 +181,9 @@ function onPageLoad(){
 				pageNumber++;
 				pagesLoaded++;
 				loadingNextPage = false;
-				if(($(window).scrollTop() + $(window).height() > $(document).height() - 600) && settingsInfiniteScrolling) {
+				/*if(($(window).scrollTop() + $(window).height() > $(document).height() - 600) && settingsInfiniteScrolling) {
 					loadPage();
-				}
+				}*/
 			});
 		}
 	}
@@ -302,7 +302,7 @@ function onPageLoad(){
 			}
 		}
 		catch(e){
-			var lastpage = 100; // This is a work-around since steamgifts.com stopped showing last page number.
+			var lastPage = 100; // This is a work-around since steamgifts.com stopped showing last page number.
 								// Proper fix is to check every new page's pagination, last page doesn't have "Next" link.
 		}
 		var loadingNextPage = false;
@@ -485,9 +485,9 @@ function onPageLoad(){
 		$('.pinned-giveaways__inner-wrap').parent().remove();
 	}
 	
-	if(($(window).scrollTop() + $(window).height() > $(document).height() - 600) && settingsInfiniteScrolling) {
+	/*if(($(window).scrollTop() + $(window).height() > $(document).height() - 600) && settingsInfiniteScrolling) {
 		loadPage();
-	}
+	}*/
 	
 	$("#posts").on("click",".giveaway__hide", function(){
 		var thisPost = $(this).parent().parent().parent().parent();

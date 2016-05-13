@@ -48,12 +48,9 @@ function scanpage(e) {
 }
 
 function loadnextpages(e, t) {
-    for (var n = 2; !(n > t); n++) {
-		if (n > 5) break;
-		$.get(link + n, function(e) {
-			scanpage(e)
-		})
-	}
+    for (var n = 2; !(n > t); n++) $.get(link + n, function(e) {
+        scanpage(e)
+    })
 }
 
 function pagesloaded() {
