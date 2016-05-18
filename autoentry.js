@@ -87,7 +87,7 @@ function onPageLoad(){
 	}
 
 	// Maybe replace these ugly settings with proper options page https://developer.chrome.com/extensions/optionsV2 , cog icon will lead to it.
-	$('body').append('<div id="settingsDiv" style="all: initial; visibility: hidden; width: 600px; height: 535px; background-color: #FFFFFF; position: fixed; top:0; bottom: 0; left: 0; right: 0; margin: auto; opacity: 0.0"> <ul style="list-style: none; margin: 20px"> <li style="font-weight: bold;">General settings</li><ul> <li> <label style="display: inline-block"> <input id="chkInfiniteScroll" style="width: 20px" type="checkbox"/>Enable Infinite Scrolling (also hides everything below giveaways)</label> </li><li> <label style="display: inline-block"> <input id="chkShowPoints" style="width: 20px" type="checkbox"/>Show points and level in top-left corner if scrolled down</label> </li><li> <label style="display: inline-block"> <input id="chkShowButtons" style="width: 20px" type="checkbox"/>Show buttons to join/leave and warnings besides each giveaway</label> </li><li> <label style="display: inline-block"> <input id="chkLoadFive" style="width: 20px" type="checkbox"/>Load <input style="width: 55px;" type="number" size="2" id="pagestoload" min="1" max="5" value="3">pages before trying to Auto-join (1-5)</label> </li><li> <label style="display: inline-block"> <input id="chkHideDlc" style="width: 20px" type="checkbox"/>Hide all DLC giveaways</label> </li><li> <label style="display: inline-block"> <input id="chkRepeatIfOnPage" style="width: 20px" type="checkbox"/>AutoJoin every <input style="width: 55px;" type="number" size="2" id="hoursField" min="1" max="24" value="2">hours if page is opened (1-24)</label> </li><li> <label style="display: inline-block"> <input id="chkNightTheme" style="width: 20px" type="checkbox"/>Enable Night theme</label> </li><li> <label style="display: inline-block"> <input id="chkLevelPriority" style="width: 20px" type="checkbox"/>Prioritize higher level giveaways for AutoJoin</label> </li><li> <label style="display: inline-block"> <input id="chkHideEntered" style="width: 20px" type="checkbox"/>Hide joined giveaways</label> </li><li> <label style="display: inline-block"> <input id="chkIgnoreGroups" style="width: 20px" type="checkbox"/>Ignore group giveaways for AutoJoin</label> <label style="display: inline-block"> <input id="chkHideGroups" style="width: 20px" type="checkbox"/>Completely hide them</label> </li></ul> <br><li style="font-weight: bold;">AutoJoin in background (even when steamgifts.com in not opened)</li><ul> <li> <label style="display: inline-block"> <input id="chkEnableBG" style="width: 20px" type="checkbox"/>Enable AutoJoin in background on <select style="width: 150px;" id="pageforBG"> <option value="all">Main page (All)</option> <option value="wishlist">Wishlist</option> <option value="group">Group</option> <option value="new">New</option> <option value="recommended">Recommended</option> </select> </label> </li><li> <label style="display: inline-block"> <input id="chkLevelPriorityBG" style="width: 20px" type="checkbox"/>Prioritize higher level giveaways for AutoJoin</label> </li><li> <label style="display: inline-block"> <input id="chkIgnoreGroupsBG" style="width: 20px" type="checkbox"/>Ignore groups giveaways for Main page (All)</label> </li><li> <label style="display: inline-block"> <input id="chkPlayAudio" style="width: 20px" type="checkbox"/>Play sound when won</label> </li><li> <label style="display: inline-block">Try to AutoJoin in background every <input style="width: 55px;" type="number" size="2" id="hoursFieldBG" min="1" max="24" value="2">hours (1-24)</label> </li><li> <label style="display: inline-block">Load <input style="width: 55px;" type="number" size="2" id="pagestoloadBG" min="1" max="5" value="3">pages before trying to join giveaways (1-5)</label> </li></ul> </ul> <div style="margin-left:45px"> <ul> <li><a target="_blank" style="text-decoration:underline" href="https://chrome.google.com/webstore/detail/autojoin-for-steamgifts/bchhlccjhoedhhegglilngpbnldfcidc">Rate this extension in Chrome Web Store</a> </li></li><a target="_blank" style="text-decoration:underline" href="http://steamcommunity.com/groups/autojoin">Join Steam group</a> </li></ul> </div><div style="margin-left:250px"> <button id="btnSetSave">Save</button>&nbsp&nbsp <button id="btnSetCancel">Cancel</button> </div></div>');
+	$('body').append('<div id="settingsDiv" style="all: initial; visibility: hidden; width: 600px; height: 535px; background-color: #FFFFFF; position: fixed; top:0; bottom: 0; left: 0; right: 0; margin: auto; opacity: 0.0"> <ul style="list-style: none; margin: 20px"> <li style="font-weight: bold;">General settings</li><ul> <li> <label style="display: inline-block"> <input id="chkInfiniteScroll" style="width: 20px" type="checkbox"/>Enable Infinite Scrolling (also hides everything below giveaways)</label> </li><li> <label style="display: inline-block"> <input id="chkShowPoints" style="width: 20px" type="checkbox"/>Show points and level in top-left corner if scrolled down</label> </li><li> <label style="display: inline-block"> <input id="chkShowButtons" style="width: 20px" type="checkbox"/>Show buttons to join/leave and warnings besides each giveaway</label> </li><li> <label style="display: inline-block"> <input id="chkLoadFive" style="width: 20px" type="checkbox"/>Load <input style="width: 55px;" type="number" size="2" id="pagestoload" min="1" max="5" value="3">pages before trying to Auto-join (1-5)</label> </li><li> <label style="display: inline-block"> <input id="chkHideDlc" style="width: 20px" type="checkbox"/>Hide all DLC giveaways</label> </li><li> <label style="display: inline-block"> <input id="chkRepeatIfOnPage" style="width: 20px" type="checkbox"/>AutoJoin every <input style="width: 55px;" type="number" size="2" id="hoursField" min="1" max="24" value="2">hours if page is opened (1-24)</label> </li><li> <label style="display: inline-block"> <input id="chkNightTheme" style="width: 20px" type="checkbox"/>Enable Night theme</label> </li><li> <label style="display: inline-block"> <input id="chkLevelPriority" style="width: 20px" type="checkbox" disabled/>Prioritize higher level giveaways for AutoJoin</label> </li><li> <label style="display: inline-block"> <input id="chkHideEntered" style="width: 20px" type="checkbox"/>Hide joined giveaways</label> </li><li> <label style="display: inline-block"> <input id="chkIgnoreGroups" style="width: 20px" type="checkbox"/>Ignore group giveaways for AutoJoin</label> <label style="display: inline-block"> <input id="chkHideGroups" style="width: 20px" type="checkbox"/>Completely hide them</label> </li></ul> <br><li style="font-weight: bold;">AutoJoin in background (even when steamgifts.com in not opened)</li><ul> <li> <label style="display: inline-block"> <input id="chkEnableBG" style="width: 20px" type="checkbox"/>Enable AutoJoin in background on <select style="width: 150px;" id="pageforBG"> <option value="all">Main page (All)</option> <option value="wishlist">Wishlist</option> <option value="group">Group</option> <option value="new">New</option> <option value="recommended">Recommended</option> </select> </label> </li><li> <label style="display: inline-block"> <input id="chkLevelPriorityBG" style="width: 20px" type="checkbox"/>Prioritize higher level giveaways for AutoJoin</label> </li><li> <label style="display: inline-block"> <input id="chkIgnoreGroupsBG" style="width: 20px" type="checkbox"/>Ignore groups giveaways for Main page (All)</label> </li><li> <label style="display: inline-block"> <input id="chkPlayAudio" style="width: 20px" type="checkbox"/>Play sound when won</label> </li><li> <label style="display: inline-block">Try to AutoJoin in background every <input style="width: 55px;" type="number" size="2" id="hoursFieldBG" min="1" max="24" value="2">hours (1-24)</label> </li><li> <label style="display: inline-block">Load <input style="width: 55px;" type="number" size="2" id="pagestoloadBG" min="1" max="5" value="3">pages before trying to join giveaways (1-5)</label> </li></ul> </ul> <div style="margin-left:45px"> <ul> <li><a target="_blank" style="text-decoration:underline" href="https://chrome.google.com/webstore/detail/autojoin-for-steamgifts/bchhlccjhoedhhegglilngpbnldfcidc">Rate this extension in Chrome Web Store</a> </li></li><a target="_blank" style="text-decoration:underline" href="http://steamcommunity.com/groups/autojoin">Join Steam group</a> </li></ul> </div><div style="margin-left:250px"> <button id="btnSetSave">Save</button>&nbsp&nbsp <button id="btnSetCancel">Cancel</button> </div></div>');
 	
 	if (settingsInfiniteScrolling){$('#chkInfiniteScroll').prop('checked', true)};
 	if (settingsShowPoints){$('#chkShowPoints').prop('checked', true)};
@@ -197,8 +197,9 @@ function onPageLoad(){
 			return;
 		}	
 		var entered = 0;
-		$('.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name').each(function(i){
-			setTimeout($.proxy(function(){
+		var timeouts = [];
+		$('.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name').each(function(iteration){
+			timeouts.push(setTimeout($.proxy(function(){
 				var current = $(this).parent().parent().parent();
 				if (settingsIgnoreGroups){
 					if ($(current).find('.giveaway__column--group').length != 0){
@@ -219,6 +220,12 @@ function onPageLoad(){
 						current.find('.btnSingle').attr('walkState', 'leave').prop("disabled", false).val('Leave').css({backgroundColor: '#CD9B9B'});
 						updateButtons();
 					}
+					if (json_response.points < 5) {
+						for (var i = 0; i < timeouts.length; i++) {
+							clearTimeout(timeouts[i]);
+						}
+						timeouts = [];
+					}
 					if(entered < 1){
 						$('#info').text('No giveaways entered.');
 					}else if(entered == 1){
@@ -227,11 +234,12 @@ function onPageLoad(){
 						$('#info').text('Entered ' + entered + ' giveaways.');
 					}
 				});
-			}, this), i * 500);
+			}, this), iteration * 500));
 		});
 		$('#btnJoin').val('Good luck!');
 	}
 	
+	/*
 	function fireAutoJoinPriority(){
 		if (settingsLoadFive && pagesLoaded < settingsPagestoload){
 			loadPage();
@@ -241,13 +249,13 @@ function onPageLoad(){
 			return;
 		}	
 		var entered = 0;
+		var timeouts = [];
 		for (var i = myLevel; !(i < 0); i--){
-			$('.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name').each(function(i){
-				setTimeout($.proxy(function(){
+			$('.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name').each(function(iteration){
+				timeouts.push(setTimeout($.proxy(function(){
 					var current = $(this).parent().parent().parent();
 					if (settingsIgnoreGroups){
 						if ($(current).find('.giveaway__column--group').length != 0){
-							console.log(1);
 							return;
 						}
 					}
@@ -274,6 +282,13 @@ function onPageLoad(){
 							entered++;
 							current.find('.btnSingle').attr('walkState', 'leave').prop("disabled", false).val('Leave').css({backgroundColor: '#CD9B9B'});
 							updateButtons();
+							console.log(json_response.points);
+							if (json_response.points < 5) {
+								for (var i = 0; i < timeouts.length; i++) {
+									clearTimeout(timeouts[i]);
+								}
+								timeouts = [];
+							}
 						}
 						if(entered < 1){
 							$('#info').text('No giveaways entered.');
@@ -283,11 +298,11 @@ function onPageLoad(){
 							$('#info').text('Entered '+entered+' giveaways.');
 						}
 					});
-				}, this), i * 500);
+				}, this), iteration * 500));
 			});
 		}
 		$('#btnJoin').val('Good luck!');
-	}
+	}*/
 	
 	if (splitPageLinkCheck.length > 0){
 		var splitPageLink = splitPageLinkCheck.attr('href').split('page=');
@@ -413,11 +428,11 @@ function onPageLoad(){
 				if (settingsLoadFive && pagesLoaded < 5){
 					$('#btnJoin').val("Loading Pages..");
 				}	
-				if (settingsLevelPriority){
-					fireAutoJoinPriority();
-				}else{
+				//if (settingsLevelPriority){
+				//	fireAutoJoinPriority();
+				//}else{
 					fireAutoJoin();
-				}
+				//}
 		});
 			
 	function updateButtons(){
@@ -616,11 +631,11 @@ function onPageLoad(){
 					loadPage();
 				}
 			}
-			if (settingsLevelPriority){
-				fireAutoJoinPriority();
-			}else{
+			//if (settingsLevelPriority){
+			//	fireAutoJoinPriority();
+			//}else{
 				fireAutoJoin();
-			}
+			//}
 		}, 3600000 * settingsRepeatHours);
 		//}, 5000 * settingsRepeatHours); // For testing
 	}						

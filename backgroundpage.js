@@ -55,15 +55,23 @@ function loadnextpages(e, t) {
 
 function pagesloaded() {
     settingsLevelPriorityBG && arr.sort(compare);
+	var timeouts = [];
 	$.each(arr, function(e) {
-		console.log(e);
-		setTimeout(function(){
+		timeouts.push(setTimeout(function(){
 			console.log(arr[e]), $.post("https://www.steamgifts.com/ajax.php", {
 				xsrf_token: token,
 				"do": "entry_insert",
 				code: arr[e].code
-			}, function() {})
-		}, e * 3000);
+			}, function(response){
+				var json_response = jQuery.parseJSON(response);
+				if (json_response.points < 5) {
+					for (var i = 0; i < timeouts.length; i++) {
+						clearTimeout(timeouts[i]);
+					}
+					timeouts = [];
+				}
+			})
+		}, e * 3000));
     }), console.log(arr.length)
 }
 
