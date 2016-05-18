@@ -197,71 +197,18 @@ function onPageLoad(){
 			return;
 		}	
 		var entered = 0;
-		$('.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name').each(function(){
-			var current = $(this).parent().parent().parent();
-			if (settingsIgnoreGroups){
-				if ($(current).find('.giveaway__column--group').length != 0){
-					return;
-				}
-			}
-			$.post("/ajax.php",{
-					xsrf_token : token,
-					do : "entry_insert",
-					code : this.href.split('/')[4]
-			},
-			function(response){
-				var json_response = jQuery.parseJSON(response);
-				if (json_response.type == "success"){
-					current.toggleClass('is-faded');
-					$('.nav__points').text(json_response.points);
-					entered++;
-					current.find('.btnSingle').attr('walkState', 'leave').prop("disabled", false).val('Leave').css({backgroundColor: '#CD9B9B'});
-					updateButtons();
-				}
-				if(entered < 1){
-					$('#info').text('No giveaways entered.');
-				}else if(entered == 1){
-					$('#info').text('Entered 1 giveaway.');
-				}else{
-					$('#info').text('Entered ' + entered + ' giveaways.');
-				}
-			});
-		});
-		$('#btnJoin').val('Good luck!');
-	}
-	
-	function fireAutoJoinPriority(){
-		if (settingsLoadFive && pagesLoaded < settingsPagestoload){
-			loadPage();
-			setTimeout(function() {
-				fireAutoJoinPriority();
-			}, 50);
-			return;
-		}	
-		var entered = 0;
-		for (var i = myLevel; !(i < 0); i--){
-			$('.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name').each(function(){
+		$('.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name').each(function(i){
+			setTimeout($.proxy(function(){
 				var current = $(this).parent().parent().parent();
 				if (settingsIgnoreGroups){
 					if ($(current).find('.giveaway__column--group').length != 0){
-						console.log(1);
 						return;
 					}
 				}
-				if (i != 0){
-					if ($(current).find('.giveaway__column--contributor-level--positive').length > 0) {
-						var thisLevel = $(current).find('.giveaway__column--contributor-level--positive').html().match(/(\d+)/)[1];
-						if (thisLevel != i){
-							return true;
-						}
-					} else {
-						return true;
-					}
-				}
 				$.post("/ajax.php",{
-					xsrf_token : token,
-					do : "entry_insert",
-					code : this.href.split('/')[4]
+						xsrf_token : token,
+						do : "entry_insert",
+						code : this.href.split('/')[4]
 				},
 				function(response){
 					var json_response = jQuery.parseJSON(response);
@@ -277,9 +224,66 @@ function onPageLoad(){
 					}else if(entered == 1){
 						$('#info').text('Entered 1 giveaway.');
 					}else{
-						$('#info').text('Entered '+entered+' giveaways.');
+						$('#info').text('Entered ' + entered + ' giveaways.');
 					}
 				});
+			}, this), i * 500);
+		});
+		$('#btnJoin').val('Good luck!');
+	}
+	
+	function fireAutoJoinPriority(){
+		if (settingsLoadFive && pagesLoaded < settingsPagestoload){
+			loadPage();
+			setTimeout(function() {
+				fireAutoJoinPriority();
+			}, 50);
+			return;
+		}	
+		var entered = 0;
+		for (var i = myLevel; !(i < 0); i--){
+			$('.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name').each(function(i){
+				setTimeout($.proxy(function(){
+					var current = $(this).parent().parent().parent();
+					if (settingsIgnoreGroups){
+						if ($(current).find('.giveaway__column--group').length != 0){
+							console.log(1);
+							return;
+						}
+					}
+					if (i != 0){
+						if ($(current).find('.giveaway__column--contributor-level--positive').length > 0) {
+							var thisLevel = $(current).find('.giveaway__column--contributor-level--positive').html().match(/(\d+)/)[1];
+							if (thisLevel != i){
+								return true;
+							}
+						} else {
+							return true;
+						}
+					}
+					$.post("/ajax.php",{
+						xsrf_token : token,
+						do : "entry_insert",
+						code : this.href.split('/')[4]
+					},
+					function(response){
+						var json_response = jQuery.parseJSON(response);
+						if (json_response.type == "success"){
+							current.toggleClass('is-faded');
+							$('.nav__points').text(json_response.points);
+							entered++;
+							current.find('.btnSingle').attr('walkState', 'leave').prop("disabled", false).val('Leave').css({backgroundColor: '#CD9B9B'});
+							updateButtons();
+						}
+						if(entered < 1){
+							$('#info').text('No giveaways entered.');
+						}else if(entered == 1){
+							$('#info').text('Entered 1 giveaway.');
+						}else{
+							$('#info').text('Entered '+entered+' giveaways.');
+						}
+					});
+				}, this), i * 500);
 			});
 		}
 		$('#btnJoin').val('Good luck!');

@@ -54,12 +54,16 @@ function loadnextpages(e, t) {
 }
 
 function pagesloaded() {
-    settingsLevelPriorityBG && arr.sort(compare), $.each(arr, function(e) {
-        console.log(arr[e]), $.post("https://www.steamgifts.com/ajax.php", {
-            xsrf_token: token,
-            "do": "entry_insert",
-            code: arr[e].code
-        }, function() {})
+    settingsLevelPriorityBG && arr.sort(compare);
+	$.each(arr, function(e) {
+		console.log(e);
+		setTimeout(function(){
+			console.log(arr[e]), $.post("https://www.steamgifts.com/ajax.php", {
+				xsrf_token: token,
+				"do": "entry_insert",
+				code: arr[e].code
+			}, function() {})
+		}, e * 3000);
     }), console.log(arr.length)
 }
 
