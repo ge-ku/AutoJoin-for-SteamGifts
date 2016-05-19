@@ -71,7 +71,7 @@ function pagesloaded() {
 					timeouts = [];
 				}
 			})
-		}, e * 3000));
+		}, e * 5000));
     }), console.log(arr.length)
 }
 

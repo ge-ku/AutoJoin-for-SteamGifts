@@ -234,7 +234,7 @@ function onPageLoad(){
 						$('#info').text('Entered ' + entered + ' giveaways.');
 					}
 				});
-			}, this), iteration * 500));
+			}, this), iteration * 1500));
 		});
 		$('#btnJoin').val('Good luck!');
 	}
@@ -298,7 +298,7 @@ function onPageLoad(){
 							$('#info').text('Entered '+entered+' giveaways.');
 						}
 					});
-				}, this), iteration * 500));
+				}, this), iteration * 1500));
 			});
 		}
 		$('#btnJoin').val('Good luck!');
