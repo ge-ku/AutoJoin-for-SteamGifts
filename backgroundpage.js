@@ -48,9 +48,12 @@ function scanpage(e) {
 }
 
 function loadnextpages(e, t) {
-    for (var n = 2; !(n > t); n++) $.get(link + n, function(e) {
-        scanpage(e)
-    })
+    for (var n = 2; !(n > t); n++) { 
+		if (n > 3) break;
+		$.get(link + n, function(e) {
+		    scanpage(e)
+		})
+	}
 }
 
 function pagesloaded() {
@@ -71,7 +74,7 @@ function pagesloaded() {
 					timeouts = [];
 				}
 			})
-		}, e * 5000));
+		}, e * settingsDelayBG * 1000 + Math.floor(Math.random()*2001)));
     }), console.log(arr.length)
 }
 
@@ -93,7 +96,7 @@ function testNotification(){
 
 function loadsettings() {
     var e = 0,
-        t = 6;
+        t = 7;
     chrome.storage.sync.get("PageForBG", function(n) {
         "undefined" == typeof n.PageForBG ? (settingsPageForBG = "wishlist", chrome.storage.sync.set({
             PageForBG: "wishlist"
@@ -102,6 +105,10 @@ function loadsettings() {
         "undefined" == typeof n.RepeatHoursBG ? (settingsRepeatHoursBG = 2, chrome.storage.sync.set({
             RepeatHoursBG: "2"
         })) : settingsRepeatHoursBG = parseInt(n.RepeatHoursBG, 10), e++, e == t && settingsloaded()
+	}), chrome.storage.sync.get("DelayBG", function(n) {
+        "undefined" == typeof n.DelayBG ? (settingsDelayBG = 10, chrome.storage.sync.set({
+            RepeatHoursBG: "10"
+        })) : settingsDelayBG = parseInt(n.DelayBG, 10), e++, e == t && settingsloaded()
     }), chrome.storage.sync.get("PagestoloadBG", function(n) {
         "undefined" == typeof n.PagestoloadBG ? (settingsPagestoloadBG = 3, chrome.storage.sync.set({
             PagestoloadBG: "3"
@@ -143,6 +150,7 @@ var arr = [],
     settingsPagestoloadBG = 3,
     settingsPageForBG = "all",
     settingsRepeatHoursBG = 2;
+	settingsDelayBG = 10;
 chrome.alarms.create("routine", {
     delayInMinutes: .1
 }), chrome.notifications.onClicked.addListener(function() {
