@@ -60,6 +60,9 @@ function pagesloaded() {
     settingsLevelPriorityBG && arr.sort(compare);
 	var timeouts = [];
 	$.each(arr, function(e) {
+		if (arr[e].level < settingsMinLevelBG) {
+			return true;
+		}
 		timeouts.push(setTimeout(function(){
 			console.log(arr[e]), $.post("https://www.steamgifts.com/ajax.php", {
 				xsrf_token: token,
@@ -96,7 +99,7 @@ function testNotification(){
 
 function loadsettings() {
     var e = 0,
-        t = 7;
+        t = 8;
     chrome.storage.sync.get("PageForBG", function(n) {
         "undefined" == typeof n.PageForBG ? (settingsPageForBG = "wishlist", chrome.storage.sync.set({
             PageForBG: "wishlist"
@@ -109,6 +112,10 @@ function loadsettings() {
         "undefined" == typeof n.DelayBG ? (settingsDelayBG = 10, chrome.storage.sync.set({
             RepeatHoursBG: "10"
         })) : settingsDelayBG = parseInt(n.DelayBG, 10), e++, e == t && settingsloaded()
+    }), chrome.storage.sync.get("MinLevelBG", function(n) {
+        "undefined" == typeof n.MinLevelBG ? (settingsMinLevelBG = 0, chrome.storage.sync.set({
+            RepeatHoursBG: "10"
+        })) : settingsMinLevelBG = parseInt(n.MinLevelBG, 10), e++, e == t && settingsloaded()
     }), chrome.storage.sync.get("PagestoloadBG", function(n) {
         "undefined" == typeof n.PagestoloadBG ? (settingsPagestoloadBG = 3, chrome.storage.sync.set({
             PagestoloadBG: "3"
@@ -151,6 +158,7 @@ var arr = [],
     settingsPageForBG = "all",
     settingsRepeatHoursBG = 2;
 	settingsDelayBG = 10;
+	settingsMinLevelBG = 0;
 chrome.alarms.create("routine", {
     delayInMinutes: .1
 }), chrome.notifications.onClicked.addListener(function() {
