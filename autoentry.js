@@ -19,7 +19,7 @@ var settingsHideGroups = false;
 var settingsIgnoreGroups = false;
 var settingsIgnoreGroupsBG = false;
 var settingsPlayAudio = true;
-var settingsDelayBG = 10;
+var settingsDelayBG = 2;
 var settingsMinLevelBG = 0;
 
 var totalVarCount = 23;
