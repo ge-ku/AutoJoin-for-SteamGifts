@@ -109,7 +109,7 @@ function loadsettings() {
             RepeatHoursBG: "2"
         })) : settingsRepeatHoursBG = parseInt(n.RepeatHoursBG, 10), e++, e == t && settingsloaded()
 	}), chrome.storage.sync.get("DelayBG", function(n) {
-        "undefined" == typeof n.DelayBG ? (settingsDelayBG = 10, chrome.storage.sync.set({
+        "undefined" == typeof n.DelayBG ? (settingsDelayBG = 2, chrome.storage.sync.set({
             RepeatHoursBG: "10"
         })) : settingsDelayBG = parseInt(n.DelayBG, 10), e++, e == t && settingsloaded()
     }), chrome.storage.sync.get("MinLevelBG", function(n) {
@@ -157,7 +157,7 @@ var arr = [],
     settingsPagestoloadBG = 3,
     settingsPageForBG = "all",
     settingsRepeatHoursBG = 2;
-	settingsDelayBG = 10;
+	settingsDelayBG = 2;
 	settingsMinLevelBG = 0;
 chrome.alarms.create("routine", {
     delayInMinutes: .1
