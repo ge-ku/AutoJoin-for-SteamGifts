@@ -21,7 +21,7 @@ var settingsIgnoreGroupsBG = false;
 var settingsPlayAudio = true;
 var settingsDelayBG = 2;
 var settingsMinLevelBG = 0;
-var settingsIgnorePinned = true;
+var settingsIgnorePinned = false;
 
 var totalVarCount = 24;
 
@@ -54,7 +54,7 @@ $(document).ready(function() {
 		}, function(data) {
 			if (data['HideGroups'] == 'true'){ settingsHideGroups = true }
 			if (data['IgnoreGroups'] == 'true'){ settingsIgnoreGroups = true }
-			if (data['IgnorePinned'] == 'true'){ settingsIgnoreGroups = true }
+			if (data['IgnorePinned'] == 'true'){ settingsIgnorePinned = true }
 			if (data['IgnoreGroupsBG'] == 'true'){ settingsIgnoreGroupsBG = true }
 			if (data['HideEntered'] == 'true'){ settingsHideEntered = true }
 			settingsPageForBG = data['PageForBG'];
@@ -96,7 +96,7 @@ function onPageLoad(){
 	}
 
 	// Maybe replace these ugly settings with proper options page https://developer.chrome.com/extensions/optionsV2 , cog icon will lead to it.
-	$('body').append('<div id="settingsDiv" style="all: initial; visibility: hidden; width: 600px; height: 580px; background-color: #FFFFFF; position: fixed; top:0; bottom: 0; left: 0; right: 0; margin: auto; opacity: 0.0"> <ul style="list-style: none; margin: 20px"> <li style="font-weight: bold;">General settings</li><ul> <li> <label style="display: inline-block"> <input id="chkInfiniteScroll" style="width: 20px" type="checkbox"/>Enable Infinite Scrolling (also hides everything below giveaways)</label> </li><li> <label style="display: inline-block"> <input id="chkShowPoints" style="width: 20px" type="checkbox"/>Show points and level in top-left corner if scrolled down</label> </li><li> <label style="display: inline-block"> <input id="chkShowButtons" style="width: 20px" type="checkbox"/>Show buttons to join/leave and warnings besides each giveaway</label> </li><li> <label style="display: inline-block"> <input id="chkLoadFive" style="width: 20px" type="checkbox"/>Load <input style="width: 55px;" type="number" size="2" id="pagestoload" min="1" max="5" value="3">pages before trying to Auto-join (1-5)</label> </li><li> <label style="display: inline-block"> <input id="chkHideDlc" style="width: 20px" type="checkbox"/>Hide all DLC giveaways</label> </li><li> <label style="display: inline-block"> <input id="chkRepeatIfOnPage" style="width: 20px" type="checkbox"/>AutoJoin every <input style="width: 55px;" type="number" size="2" id="hoursField" min="1" max="24" value="2">hours if page is opened (1-24)</label> </li><li> <label style="display: inline-block"> <input id="chkNightTheme" style="width: 20px" type="checkbox"/>Enable Night theme</label> </li><li> <label style="display: inline-block"> <input id="chkHideEntered" style="width: 20px" type="checkbox"/>Hide joined giveaways</label> </li><li> <label style="display: inline-block"> <input id="chkIgnoreGroups" style="width: 20px" type="checkbox"/>Ignore group giveaways for AutoJoin</label> <label style="display: inline-block"> <input id="chkHideGroups" style="width: 20px" type="checkbox"/>Completely hide them</label> </li></ul> <br><li style="font-weight: bold;">AutoJoin in background (even when steamgifts.com in not opened)</li><ul> <li> <label style="display: inline-block"> <input id="chkEnableBG" style="width: 20px" type="checkbox"/>Enable AutoJoin in background on <select style="width: 150px;" id="pageforBG"> <option value="all">Main page (All)</option> <option value="wishlist">Wishlist</option> <option value="group">Group</option> <option value="new">New</option> <option value="recommended">Recommended</option> </select> </label> </li><li> <label style="display: inline-block"> <input id="chkLevelPriorityBG" style="width: 20px" type="checkbox"/>Prioritize higher level giveaways for AutoJoin</label> </li><li> <label style="display: inline-block"> <input id="chkIgnoreGroupsBG" style="width: 20px" type="checkbox"/>Ignore groups giveaways for Main page (All)</label> </li><li> <label style="display: inline-block"> <input id="chkPlayAudio" style="width: 20px" type="checkbox"/>Play sound when won</label> </li><li> <label style="display: inline-block">Try to AutoJoin in background every <input style="width: 55px;" type="number" size="2" id="hoursFieldBG" min="1" max="24" value="2">hours (1-24)</label> </li><li> <label style="display: inline-block">Load <input style="width: 55px;" type="number" size="2" id="pagestoloadBG" min="1" max="3" value="2">pages before trying to join giveaways (1-3)</label> </li><li> <label style="display: inline-block">Delay between requests: <input style="width: 55px;" type="number" size="2" id="delayBG" min="5" max="60" value="10">seconds</label></li><li><label style="display: inline-block">Minimum giveaway level to enter: <input style="width: 55px;" type="number" size="2" id="minLevelBG" min="0" max="10" value="0"> (set it to 0 to enter all giveaways)</label></li></ul> </ul> <div style="margin-left:45px"> <ul> <li><a target="_blank" style="text-decoration:underline" href="https://chrome.google.com/webstore/detail/autojoin-for-steamgifts/bchhlccjhoedhhegglilngpbnldfcidc">Rate this extension in Chrome Web Store</a> </li></li><a target="_blank" style="text-decoration:underline" href="http://steamcommunity.com/groups/autojoin">Join Steam group</a> </li></ul> </div><div style="margin-left:250px"> <button id="btnSetSave">Save</button>&nbsp&nbsp <button id="btnSetCancel">Cancel</button> </div></div>');
+	$('body').append('<div id="settingsDiv" style="all: initial; visibility: hidden; width: 600px; height: 580px; background-color: #FFFFFF; position: fixed; top:0; bottom: 0; left: 0; right: 0; margin: auto; opacity: 0.0"> <ul style="list-style: none; margin: 20px"> <li style="font-weight: bold;">General settings</li><ul> <li> <label style="display: inline-block"> <input id="chkInfiniteScroll" style="width: 20px" type="checkbox"/>Enable Infinite Scrolling (also hides everything below giveaways)</label> </li><li> <label style="display: inline-block"> <input id="chkShowPoints" style="width: 20px" type="checkbox"/>Show points and level in top-left corner if scrolled down</label> </li><li> <label style="display: inline-block"> <input id="chkShowButtons" style="width: 20px" type="checkbox"/>Show buttons to join/leave and warnings besides each giveaway</label> </li><li> <label style="display: inline-block"> <input id="chkLoadFive" style="width: 20px" type="checkbox"/>Load <input style="width: 55px;" type="number" size="2" id="pagestoload" min="1" max="5" value="3">pages before trying to Auto-join (1-5)</label> </li><li> <label style="display: inline-block"> <input id="chkHideDlc" style="width: 20px" type="checkbox"/>Hide all DLC giveaways</label> </li><li> <label style="display: inline-block"> <input id="chkRepeatIfOnPage" style="width: 20px" type="checkbox"/>AutoJoin every <input style="width: 55px;" type="number" size="2" id="hoursField" min="1" max="24" value="2">hours if page is opened (1-24)</label> </li><li> <label style="display: inline-block"> <input id="chkNightTheme" style="width: 20px" type="checkbox"/>Enable Night theme</label> </li><li> <label style="display: inline-block"> <input id="chkHideEntered" style="width: 20px" type="checkbox"/>Hide joined giveaways</label> </li><li> <label style="display: inline-block"> <input id="chkIgnoreGroups" style="width: 20px" type="checkbox"/>Ignore group giveaways for AutoJoin</label> <label style="display: inline-block"> <input id="chkHideGroups" style="width: 20px" type="checkbox"/>Completely hide them</label> </li><li><label style="display: inline-block;"><input id="chkIgnorePinned" style="width: 20px" type="checkbox">Ignore featured giveaways for AutoJoin</label></li></ul> <br><li style="font-weight: bold;">AutoJoin in background (even when steamgifts.com in not opened)</li><ul> <li> <label style="display: inline-block"> <input id="chkEnableBG" style="width: 20px" type="checkbox"/>Enable AutoJoin in background on <select style="width: 150px;" id="pageforBG"> <option value="all">Main page (All)</option> <option value="wishlist">Wishlist</option> <option value="group">Group</option> <option value="new">New</option> <option value="recommended">Recommended</option> </select> </label> </li><li> <label style="display: inline-block"> <input id="chkLevelPriorityBG" style="width: 20px" type="checkbox"/>Prioritize higher level giveaways for AutoJoin</label> </li><li> <label style="display: inline-block"> <input id="chkIgnoreGroupsBG" style="width: 20px" type="checkbox"/>Ignore groups giveaways for Main page (All)</label> </li><li> <label style="display: inline-block"> <input id="chkPlayAudio" style="width: 20px" type="checkbox"/>Play sound when won</label> </li><li> <label style="display: inline-block">Try to AutoJoin in background every <input style="width: 55px;" type="number" size="2" id="hoursFieldBG" min="1" max="24" value="2">hours (1-24)</label> </li><li> <label style="display: inline-block">Load <input style="width: 55px;" type="number" size="2" id="pagestoloadBG" min="1" max="3" value="2">pages before trying to join giveaways (1-3)</label> </li><li> <label style="display: inline-block">Delay between requests: <input style="width: 55px;" type="number" size="2" id="delayBG" min="5" max="60" value="10">seconds</label></li><li><label style="display: inline-block">Minimum giveaway level to enter: <input style="width: 55px;" type="number" size="2" id="minLevelBG" min="0" max="10" value="0"> (set it to 0 to enter all giveaways)</label></li></ul> </ul> <div style="margin-left:45px"> <ul> <li><a target="_blank" style="text-decoration:underline" href="https://chrome.google.com/webstore/detail/autojoin-for-steamgifts/bchhlccjhoedhhegglilngpbnldfcidc">Rate this extension in Chrome Web Store</a> </li></li><a target="_blank" style="text-decoration:underline" href="http://steamcommunity.com/groups/autojoin">Join Steam group</a> </li></ul> </div><div style="margin-left:250px"> <button id="btnSetSave">Save</button>&nbsp&nbsp <button id="btnSetCancel">Cancel</button> </div></div>');
 	
 	if (settingsInfiniteScrolling){$('#chkInfiniteScroll').prop('checked', true)};
 	if (settingsShowPoints){$('#chkShowPoints').prop('checked', true)};
@@ -109,6 +109,7 @@ function onPageLoad(){
 	if (settingsHideEntered){$('#chkHideEntered').prop('checked', true)};
 	if (settingsHideGroups){$('#chkHideGroups').prop('checked', true)};
 	if (settingsIgnoreGroups){$('#chkIgnoreGroups').prop('checked', true)};
+	if (settingsIgnorePinned){$('#chkIgnorePinned').prop('checked', true)};
 	if (settingsIgnoreGroupsBG){$('#chkIgnoreGroupsBG').prop('checked', true)};
 	if (settingsBackgroundAJ){$('#chkEnableBG').prop('checked', true)};
 	if (settingsLevelPriorityBG){$('#chkLevelPriorityBG').prop('checked', true)};
@@ -212,9 +213,8 @@ function onPageLoad(){
 		var entered = 0;
 		var timeouts = [];
 
-		/*I started adding shit*/
-
-		console.log(settingsIgnorePinned);
+		//Here, i'm filtering the giveaways to enter to only the one created by regular users in the #posts div
+		//which means featured giveaways won't be autojoined if users decides so in the options
 
 		var selectItems = ".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name";
 	
@@ -222,8 +222,6 @@ function onPageLoad(){
 		{
 			selectItems = "#posts " + selectItems;
 		}
-
-		/*I stopped adding shit*/
 
 		$(selectItems).each(function(iteration){
 			timeouts.push(setTimeout($.proxy(function(){
@@ -234,15 +232,6 @@ function onPageLoad(){
 						return;
 					}
 				}
-				
-				/*This is what I added right there, I guess for optimization we could also select a smaller range of DOM elements*/
-				/*The problem with that is that it will not enter featured giveaways that are on your whishlist,
-				but for my defense it does the same with group giveaways currently*/
-					
-				console.log("Start of debug item");
-				console.log($(current).text());
-
-				/*This is where my pull request ends*/
 
 				$.post("/ajax.php",{
 						xsrf_token : token,
@@ -430,6 +419,8 @@ function onPageLoad(){
 		else {chrome.storage.sync.set({'HideEntered': 'false'}); totalVarCount--}
 		if ($('#chkIgnoreGroups').is(':checked')) {chrome.storage.sync.set({'IgnoreGroups': 'true'}); totalVarCount--}
 		else {chrome.storage.sync.set({'IgnoreGroups': 'false'}); totalVarCount--}
+		if ($('#chkIgnorePinned').is(':checked')) {chrome.storage.sync.set({'IgnorePinned': 'true'}); totalVarCount--}
+		else {chrome.storage.sync.set({'IgnorePinned': 'false'}); totalVarCount--}
 		if ($('#chkIgnoreGroupsBG').is(':checked')) {chrome.storage.sync.set({'IgnoreGroupsBG': 'true'}); totalVarCount--}
 		else {chrome.storage.sync.set({'IgnoreGroupsBG': 'false'}); totalVarCount--}
 		if ($('#chkHideGroups').is(':checked')) {chrome.storage.sync.set({'HideGroups': 'true'}); totalVarCount--}
