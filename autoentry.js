@@ -21,13 +21,15 @@ var settingsIgnoreGroupsBG = false;
 var settingsPlayAudio = true;
 var settingsDelayBG = 2;
 var settingsMinLevelBG = 0;
+var settingsIgnorePinned = true;
 
-var totalVarCount = 23;
+var totalVarCount = 24;
 
 $(document).ready(function() {
 	chrome.storage.sync.get({
 		HideGroups: 'false',
 		IgnoreGroups: 'false',
+		IgnorePinned: 'true',
 		IgnoreGroupsBG: 'false',
 		HideEntered: 'false',
 		PageForBG: 'wishlist',
@@ -52,6 +54,7 @@ $(document).ready(function() {
 		}, function(data) {
 			if (data['HideGroups'] == 'true'){ settingsHideGroups = true }
 			if (data['IgnoreGroups'] == 'true'){ settingsIgnoreGroups = true }
+			if (data['IgnorePinned'] == 'true'){ settingsIgnoreGroups = true }
 			if (data['IgnoreGroupsBG'] == 'true'){ settingsIgnoreGroupsBG = true }
 			if (data['HideEntered'] == 'true'){ settingsHideEntered = true }
 			settingsPageForBG = data['PageForBG'];
@@ -76,6 +79,7 @@ $(document).ready(function() {
 			if (data['nightTheme'] == 'true'){ settingsNightTheme = true }
 			if (data['levelPriority'] == 'true'){ settingsLevelPriority = true }
 			if (data['PlayAudio'] == 'false') { settingsPlayAudio = false }
+
 			onPageLoad();
 		}
 	);
@@ -116,6 +120,8 @@ function onPageLoad(){
 	$('#pageforBG').val(settingsPageForBG);
 	$('#delayBG').val(settingsDelayBG);
 	$('#minLevelBG').val(settingsMinLevelBG);
+
+	/*All of the above is for the "settings" window you can click on the page*/
 	
 	var myLevel = $('a[href="/account"]').find('span').next().html().match(/(\d+)/)[1];
 	
@@ -205,14 +211,39 @@ function onPageLoad(){
 		}	
 		var entered = 0;
 		var timeouts = [];
-		$('.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name').each(function(iteration){
+
+		/*I started adding shit*/
+
+		console.log(settingsIgnorePinned);
+
+		var selectItems = ".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name";
+	
+		if(settingsIgnorePinned)
+		{
+			selectItems = "#posts " + selectItems;
+		}
+
+		/*I stopped adding shit*/
+
+		$(selectItems).each(function(iteration){
 			timeouts.push(setTimeout($.proxy(function(){
 				var current = $(this).parent().parent().parent();
+				
 				if (settingsIgnoreGroups){
 					if ($(current).find('.giveaway__column--group').length != 0){
 						return;
 					}
 				}
+				
+				/*This is what I added right there, I guess for optimization we could also select a smaller range of DOM elements*/
+				/*The problem with that is that it will not enter featured giveaways that are on your whishlist,
+				but for my defense it does the same with group giveaways currently*/
+					
+				console.log("Start of debug item");
+				console.log($(current).text());
+
+				/*This is where my pull request ends*/
+
 				$.post("/ajax.php",{
 						xsrf_token : token,
 						do : "entry_insert",
