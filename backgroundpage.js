@@ -1,3 +1,8 @@
+/*How about make a human readable script, then pass it to jsmin or closure for release?
+https://developers.google.com/closure/compiler/
+This script page is the background script. autoentry.js is the autojoin button and other page
+modifications*/
+
 function Giveaway(e, t, n) {
     this.code = e, this.level = t, this.steamlink = n
 }
@@ -25,8 +30,11 @@ function notify() {
     })
 }
 
+/*This function scans the pages and calls the function pagesloaded() once it finished
+All giveaways that must be entered are pushed in an array called "arr"*/
 function scanpage(e) {
-    $(e).find(".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name").each(function() {
+    var postsDiv = $(e).find(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent();
+    (settingsIgnorePinnedBG == true ? postsDiv : $(e)).find(".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name").each(function() {
         var e = $(this).parent().parent().parent(),
             t = this.href.match(/giveaway\/(.+)\//);
         if (t.length > 0) {
@@ -47,6 +55,8 @@ function scanpage(e) {
     }), pagestemp--, 0 == pagestemp && pagesloaded()
 }
 
+/*This function loads pages and scans them with the function above
+Remember once scanpage is over, pagesloaded is called*/
 function loadnextpages(e, t) {
     for (var n = 2; !(n > t); n++) { 
 		if (n > 3) break;
@@ -56,6 +66,8 @@ function loadnextpages(e, t) {
 	}
 }
 
+/*This function is called once all pages have been parsed
+this sends the requests to steamgifts*/
 function pagesloaded() {
     settingsLevelPriorityBG && arr.sort(compare);
 	var timeouts = [];
@@ -81,8 +93,10 @@ function pagesloaded() {
     }), console.log(arr.length)
 }
 
+/*This function checks for a won gift, then calls the scanpage function*/
+/*e is the whole html page*/
 function settingsloaded() {
-    settingsIgnoreGroupsBG && "all" == settingsPageForBG && (settingsIgnoreGroupsBGTrue = !0), pages = settingsPagestoloadBG, timetopass = 10 * settingsRepeatHoursBG, justLaunched ? (justLaunched = !1, timepassed = timetopass) : timepassed += 5, 0 == settingsBackgroundAJ || timetopass > timepassed ? $.get(link + 1, function(e) {
+    settingsIgnoreGroupsBG && "all" == settingsPageForBG && (settingsIgnoreGroupsBGTrue = !0), pages = settingsPagestoloadBG, timetopass = 10 * settingsRepeatHoursBG, justLaunched ? (justLaunched = !1, timepassed = timetopass) : timepassed += 5, 0 == settingsBackgroundAJ || timetopass > timepassed ? $.get(link + 1, function(e){
         var t = $(e).filter(".popup--gift-received").get(0);
         "undefined" != typeof $(t).html() && notify()
     }) : (timepassed = 0, link = "https://www.steamgifts.com/giveaways/search?type=" + settingsPageForBG + "&page=", arr.length = 0, $.get(link + 1, function(e) {
@@ -93,13 +107,15 @@ function settingsloaded() {
     }))
 }
 
-function testNotification(){
-	setTimeout(function(){ notify(); }, 10000);
-}
-
+/*This function needs commenting, as it is very optimized it is barely possible to understand things quickly*/
+/*My interpretation:*/
+/*e is only incremented on a successful setting loading*/
+/*t is the total amount of settings to load*/
+/*If a setting is not loaded (not found) a default value is given*/
+/*If all settings are loaded successfully, the the settingsloaded function is called, else it'll wait another call*/
 function loadsettings() {
     var e = 0,
-        t = 8;
+        t = 9;
     chrome.storage.sync.get("PageForBG", function(n) {
         "undefined" == typeof n.PageForBG ? (settingsPageForBG = "wishlist", chrome.storage.sync.set({
             PageForBG: "wishlist"
@@ -132,20 +148,31 @@ function loadsettings() {
         "undefined" == typeof n.IgnoreGroupsBG ? (settingsIgnoreGroupsBG = !1, chrome.storage.sync.set({
             IgnoreGroupsBG: "false"
         })) : "true" == n.IgnoreGroupsBG && (settingsIgnoreGroupsBG = !0), e++, e == t && settingsloaded()
+    }), chrome.storage.sync.get("IgnorePinnedBG", function(n) {
+        "undefined" == typeof n.IgnorePinnedBG ? (settingsIgnorePinnedBG = !1, chrome.storage.sync.set({
+            IgnorePinnedBG: "false"
+        })) : "true" == n.IgnorePinnedBG && (settingsIgnorePinnedBG = !0), e++, e == t && settingsloaded()
     })
 }
+
+/*Function declarations over*/
+
+/*It all begins with the loadsettings call*/
 chrome.alarms.onAlarm.addListener(function(e) {
     console.log("Alarm fired."), "routine" == e.name && (loadsettings(), chrome.alarms.create("routine", {
         delayInMinutes: 30
     }))
 });
+
+/*Variables declaration*/
+/*At the end of the line, there are sometimes colons, sometimes semicolons.
+Is this for optimization purposes, or just a mistake?*/
 var arr = [],
     link = "https://www.steamgifts.com/giveaways/search?page=",
     pages = 1,
     pagestemp = pages,
     token = "",
     mylevel = 0,
-    totalVarCount = 6,
     varcount = 0,
     timepassed = 0,
     timetopass = 20,
@@ -158,7 +185,10 @@ var arr = [],
     settingsPageForBG = "all",
     settingsRepeatHoursBG = 2;
 	settingsDelayBG = 2;
-	settingsMinLevelBG = 0;
+    settingsMinLevelBG = 0;
+	settingsIgnorePinnedBG = !1;
+
+/*Creating a new tab if notification is clicked*/
 chrome.alarms.create("routine", {
     delayInMinutes: .1
 }), chrome.notifications.onClicked.addListener(function() {
