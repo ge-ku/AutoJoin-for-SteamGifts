@@ -107,52 +107,31 @@ function settingsloaded() {
     }))
 }
 
-/*This function needs commenting, as it is very optimized it is barely possible to understand things quickly*/
-/*My interpretation:*/
-/*e is only incremented on a successful setting loading*/
-/*t is the total amount of settings to load*/
-/*If a setting is not loaded (not found) a default value is given*/
-/*If all settings are loaded successfully, the the settingsloaded function is called, else it'll wait another call*/
+/*Load settings, then call settingsloaded()*/
 function loadsettings() {
-    var e = 0,
-        t = 9;
-    chrome.storage.sync.get("PageForBG", function(n) {
-        "undefined" == typeof n.PageForBG ? (settingsPageForBG = "wishlist", chrome.storage.sync.set({
-            PageForBG: "wishlist"
-        })) : settingsPageForBG = n.PageForBG, e++, e == t && settingsloaded()
-    }), chrome.storage.sync.get("RepeatHoursBG", function(n) {
-        "undefined" == typeof n.RepeatHoursBG ? (settingsRepeatHoursBG = 2, chrome.storage.sync.set({
-            RepeatHoursBG: "2"
-        })) : settingsRepeatHoursBG = parseInt(n.RepeatHoursBG, 10), e++, e == t && settingsloaded()
-	}), chrome.storage.sync.get("DelayBG", function(n) {
-        "undefined" == typeof n.DelayBG ? (settingsDelayBG = 2, chrome.storage.sync.set({
-            RepeatHoursBG: "10"
-        })) : settingsDelayBG = parseInt(n.DelayBG, 10), e++, e == t && settingsloaded()
-    }), chrome.storage.sync.get("MinLevelBG", function(n) {
-        "undefined" == typeof n.MinLevelBG ? (settingsMinLevelBG = 0, chrome.storage.sync.set({
-            RepeatHoursBG: "10"
-        })) : settingsMinLevelBG = parseInt(n.MinLevelBG, 10), e++, e == t && settingsloaded()
-    }), chrome.storage.sync.get("PagestoloadBG", function(n) {
-        "undefined" == typeof n.PagestoloadBG ? (settingsPagestoloadBG = 3, chrome.storage.sync.set({
-            PagestoloadBG: "3"
-        })) : settingsPagestoloadBG = parseInt(n.PagestoloadBG, 10), e++, e == t && settingsloaded()
-    }), chrome.storage.sync.get("BackgroundAJ", function(n) {
-        "undefined" == typeof n.BackgroundAJ ? (settingsBackgroundAJ = !0, chrome.storage.sync.set({
-            BackgroundAJ: "true"
-        })) : "false" == n.BackgroundAJ && (settingsBackgroundAJ = !1), e++, e == t && settingsloaded()
-    }), chrome.storage.sync.get("LevelPriorityBG", function(n) {
-        "undefined" == typeof n.LevelPriorityBG ? (settingsLevelPriorityBG = !1, chrome.storage.sync.set({
-            LevelPriorityBG: "true"
-        })) : "true" == n.LevelPriorityBG && (settingsLevelPriorityBG = !0), e++, e == t && settingsloaded()
-    }), chrome.storage.sync.get("IgnoreGroupsBG", function(n) {
-        "undefined" == typeof n.IgnoreGroupsBG ? (settingsIgnoreGroupsBG = !1, chrome.storage.sync.set({
-            IgnoreGroupsBG: "false"
-        })) : "true" == n.IgnoreGroupsBG && (settingsIgnoreGroupsBG = !0), e++, e == t && settingsloaded()
-    }), chrome.storage.sync.get("IgnorePinnedBG", function(n) {
-        "undefined" == typeof n.IgnorePinnedBG ? (settingsIgnorePinnedBG = !1, chrome.storage.sync.set({
-            IgnorePinnedBG: "false"
-        })) : "true" == n.IgnorePinnedBG && (settingsIgnorePinnedBG = !0), e++, e == t && settingsloaded()
-    })
+	chrome.storage.sync.get({
+		PageForBG: 'wishlist',
+		RepeatHoursBG: '2',
+		DelayBG: '2',
+		MinLevelBG: '0',
+		PagestoloadBG: '3',
+		BackgroundAJ: 'true',
+		LevelPriorityBG: 'true',
+		IgnoreGroupsBG: 'false',
+		IgnorePinnedBG: 'false'
+		}, function(data) {
+			settingsPageForBG = data['PageForBG'];
+			settingsRepeatHoursBG = parseInt(data['RepeatHoursBG'], 10);
+			settingsDelayBG = parseInt(data['DelayBG'], 10);
+			settingsMinLevelBG = parseInt(data['MinLevelBG'], 10);
+			settingsPagestoloadBG = parseInt(data['PagestoloadBG'], 10);
+			if (data['BackgroundAJ'] == 'true'){ settingsBackgroundAJ = true }
+			if (data['LevelPriorityBG'] == 'true'){	settingsLevelPriorityBG = true }
+			if (data['IgnoreGroupsBG'] == 'true'){ settingsIgnoreGroupsBG = true }
+			if (data['IgnorePinnedBG'] == 'true'){ settingsIgnorePinnedBG = true }
+			settingsloaded();
+		}
+	);
 }
 
 /*Function declarations over*/
@@ -183,9 +162,9 @@ var arr = [],
     settingsBackgroundAJ = !0,
     settingsPagestoloadBG = 3,
     settingsPageForBG = "all",
-    settingsRepeatHoursBG = 2;
-	settingsDelayBG = 2;
-    settingsMinLevelBG = 0;
+    settingsRepeatHoursBG = 2,
+	settingsDelayBG = 2,
+    settingsMinLevelBG = 0,
 	settingsIgnorePinnedBG = !1;
 
 /*Creating a new tab if notification is clicked*/

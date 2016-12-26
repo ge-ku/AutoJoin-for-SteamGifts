@@ -51,7 +51,7 @@ $(document).ready(function() {
 		nightTheme: 'false',
 		levelPriority: 'false',
 		PlayAudio: 'true',
-		DelayBG: '10',
+		DelayBG: '2',
 		MinLevelBG: '0'
 		}, function(data) {
 			if (data['HideGroups'] == 'true'){ settingsHideGroups = true }
