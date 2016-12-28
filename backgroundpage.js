@@ -31,7 +31,8 @@ function notify() {
 }
 
 /*This function scans the pages and calls the function pagesloaded() once it finished
-All giveaways that must be entered are pushed in an array called "arr"*/
+All giveaways that must be entered are pushed in an array called "arr"
+Remember once scanpage is over, pagesloaded is called*/
 function scanpage(e) {
     var postsDiv = $(e).find(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent();
     (settingsIgnorePinnedBG == true ? postsDiv : $(e)).find(".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name").each(function() {
@@ -55,24 +56,13 @@ function scanpage(e) {
     }), pagestemp--, 0 == pagestemp && pagesloaded()
 }
 
-/*This function loads pages and scans them with the function above
-Remember once scanpage is over, pagesloaded is called*/
-function loadnextpages(e, t) {
-    for (var n = 2; !(n > t); n++) { 
-		if (n > 3) break;
-		$.get(link + n, function(e) {
-		    scanpage(e)
-		})
-	}
-}
-
 /*This function is called once all pages have been parsed
 this sends the requests to steamgifts*/
 function pagesloaded() {
     settingsLevelPriorityBG && arr.sort(compare);
 	var timeouts = [];
 	$.each(arr, function(e) {
-		if (arr[e].level < settingsMinLevelBG) {
+		if (arr[e].level < settingsMinLevelBG) { // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
 			return true;
 		}
 		timeouts.push(setTimeout(function(){
@@ -96,15 +86,56 @@ function pagesloaded() {
 /*This function checks for a won gift, then calls the scanpage function*/
 /*e is the whole html page*/
 function settingsloaded() {
-    settingsIgnoreGroupsBG && "all" == settingsPageForBG && (settingsIgnoreGroupsBGTrue = !0), pages = settingsPagestoloadBG, timetopass = 10 * settingsRepeatHoursBG, justLaunched ? (justLaunched = !1, timepassed = timetopass) : timepassed += 5, 0 == settingsBackgroundAJ || timetopass > timepassed ? $.get(link + 1, function(e){
-        var t = $(e).filter(".popup--gift-received").get(0);
-        "undefined" != typeof $(t).html() && notify()
-    }) : (timepassed = 0, link = "https://www.steamgifts.com/giveaways/search?type=" + settingsPageForBG + "&page=", arr.length = 0, $.get(link + 1, function(e) {
-        if (pages > 5 || pages < 1) { pagestemp = 3 } else { pagestemp = pages }
-		token = $(e).find("input[name=xsrf_token]").val(), mylevel = $(e).find('a[href="/account"]').find("span").next().html().match(/(\d+)/)[1];
-        var t = $(e).filter(".popup--gift-received").get(0);
-        "undefined" != typeof $(t).html() && notify(), scanpage(e), pages > 1 && loadnextpages(link, pages)
-    }))
+		if (settingsIgnoreGroupsBG && settingsPageForBG == "all") {
+			settingsIgnoreGroupsBGTrue = true;
+		}
+		pages = settingsPagestoloadBG;
+		timetopass = 10 * settingsRepeatHoursBG;
+		if (justLaunched || settingsRepeatHoursBG == 0) { // settingsRepeatHoursBG == 0 means it should autojoin every time
+			justLaunched = false;
+			timepassed = timetopass;
+		} else {
+			timepassed += 5;
+		}
+
+		/*If background autojoin is disabled or not enough time passed only check if won*/
+		if (settingsBackgroundAJ == false || timepassed < timetopass) {
+			$.get(link + 1, function(data){
+				if ( $(data).filter(".popup--gift-received").length ) {
+					notify();
+				}
+				//check level and save if changed
+				mylevel = $(data).find('a[href="/account"]').find("span").next().html().match(/(\d+)/)[1];
+				if (settingsLastKnownLevel != parseInt(mylevel)) {
+					chrome.storage.sync.set({LastKnownLevel:mylevel});
+				}
+			});
+		}
+		/*Else check if won first (since pop-up disappears after first view), then start scanning pages*/
+		else {
+			timepassed = 0; //reset timepassed
+			link = "https://www.steamgifts.com/giveaways/search?type=" + settingsPageForBG + "&level_min=" + settingsMinLevelBG + "&level_max=" + settingsLastKnownLevel + "&page=";
+			arr.length = 0;
+			$.get(link + 1, function(data) {
+				if ( $(data).filter(".popup--gift-received").length ) {
+					notify();
+				}
+				if (pages > 5 || pages < 1) { pagestemp = 3 } else { pagestemp = pages } // in case someone has old setting with more than 5 pages to load or somehow set this value to <1 use 3 (default)
+				token = $(data).find("input[name=xsrf_token]").val();
+				mylevel = $(data).find('a[href="/account"]').find("span").next().html().match(/(\d+)/)[1];
+				//save new level if it changed
+				if (settingsLastKnownLevel != parseInt(mylevel)) {
+					chrome.storage.sync.set({LastKnownLevel:mylevel});
+				}
+				scanpage(data); // scan this page that was already loaded to get info above
+				for (var n = 2; n <= pages; n++) { // scan next pages
+					if (n > 3) break; // no more than 3 pages at a time since the ban wave
+					$.get(link + n, function(newPage) {
+						scanpage(newPage)
+					})
+				}
+			});
+		}
 }
 
 /*Load settings, then call settingsloaded()*/
@@ -118,7 +149,8 @@ function loadsettings() {
 		BackgroundAJ: 'true',
 		LevelPriorityBG: 'true',
 		IgnoreGroupsBG: 'false',
-		IgnorePinnedBG: 'false'
+		IgnorePinnedBG: 'false',
+		LastKnownLevel: '10' // set to 10 by default so it loads pages with max_level set to 10 (maximum) before extensions learns actual level
 		}, function(data) {
 			settingsPageForBG = data['PageForBG'];
 			settingsRepeatHoursBG = parseInt(data['RepeatHoursBG'], 10);
@@ -129,6 +161,7 @@ function loadsettings() {
 			if (data['LevelPriorityBG'] == 'true'){	settingsLevelPriorityBG = true }
 			if (data['IgnoreGroupsBG'] == 'true'){ settingsIgnoreGroupsBG = true }
 			if (data['IgnorePinnedBG'] == 'true'){ settingsIgnorePinnedBG = true }
+			settingsLastKnownLevel = parseInt(data['LastKnownLevel'], 10);
 			settingsloaded();
 		}
 	);
@@ -166,6 +199,7 @@ var arr = [],
 	settingsDelayBG = 2,
     settingsMinLevelBG = 0,
 	settingsIgnorePinnedBG = !1;
+	settingsLastKnownLevel = 10;
 
 /*Creating a new tab if notification is clicked*/
 chrome.alarms.create("routine", {
