@@ -123,6 +123,63 @@ function onPageLoad(){
 		$('#pageforBG').val(settingsPageForBG);
 		$('#delayBG').val(settingsDelayBG);
 		$('#minLevelBG').val(settingsMinLevelBG);
+
+		$('#btnSettings')
+			.hover(function(){
+					$(this).html('<i class="fa fa-cog fa-4x">');
+			},function(){
+					$(this).html('<i class="fa fa-cog fa-4x fa-inverse">');
+			})
+			.click(function(){
+				$("body").children(':not(#settingsDiv)').animate({opacity:0.3}, "slow");
+				$("#settingsDiv").css("visibility","visible").animate({opacity:1.0}, "slow");
+			});
+		$('#btnSetCancel').click(function(){
+			$("body").children(':not(#settingsDiv)').animate({opacity:1.0}, "slow");
+			$("#settingsDiv").animate({
+						opacity: 0.0}, {
+						easing: 'swing',
+						duration: 600,
+						complete: function() { $("#settingsDiv").css("visibility","hidden") }
+						});
+		});
+		$('#btnSetSave').click(function(){
+			chrome.storage.sync.set({
+				infiniteScrolling: $('#chkInfiniteScroll').is(':checked').toString(),
+				showPoints: $('#chkShowPoints').is(':checked').toString(),
+				showButtons: $('#chkShowButtons').is(':checked').toString(),
+				loadFive: $('#chkLoadFive').is(':checked').toString(),
+				hideDlc: $('#chkHideDlc').is(':checked').toString(),
+				repeatIfOnPage: $('#chkRepeatIfOnPage').is(':checked').toString(),
+				nightTheme: $('#chkNightTheme').is(':checked').toString(),
+				levelPriority: $('#chkLevelPriority').is(':checked').toString(),
+				LevelPriorityBG: $('#chkLevelPriorityBG').is(':checked').toString(),
+				BackgroundAJ: $('#chkEnableBG').is(':checked').toString(),
+				HideEntered: $('#chkHideEntered').is(':checked').toString(),
+				IgnoreGroups: $('#chkIgnoreGroups').is(':checked').toString(),
+				IgnorePinned: $('#chkIgnorePinned').is(':checked').toString(),
+				IgnoreGroupsBG: $('#chkIgnoreGroupsBG').is(':checked').toString(),
+				IgnorePinnedBG: $('#chkIgnorePinnedBG').is(':checked').toString(),
+				HideGroups: $('#chkHideGroups').is(':checked').toString(),
+				PlayAudio: $('#chkPlayAudio').is(':checked').toString(),
+				repeatHours: $('#hoursField').val(),
+				RepeatHoursBG: parseInt($('#hoursFieldBG').val()), //parseInt to save 0.5 as 0
+				Pagestoload: $('#pagestoload').val(),
+				PagestoloadBG: $('#pagestoloadBG').val(),
+				PageForBG: $('#pageforBG').val(),
+				DelayBG: $('#delayBG').val(),
+				MinLevelBG: $('#minLevelBG').val()
+			}, function(){
+				location.reload(); // reload page after saving
+			});		
+		});
+		//to show 0.5 when value goes below 1 in hoursFieldBG field 
+		$("#hoursFieldBG").on('input', function() {
+			if (this.value == 0) this.value = 0.5;
+			else if (this.value % 1 != 0 & this.value > 1) {
+				this.value = parseInt(this.value);
+			}
+		});
 	});
 	/*All of the above is for the "settings" window you can click on the page*/
 	
@@ -525,20 +582,6 @@ function onPageLoad(){
 				});
 			}
 		);
-	});
-	
-	$("#hoursField").on('change keyup', function() {
-		var sanitized = $(this).val().replace(/[^0-9]/g, '');
-		$(this).val(sanitized);
-		if (this.value.length == 0 || this.value < 1 || this.value > 24){
-			this.value = 2;
-		} 
-	});
-	
-	$("#hoursFieldBG").on('change keyup', function() {
-		if (this.value > 1 && this.value % 1 != 0) {
-			this.value = parseInt(this.value);
-		}
 	});
 
 	$(document).on({
