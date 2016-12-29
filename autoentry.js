@@ -24,8 +24,6 @@ var settingsDelayBG = 2;
 var settingsMinLevelBG = 0;
 var settingsIgnorePinned = false;
 
-var totalVarCount = 25;
-
 $(document).ready(function() {
 	chrome.storage.sync.get({
 		HideGroups: 'false',
@@ -140,16 +138,6 @@ function onPageLoad(){
 	if (splitPageLinkCheck.length == 0) {
 		pagesLoaded = 9999;
 		onlyOnePage = true;
-	}
-	
-	function reloadIfSaved(){
-		if (totalVarCount > 1){
-			setTimeout(function() {
-				reloadIfSaved();
-			}, 50);
-			return;
-		}
-		location.reload();
 	}
 	
 	function loadPage(){
@@ -398,51 +386,34 @@ function onPageLoad(){
 					});
 	});
 	$('#btnSetSave').click(function(){
-		
-		if ($('#chkInfiniteScroll').is(':checked')) {chrome.storage.sync.set({'infiniteScrolling': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'infiniteScrolling': 'false'}); totalVarCount--}
-		if ($('#chkShowPoints').is(':checked')) {chrome.storage.sync.set({'showPoints': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'showPoints': 'false'}); totalVarCount--}
-		if ($('#chkShowButtons').is(':checked')) {chrome.storage.sync.set({'showButtons': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'showButtons': 'false'}); totalVarCount--}
-		if ($('#chkLoadFive').is(':checked')) {chrome.storage.sync.set({'loadFive': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'loadFive': 'false'}); totalVarCount--}		
-		if ($('#chkHideDlc').is(':checked')) {chrome.storage.sync.set({'hideDlc': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'hideDlc': 'false'}); totalVarCount--}
-		if ($('#chkRepeatIfOnPage').is(':checked')) {chrome.storage.sync.set({'repeatIfOnPage': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'repeatIfOnPage': 'false'}); totalVarCount--}
-		if ($('#chkNightTheme').is(':checked')) {chrome.storage.sync.set({'nightTheme': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'nightTheme': 'false'}); totalVarCount--}
-		if ($('#chkLevelPriority').is(':checked')) {chrome.storage.sync.set({'levelPriority': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'levelPriority': 'false'}); totalVarCount--}
-		if ($('#chkLevelPriorityBG').is(':checked')) {chrome.storage.sync.set({'LevelPriorityBG': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'LevelPriorityBG': 'false'}); totalVarCount--}
-		if ($('#chkEnableBG').is(':checked')) {chrome.storage.sync.set({'BackgroundAJ': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'BackgroundAJ': 'false'}); totalVarCount--}
-		if ($('#chkHideEntered').is(':checked')) {chrome.storage.sync.set({'HideEntered': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'HideEntered': 'false'}); totalVarCount--}
-		if ($('#chkIgnoreGroups').is(':checked')) {chrome.storage.sync.set({'IgnoreGroups': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'IgnoreGroups': 'false'}); totalVarCount--}
-		if ($('#chkIgnorePinned').is(':checked')) {chrome.storage.sync.set({'IgnorePinned': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'IgnorePinned': 'false'}); totalVarCount--}
-		if ($('#chkIgnoreGroupsBG').is(':checked')) {chrome.storage.sync.set({'IgnoreGroupsBG': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'IgnoreGroupsBG': 'false'}); totalVarCount--}
-		if ($('#chkIgnorePinnedBG').is(':checked')) {chrome.storage.sync.set({'IgnorePinnedBG': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'IgnorePinnedBG': 'false'}); totalVarCount--}
-		if ($('#chkHideGroups').is(':checked')) {chrome.storage.sync.set({'HideGroups': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'HideGroups': 'false'}); totalVarCount--}
-		if ($('#chkPlayAudio').is(':checked')) {chrome.storage.sync.set({'PlayAudio': 'true'}); totalVarCount--}
-		else {chrome.storage.sync.set({'PlayAudio': 'false'}); totalVarCount--}
-		{chrome.storage.sync.set({'repeatHours': $('#hoursField').val()}); totalVarCount--}
-		{chrome.storage.sync.set({'RepeatHoursBG': parseInt($('#hoursFieldBG').val())}); totalVarCount--}
-		{chrome.storage.sync.set({'Pagestoload': $('#pagestoload').val()}); totalVarCount--}
-		{chrome.storage.sync.set({'PagestoloadBG': $('#pagestoloadBG').val()}); totalVarCount--}
-		{chrome.storage.sync.set({'PageForBG': $('#pageforBG').val()}); totalVarCount--}
-		{chrome.storage.sync.set({'DelayBG': $('#delayBG').val()}); totalVarCount--}
-		{chrome.storage.sync.set({'MinLevelBG': $('#minLevelBG').val()}); totalVarCount--}
-		
-
-		reloadIfSaved();
+		chrome.storage.sync.set({
+			infiniteScrolling: $('#chkInfiniteScroll').is(':checked').toString(),
+			showPoints: $('#chkShowPoints').is(':checked').toString(),
+			showButtons: $('#chkShowButtons').is(':checked').toString(),
+			loadFive: $('#chkLoadFive').is(':checked').toString(),
+			hideDlc: $('#chkHideDlc').is(':checked').toString(),
+			repeatIfOnPage: $('#chkRepeatIfOnPage').is(':checked').toString(),
+			nightTheme: $('#chkNightTheme').is(':checked').toString(),
+			levelPriority: $('#chkLevelPriority').is(':checked').toString(),
+			LevelPriorityBG: $('#chkLevelPriorityBG').is(':checked').toString(),
+			BackgroundAJ: $('#chkEnableBG').is(':checked').toString(),
+			HideEntered: $('#chkHideEntered').is(':checked').toString(),
+			IgnoreGroups: $('#chkIgnoreGroups').is(':checked').toString(),
+			IgnorePinned: $('#chkIgnorePinned').is(':checked').toString(),
+			IgnoreGroupsBG: $('#chkIgnoreGroupsBG').is(':checked').toString(),
+			IgnorePinnedBG: $('#chkIgnorePinnedBG').is(':checked').toString(),
+			HideGroups: $('#chkHideGroups').is(':checked').toString(),
+			PlayAudio: $('#chkPlayAudio').is(':checked').toString(),
+			repeatHours: $('#hoursField').val(),
+			RepeatHoursBG: $('#hoursFieldBG').val(),
+			Pagestoload: $('#pagestoload').val(),
+			PagestoloadBG: $('#pagestoloadBG').val(),
+			PageForBG: $('#pageforBG').val(),
+			DelayBG: $('#delayBG').val(),
+			MinLevelBG: $('#minLevelBG').val()
+		}, function(){
+			location.reload(); // reload page after saving
+		});
 		
 		$("body").children(':not(#settingsDiv)').animate({opacity:1.0}, "slow");
 		$("#settingsDiv").animate({
