@@ -22,7 +22,7 @@
    "name": "AutoJoin for SteamGifts",
    "permissions": [ "alarms", "notifications", "storage", "tabs", "*://www.steamgifts.com/*", "*://store.steampowered.com/*" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "1.1.30",
+   "version": "1.1.31",
    "web_accessible_resources": [ 
        "settings.html",
        "night.css" 
