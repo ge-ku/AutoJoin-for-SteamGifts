@@ -3,7 +3,7 @@ div.page__outer-wrap {
     filter: invert(100%);
 }
 
-div.global__image-inner-wrap {
+div.page__outer-wrap .global__image-inner-wrap, div.page__outer-wrap img {
     -webkit-filter: invert(100%);
     filter: invert(100%);
 }
@@ -19,9 +19,4 @@ div.footer__outer-wrap {
 
 body{
 	background-color: #141414;
-}
-
-div.global__image-outer-wrap--avatar-large{
-	-webkit-filter: invert(100%);
-    filter: invert(100%);
 }
