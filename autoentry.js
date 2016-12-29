@@ -423,64 +423,6 @@ function onPageLoad(){
 	
 	$('<div id="info" style="position:relative;width:500px;color:#FFFFFF">&nbsp</div>').prependTo('.featured__summary');
 	$('<div id="buttonsAJ"><button id="btnSettings" style="width: 30px; height: 30px; background-color: transparent;"><i class="fa fa-cog fa-4x fa-inverse"></i></button></div>').prependTo('.featured__summary');
-	$('#btnSettings')
-			.hover(function(){
-					$(this).html('<i class="fa fa-cog fa-4x">');
-			},function(){
-					$(this).html('<i class="fa fa-cog fa-4x fa-inverse">');
-			})
-			.click(function(){
-				$("body").children(':not(#settingsDiv)').animate({opacity:0.3}, "slow");
-				$("#settingsDiv").css("visibility","visible").animate({opacity:1.0}, "slow");
-			});
-	$('#btnSetCancel').click(function(){
-		$("body").children(':not(#settingsDiv)').animate({opacity:1.0}, "slow");
-		$("#settingsDiv").animate({
-					opacity: 0.0}, {
-					easing: 'swing',
-					duration: 600,
-					complete: function() { $("#settingsDiv").css("visibility","hidden") }
-					});
-	});
-	$('#btnSetSave').click(function(){
-		chrome.storage.sync.set({
-			infiniteScrolling: $('#chkInfiniteScroll').is(':checked').toString(),
-			showPoints: $('#chkShowPoints').is(':checked').toString(),
-			showButtons: $('#chkShowButtons').is(':checked').toString(),
-			loadFive: $('#chkLoadFive').is(':checked').toString(),
-			hideDlc: $('#chkHideDlc').is(':checked').toString(),
-			repeatIfOnPage: $('#chkRepeatIfOnPage').is(':checked').toString(),
-			nightTheme: $('#chkNightTheme').is(':checked').toString(),
-			levelPriority: $('#chkLevelPriority').is(':checked').toString(),
-			LevelPriorityBG: $('#chkLevelPriorityBG').is(':checked').toString(),
-			BackgroundAJ: $('#chkEnableBG').is(':checked').toString(),
-			HideEntered: $('#chkHideEntered').is(':checked').toString(),
-			IgnoreGroups: $('#chkIgnoreGroups').is(':checked').toString(),
-			IgnorePinned: $('#chkIgnorePinned').is(':checked').toString(),
-			IgnoreGroupsBG: $('#chkIgnoreGroupsBG').is(':checked').toString(),
-			IgnorePinnedBG: $('#chkIgnorePinnedBG').is(':checked').toString(),
-			HideGroups: $('#chkHideGroups').is(':checked').toString(),
-			PlayAudio: $('#chkPlayAudio').is(':checked').toString(),
-			repeatHours: $('#hoursField').val(),
-			RepeatHoursBG: $('#hoursFieldBG').val(),
-			Pagestoload: $('#pagestoload').val(),
-			PagestoloadBG: $('#pagestoloadBG').val(),
-			PageForBG: $('#pageforBG').val(),
-			DelayBG: $('#delayBG').val(),
-			MinLevelBG: $('#minLevelBG').val()
-		}, function(){
-			location.reload(); // reload page after saving
-		});
-		
-		$("body").children(':not(#settingsDiv)').animate({opacity:1.0}, "slow");
-		$("#settingsDiv").animate({
-			opacity: 0.0}, {
-			easing: 'swing',
-			duration: 600,
-			complete: function() {/*location.reload()*/}
-			});				
-	});
-	
 	$('<input type="button" value="AutoJoin" id="btnJoin" style="position:relative;width:200px;background-color:#FFFFFF;">')
 		.prependTo('#buttonsAJ')
 		.hover(function(){
