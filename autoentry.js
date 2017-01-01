@@ -651,9 +651,9 @@ function checkDLCbyImage(giveaway, encc, frontpage){
 	var xhr = new XMLHttpRequest();
     var result = false;
 	if (encc){
-		xhr.open("GET", "http://store.steampowered.com/api/appdetails?appids=" + appid + "&cc=en", true);
+		xhr.open("GET", "https://store.steampowered.com/api/appdetails?appids=" + appid + "&cc=en", true);
 	}else{
-		xhr.open("GET", "http://store.steampowered.com/api/appdetails?appids=" + appid, true);
+		xhr.open("GET", "https://store.steampowered.com/api/appdetails?appids=" + appid, true);
 	}
     xhr.onreadystatechange = function () {
 		if (xhr.readyState == 4 && xhr.status == 200){
