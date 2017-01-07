@@ -23,6 +23,7 @@ var settingsPlayAudio = true;
 var settingsDelayBG = 2;
 var settingsMinLevelBG = 0;
 var settingsIgnorePinned = false;
+var settingsShowChance = true;
 
 $(document).ready(function() {
 	chrome.storage.sync.get({
@@ -50,7 +51,8 @@ $(document).ready(function() {
 		levelPriority: 'false',
 		PlayAudio: 'true',
 		DelayBG: '2',
-		MinLevelBG: '0'
+		MinLevelBG: '0',
+		ShowChance: 'true'
 		}, function(data) {
 			if (data['HideGroups'] == 'true'){ settingsHideGroups = true }
 			if (data['IgnoreGroups'] == 'true'){ settingsIgnoreGroups = true }
@@ -80,6 +82,7 @@ $(document).ready(function() {
 			if (data['nightTheme'] == 'true'){ settingsNightTheme = true }
 			if (data['levelPriority'] == 'true'){ settingsLevelPriority = true }
 			if (data['PlayAudio'] == 'false') { settingsPlayAudio = false }
+			if (data['ShowChance'] == 'false') { settingsShowChance = false }
 
 			onPageLoad();
 		}
@@ -116,6 +119,7 @@ function onPageLoad(){
 		if (settingsBackgroundAJ){$('#chkEnableBG').prop('checked', true)};
 		if (settingsLevelPriorityBG){$('#chkLevelPriorityBG').prop('checked', true)};
 		if (settingsPlayAudio){$('#chkPlayAudio').prop('checked', true)};
+		if (settingsShowChance){$('#chkShowChance').prop('checked', true)};
 		$('#hoursField').val(settingsRepeatHours);
 		$('#pagestoload').val(settingsPagestoload);
 		$('#pagestoloadBG').val(settingsPagestoloadBG);
@@ -168,7 +172,8 @@ function onPageLoad(){
 				PagestoloadBG: $('#pagestoloadBG').val(),
 				PageForBG: $('#pageforBG').val(),
 				DelayBG: $('#delayBG').val(),
-				MinLevelBG: $('#minLevelBG').val()
+				MinLevelBG: $('#minLevelBG').val(),
+				ShowChance: $('#chkShowChance').is(':checked').toString()
 			}, function(){
 				location.reload(); // reload page after saving
 			});		
@@ -198,6 +203,7 @@ function onPageLoad(){
 	}
 	
 	function loadPage(){
+		var timeLoaded = Math.round(Date.now() / 1000); //when the page was loaded (in seconds)
 		if (pageNumber > lastPage){
 			loadingNextPage = true;
 			pagesLoaded = 9999;
@@ -239,7 +245,10 @@ function onPageLoad(){
 					if (settingsHideDlc){								
 						checkDLCbyImage($(this), false, false);
 					}
-				});				
+					if (settingsShowChance){
+						$(this).find('.giveaway__columns').prepend("<div title=\"approx. win chance\"><i class=\"fa fa-trophy\"></i> " + calculateWinChance(this, timeLoaded) + "%</div>");
+					}
+				});
 				$("#posts").last().append($(this).html());
 				pageNumber++;
 				pagesLoaded++;
@@ -262,11 +271,11 @@ function onPageLoad(){
 		var entered = 0;
 		var timeouts = [];
 
-		//Here, i'm filtering the giveaways to enter to only the one created by regular users in the #posts div
-		//which means featured giveaways won't be autojoined if users decides so in the options
-
 		var selectItems = ".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name";
 	
+		//Here I'm filtering the giveaways to enter to only the one created by regular users in the #posts div
+		//which means featured giveaways won't be autojoined if users decides so in the options
+
 		if(settingsIgnorePinned)
 		{
 			selectItems = "#posts " + selectItems;
@@ -444,26 +453,27 @@ function onPageLoad(){
 			
 	function updateButtons(){
 		if (settingsShowButtons){
-		$('.btnSingle').each(function(){
-			if ($(this).parent().attr('class') != 'giveaway__row-inner-wrap is-faded'){
-				var pointsNeededRaw = $(this).parent().find('.giveaway__heading__thin').text().match(/(\d+)P/);
-				var pointsNeeded = pointsNeededRaw[pointsNeededRaw.length-1];
-				if (parseInt(pointsNeeded, 10) > parseInt($('.nav__points').first().text(),10)){
-					$(this).prop("disabled", true);
-					$(this).attr('walkState', 'no-points');
-					$(this).attr('value', 'Not enough points');
-					this.style.backgroundColor = '#FFFFFF';
-				}else{
-					$(this).prop("disabled", false);
-					$(this).attr('walkState', 'join');
-					$(this).attr('value', 'Join');
-					this.style.backgroundColor = '#BCED91';
+			$('.btnSingle').each(function(){
+				if ($(this).parent().attr('class') != 'giveaway__row-inner-wrap is-faded'){
+					var pointsNeededRaw = $(this).parent().find('.giveaway__heading__thin').text().match(/(\d+)P/);
+					var pointsNeeded = pointsNeededRaw[pointsNeededRaw.length-1];
+					if (parseInt(pointsNeeded, 10) > parseInt($('.nav__points').first().text(),10)){
+						$(this).prop("disabled", true);
+						$(this).attr('walkState', 'no-points');
+						$(this).attr('value', 'Not enough points');
+						this.style.backgroundColor = '#FFFFFF';
+					}else{
+						$(this).prop("disabled", false);
+						$(this).attr('walkState', 'join');
+						$(this).attr('value', 'Join');
+						this.style.backgroundColor = '#BCED91';
+					}
 				}
-			}
-		});
+			});
 		}
 	}
 
+	var timeOfFirstPage = Math.round(Date.now() / 1000);
 	$('.giveaway__row-inner-wrap').each(function(){
 		if (settingsHideGroups){
 			if ($(this).find('.giveaway__column--group').length != 0){
@@ -496,6 +506,9 @@ function onPageLoad(){
 		});
 		if (settingsHideDlc){
 			checkDLCbyImage($(this), false, true);
+		}
+		if (settingsShowChance){
+			$(this).find('.giveaway__columns').prepend("<div title=\"approx. win chance\"><i class=\"fa fa-trophy\"></i> " + calculateWinChance(this, timeOfFirstPage) + "%</div>");
 		}
 	});
 	if ($('.pinned-giveaways__inner-wrap').children().length == 0){
@@ -629,6 +642,21 @@ function onPageLoad(){
 		}, 3600000 * settingsRepeatHours);
 		//}, 5000 * settingsRepeatHours); // For testing
 	}						
+}
+
+function calculateWinChance(giveaway, timeLoaded) {
+	var timeLeft = parseInt( $(giveaway).find('.fa.fa-clock-o').next('span').attr('data-timestamp') ) - timeLoaded; // time left in seconds
+	var timePassed = timeLoaded - parseInt( $(giveaway).find('.giveaway__username').prev('span').attr('data-timestamp') ); //time passed in seconds
+	var numberOfEntries = parseInt( $(giveaway).find('.fa-tag').next('span').text().replace(',', '') );
+	var numberOfCopies = 1;
+	if ($(giveaway).find('.giveaway__heading__thin:first').text().match(/\(\d+ Copies\)/)) { // if more than one copy there's a text field "(N Copies)"
+		numberOfCopies = parseInt( $(giveaway).find('.giveaway__heading__thin:first').text().match(/\d+/)[0] );
+	}
+	var predictionOfEntries = (numberOfEntries / timePassed) * timeLeft; // calculate rate of entries and multiply on time left, probably not very accurate as we assume linear rate
+	var chance = (1 / (numberOfEntries + 1 + predictionOfEntries)) * 100 * numberOfCopies;
+	if (chance > 100) { chance = 100 }
+	return chance.toFixed(3);
+
 }
 
 function checkDLCbyImage(giveaway, encc, frontpage){
