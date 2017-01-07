@@ -10,6 +10,7 @@ var settingsNightTheme = false;
 var settingsLevelPriority = false;
 var settingsBackgroundAJ = false;
 var settingsLevelPriorityBG = false;
+var settingsOddsPriorityBG = false;
 var settingsHideEntered = false;
 var settingsPagestoload = 3;
 var settingsPagestoloadBG = 2;
@@ -39,6 +40,7 @@ $(document).ready(function() {
 		PagestoloadBG: '2',
 		BackgroundAJ: 'true',
 		LevelPriorityBG: 'true',
+		OddsPriorityBG: 'false',
 		lastLaunchedVersion: '20160226',
 		infiniteScrolling: 'true',
 		showPoints: 'true',
@@ -68,6 +70,7 @@ $(document).ready(function() {
 			settingsMinLevelBG = parseInt(data['MinLevelBG'], 10);
 			if (data['BackgroundAJ'] == 'true'){ settingsBackgroundAJ = true }
 			if (data['LevelPriorityBG'] == 'true'){	settingsLevelPriorityBG = true }
+			if (data['OddsPriorityBG'] == 'true'){	settingsOddsPriorityBG = true }
 			if (!(parseInt(data['lastLaunchedVersion'], 10) < 20160226)){
 				newVersionLaunched = true;
 				chrome.storage.sync.set({'lastLaunchedVersion': '20160226'});
@@ -118,6 +121,7 @@ function onPageLoad(){
 		if (settingsIgnorePinnedBG){$('#chkIgnorePinnedBG').prop('checked', true)};
 		if (settingsBackgroundAJ){$('#chkEnableBG').prop('checked', true)};
 		if (settingsLevelPriorityBG){$('#chkLevelPriorityBG').prop('checked', true)};
+		if (settingsOddsPriorityBG){$('#chkOddsPriorityBG').prop('checked', true)};
 		if (settingsPlayAudio){$('#chkPlayAudio').prop('checked', true)};
 		if (settingsShowChance){$('#chkShowChance').prop('checked', true)};
 		$('#hoursField').val(settingsRepeatHours);
@@ -158,6 +162,7 @@ function onPageLoad(){
 				nightTheme: $('#chkNightTheme').is(':checked').toString(),
 				levelPriority: $('#chkLevelPriority').is(':checked').toString(),
 				LevelPriorityBG: $('#chkLevelPriorityBG').is(':checked').toString(),
+				OddsPriorityBG: $('#chkOddsPriorityBG').is(':checked').toString(),
 				BackgroundAJ: $('#chkEnableBG').is(':checked').toString(),
 				HideEntered: $('#chkHideEntered').is(':checked').toString(),
 				IgnoreGroups: $('#chkIgnoreGroups').is(':checked').toString(),
@@ -246,7 +251,7 @@ function onPageLoad(){
 						checkDLCbyImage($(this), false, false);
 					}
 					if (settingsShowChance){
-						$(this).find('.giveaway__columns').prepend("<div title=\"approx. win chance\"><i class=\"fa fa-trophy\"></i> " + calculateWinChance(this, timeLoaded) + "%</div>");
+						$(this).find('.giveaway__columns').prepend("<div style=\"cursor:help\" title=\"approx. odds of winning\"><i class=\"fa fa-trophy\"></i> " + calculateWinChance(this, timeLoaded) + "%</div>");
 					}
 				});
 				$("#posts").last().append($(this).html());
@@ -508,7 +513,7 @@ function onPageLoad(){
 			checkDLCbyImage($(this), false, true);
 		}
 		if (settingsShowChance){
-			$(this).find('.giveaway__columns').prepend("<div title=\"approx. win chance\"><i class=\"fa fa-trophy\"></i> " + calculateWinChance(this, timeOfFirstPage) + "%</div>");
+			$(this).find('.giveaway__columns').prepend("<div style=\"cursor:help\" title=\"approx. odds of winning\"><i class=\"fa fa-trophy\"></i> " + calculateWinChance(this, timeOfFirstPage) + "%</div>");
 		}
 	});
 	if ($('.pinned-giveaways__inner-wrap').children().length == 0){
@@ -656,7 +661,6 @@ function calculateWinChance(giveaway, timeLoaded) {
 	var chance = (1 / (numberOfEntries + 1 + predictionOfEntries)) * 100 * numberOfCopies;
 	if (chance > 100) { chance = 100 }
 	return chance.toFixed(3);
-
 }
 
 function checkDLCbyImage(giveaway, encc, frontpage){

@@ -3,12 +3,29 @@ https://developers.google.com/closure/compiler/
 This script page is the background script. autoentry.js is the autojoin button and other page
 modifications*/
 
-function Giveaway(e, t, n) {
-    this.code = e, this.level = t, this.steamlink = n
+function Giveaway(code, level, appid, odds) {
+    this.code = code, this.level = level, this.steamlink = appid, this.odds = odds
 }
 
-function compare(e, t) {
-    return e.level < t.level ? 1 : e.level > t.level ? -1 : 0
+function compareLevel(a, b) {
+    return b.level - a.level
+}
+
+function compareOdds(a, b) {
+	return b.odds - a.odds
+}
+
+function calculateWinChance(giveaway, timeLoaded) {
+	var timeLeft = parseInt( $(giveaway).find('.fa.fa-clock-o').next('span').attr('data-timestamp') ) - timeLoaded; // time left in seconds
+	var timePassed = timeLoaded - parseInt( $(giveaway).find('.giveaway__username').prev('span').attr('data-timestamp') ); //time passed in seconds
+	var numberOfEntries = parseInt( $(giveaway).find('.fa-tag').next('span').text().replace(',', '') );
+	var numberOfCopies = 1;
+	if ($(giveaway).find('.giveaway__heading__thin:first').text().match(/\(\d+ Copies\)/)) { // if more than one copy there's a text field "(N Copies)"
+		numberOfCopies = parseInt( $(giveaway).find('.giveaway__heading__thin:first').text().match(/\d+/)[0] );
+	}
+	var predictionOfEntries = (numberOfEntries / timePassed) * timeLeft; // calculate rate of entries and multiply on time left, probably not very accurate as we assume linear rate
+	var chance = (1 / (numberOfEntries + 1 + predictionOfEntries)) * 100 * numberOfCopies;
+	return chance;
 }
 
 function notify() {
@@ -34,23 +51,25 @@ function notify() {
 All giveaways that must be entered are pushed in an array called "arr"
 Remember once scanpage is over, pagesloaded is called*/
 function scanpage(e) {
+	var timeLoaded = Math.round(Date.now() / 1000);
     var postsDiv = $(e).find(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent();
     (settingsIgnorePinnedBG == true ? postsDiv : $(e)).find(".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name").each(function() {
         var e = $(this).parent().parent().parent(),
             t = this.href.match(/giveaway\/(.+)\//);
         if (t.length > 0) {
-            var n = t[1];
+            var GAcode = t[1];
             if (!(settingsIgnoreGroupsBGTrue && 0 != $(this).find(".giveaway__column--group").length || $(e).find(".giveaway__column--contributor-level--negative").length > 0)) {
-                if ($(e).find(".giveaway__column--contributor-level--positive").length > 0) var o = $(e).find(".giveaway__column--contributor-level--positive").html().match(/(\d+)/)[1];
-                else var o = 0;
+                if ($(e).find(".giveaway__column--contributor-level--positive").length > 0) var GAlevel = $(e).find(".giveaway__column--contributor-level--positive").html().match(/(\d+)/)[1];
+                else var GAlevel = 0;
                 var s = $(e).find(".global__image-outer-wrap--game-medium").find(".global__image-inner-wrap").css("background-image");
-                if (null == s) var a = "0";
+                if (null == s) var GAsteamAppID = "0";
                 else {
                     var i = s.match(/.+apps\/(\d+)\/cap.+/);
-                    if (null == i) var a = "0";
-                    else var a = i[1]
+                    if (null == i) var GAsteamAppID = "0";
+                    else var GAsteamAppID = i[1]
                 }
-                arr.push(new Giveaway(n, parseInt(o, 10), a))
+				var oddsOfWinning = calculateWinChance(e, timeLoaded);
+                arr.push(new Giveaway(GAcode, parseInt(GAlevel), GAsteamAppID, oddsOfWinning));
             }
         }
     }), pagestemp--, 0 == pagestemp && pagesloaded()
@@ -59,7 +78,11 @@ function scanpage(e) {
 /*This function is called once all pages have been parsed
 this sends the requests to steamgifts*/
 function pagesloaded() {
-    settingsLevelPriorityBG && arr.sort(compare);
+	if (settingsLevelPriorityBG) {
+		arr.sort(compareLevel);
+	} else if (settingsOddsPriorityBG) {
+		arr.sort(compareOdds);
+	}
 	var timeouts = [];
 	$.each(arr, function(e) {
 		if (arr[e].level < settingsMinLevelBG) { // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
@@ -148,6 +171,7 @@ function loadsettings() {
 		PagestoloadBG: '3',
 		BackgroundAJ: 'true',
 		LevelPriorityBG: 'true',
+		OddsPriorityBG: 'fasle',
 		IgnoreGroupsBG: 'false',
 		IgnorePinnedBG: 'false',
 		LastKnownLevel: '10' // set to 10 by default so it loads pages with max_level set to 10 (maximum) before extensions learns actual level
@@ -159,6 +183,7 @@ function loadsettings() {
 			settingsPagestoloadBG = parseInt(data['PagestoloadBG'], 10);
 			if (data['BackgroundAJ'] == 'true'){ settingsBackgroundAJ = true }
 			if (data['LevelPriorityBG'] == 'true'){	settingsLevelPriorityBG = true }
+			if (data['OddsPriorityBG'] == 'true'){ settingsOddsPriorityBG = true }
 			if (data['IgnoreGroupsBG'] == 'true'){ settingsIgnoreGroupsBG = true }
 			if (data['IgnorePinnedBG'] == 'true'){ settingsIgnorePinnedBG = true }
 			settingsLastKnownLevel = parseInt(data['LastKnownLevel'], 10);
@@ -188,17 +213,18 @@ var arr = [],
     varcount = 0,
     timepassed = 0,
     timetopass = 20,
-    justLaunched = !0,
-    settingsIgnoreGroupsBGTrue = !1,
-    settingsIgnoreGroupsBG = !1,
-    settingsLevelPriorityBG = !1,
-    settingsBackgroundAJ = !0,
+    justLaunched = true,
+    settingsIgnoreGroupsBGTrue = false,
+    settingsIgnoreGroupsBG = false,
+    settingsLevelPriorityBG = false,
+	settingsOddsPriorityBG = false,
+    settingsBackgroundAJ = true,
     settingsPagestoloadBG = 3,
     settingsPageForBG = "all",
     settingsRepeatHoursBG = 2,
 	settingsDelayBG = 2,
     settingsMinLevelBG = 0,
-	settingsIgnorePinnedBG = !1;
+	settingsIgnorePinnedBG = false;
 	settingsLastKnownLevel = 10;
 
 /*Creating a new tab if notification is clicked*/
