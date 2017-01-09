@@ -181,7 +181,7 @@ function loadsettings() {
 			settingsDelayBG = parseInt(data['DelayBG'], 10);
 			settingsMinLevelBG = parseInt(data['MinLevelBG'], 10);
 			settingsPagestoloadBG = parseInt(data['PagestoloadBG'], 10);
-			if (data['BackgroundAJ'] == 'true'){ settingsBackgroundAJ = true }
+			if (data['BackgroundAJ'] == 'false'){ settingsBackgroundAJ = false }
 			if (data['LevelPriorityBG'] == 'true'){	settingsLevelPriorityBG = true }
 			if (data['OddsPriorityBG'] == 'true'){ settingsOddsPriorityBG = true }
 			if (data['IgnoreGroupsBG'] == 'true'){ settingsIgnoreGroupsBG = true }
