@@ -56,36 +56,36 @@ $(document).ready(function() {
 		MinLevelBG: '0',
 		ShowChance: 'true'
 		}, function(data) {
-			if (data['HideGroups'] == 'true'){ settingsHideGroups = true }
-			if (data['IgnoreGroups'] == 'true'){ settingsIgnoreGroups = true }
-			if (data['IgnorePinned'] == 'true'){ settingsIgnorePinned = true }
-			if (data['IgnoreGroupsBG'] == 'true'){ settingsIgnoreGroupsBG = true }
-			if (data['IgnorePinnedBG'] == 'true'){ settingsIgnorePinnedBG = true }
-			if (data['HideEntered'] == 'true'){ settingsHideEntered = true }
+			settingsHideGroups = (data['HideGroups'] == 'true');
+			settingsIgnoreGroups = (data['IgnoreGroups'] == 'true');
+			settingsIgnorePinned = (data['IgnorePinned'] == 'true');
+			settingsIgnoreGroupsBG = (data['IgnoreGroupsBG'] == 'true');
+			settingsIgnorePinnedBG = (data['IgnorePinnedBG'] == 'true');
+			settingsHideEntered = (data['HideEntered'] == 'true');
 			settingsPageForBG = data['PageForBG'];
 			settingsRepeatHoursBG = parseInt(data['RepeatHoursBG'], 10);
 			settingsPagestoload = parseInt(data['Pagestoload'], 10);
 			settingsPagestoloadBG = parseInt(data['PagestoloadBG'], 10);
 			settingsDelayBG = parseInt(data['DelayBG'], 10);
 			settingsMinLevelBG = parseInt(data['MinLevelBG'], 10);
-			if (data['BackgroundAJ'] == 'true'){ settingsBackgroundAJ = true }
-			if (data['LevelPriorityBG'] == 'true'){	settingsLevelPriorityBG = true }
-			if (data['OddsPriorityBG'] == 'true'){	settingsOddsPriorityBG = true }
+			settingsBackgroundAJ = (data['BackgroundAJ'] == 'true');
+			settingsLevelPriorityBG = (data['LevelPriorityBG'] == 'true');
+			settingsOddsPriorityBG = (data['OddsPriorityBG'] == 'true');
 			if (!(parseInt(data['lastLaunchedVersion'], 10) < 20160226)){
 				newVersionLaunched = true;
 				chrome.storage.sync.set({'lastLaunchedVersion': '20160226'});
 			}
-			if (data['infiniteScrolling'] == 'true'){ settingsInfiniteScrolling = true }
-			if (data['showPoints'] == 'true'){ settingsShowPoints = true }
-			if (data['showButtons'] == 'true'){ settingsShowButtons = true }
-			if (data['loadFive'] == 'true'){ settingsLoadFive = true }
-			if (data['hideDlc'] == 'true'){	settingsHideDlc = true }
-			if (data['repeatIfOnPage'] == 'true'){ settingsRepeatIfOnPage = true }
+			settingsInfiniteScrolling = (data['infiniteScrolling'] == 'true');
+			settingsShowPoints = (data['showPoints'] == 'true');
+			settingsShowButtons = (data['showButtons'] == 'true');
+			settingsLoadFive = (data['loadFive'] == 'true');
+			settingsHideDlc = (data['hideDlc'] == 'true');
+			settingsRepeatIfOnPage = (data['repeatIfOnPage'] == 'true');
 			settingsRepeatHours = parseInt(data['repeatHours'], 10);
-			if (data['nightTheme'] == 'true'){ settingsNightTheme = true }
-			if (data['levelPriority'] == 'true'){ settingsLevelPriority = true }
-			if (data['PlayAudio'] == 'false') { settingsPlayAudio = false }
-			if (data['ShowChance'] == 'false') { settingsShowChance = false }
+			settingsNightTheme = (data['nightTheme'] == 'true');
+			settingsLevelPriority = (data['levelPriority'] == 'true');
+			settingsPlayAudio = (data['PlayAudio'] == 'true');
+			settingsShowChance = (data['ShowChance'] == 'true');
 
 			onPageLoad();
 		}
