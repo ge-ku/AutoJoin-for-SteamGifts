@@ -20,8 +20,8 @@ function calculateWinChance(giveaway, timeLoaded) {
 	var timePassed = timeLoaded - parseInt( $(giveaway).find('.giveaway__username').prev('span').attr('data-timestamp') ); //time passed in seconds
 	var numberOfEntries = parseInt( $(giveaway).find('.fa-tag').next('span').text().replace(',', '') );
 	var numberOfCopies = 1;
-	if ($(giveaway).find('.giveaway__heading__thin:first').text().match(/\(\d+ Copies\)/)) { // if more than one copy there's a text field "(N Copies)"
-		numberOfCopies = parseInt( $(giveaway).find('.giveaway__heading__thin:first').text().match(/\d+/)[0] );
+	if ($(giveaway).find('.giveaway__heading__thin:first').text().replace(',', '').match(/\(\d+ Copies\)/)) { // if more than one copy there's a text field "(N Copies)"
+		numberOfCopies = parseInt( $(giveaway).find('.giveaway__heading__thin:first').text().replace(',', '').match(/\d+/)[0] );
 	}
 	var predictionOfEntries = (numberOfEntries / timePassed) * timeLeft; // calculate rate of entries and multiply on time left, probably not very accurate as we assume linear rate
 	var chance = (1 / (numberOfEntries + 1 + predictionOfEntries)) * 100 * numberOfCopies;
