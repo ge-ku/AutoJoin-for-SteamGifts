@@ -1,4 +1,4 @@
-<div id="settingsDiv" style="all: initial; visibility: hidden; width: 600px; height: 640px; background-color: #FFFFFF; position: fixed; top:0; bottom: 0; left: 0; right: 0; margin: auto; opacity: 0.0">
+<div id="settingsDiv" style="all: initial; z-index: 8000; visibility: hidden; width: 600px; height: 640px; background-color: #FFFFFF; position: fixed; top:0; bottom: 0; left: 0; right: 0; margin: auto; opacity: 0.0">
     <ul style="list-style: none; margin: 20px">
         <li style="font-weight: bold;">General settings</li>
         <ul>
@@ -110,6 +110,7 @@
     </div>
     <div style="margin-left:250px">
         <button id="btnSetSave">Save</button>&nbsp&nbsp
-        <button id="btnSetCancel">Cancel</button>
+        <button id="btnSetCancel" class="settingsCancel">Cancel</button>
     </div>
 </div>
+<div id="settingsShade" class="settingsCancel" style="z-index: 7999; visibility: hidden; position: fixed; top: 0; left: 0; background-color:black; width:100%; height:100%; opacity: 0.0"\>

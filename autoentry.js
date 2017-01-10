@@ -139,17 +139,19 @@ function onPageLoad(){
 					$(this).html('<i class="fa fa-cog fa-4x fa-inverse">');
 			})
 			.click(function(){
-				$("body").children(':not(#settingsDiv)').animate({opacity:0.3}, "slow");
-				$("#settingsDiv").css("visibility","visible").animate({opacity:1.0}, "slow");
+				$("#settingsShade").css("visibility","visible").animate({opacity:0.7}, "fast");
+				$("#settingsDiv").css("visibility","visible").animate({opacity:1.0}, "fast");
 			});
-		$('#btnSetCancel').click(function(){
-			$("body").children(':not(#settingsDiv)').animate({opacity:1.0}, "slow");
-			$("#settingsDiv").animate({
-						opacity: 0.0}, {
-						easing: 'swing',
-						duration: 600,
-						complete: function() { $("#settingsDiv").css("visibility","hidden") }
-						});
+		$('.settingsCancel').click(function(){
+			$("#settingsShade").animate({opacity:0.0}, "slow");
+			$("#settingsDiv").animate({opacity: 0.0}, {
+				easing: 'swing',
+				duration: 600,
+				complete: function() {
+					$("#settingsShade").css("visibility","hidden");
+					$("#settingsDiv").css("visibility","hidden");
+				}
+			});
 		});
 		$('#btnSetSave').click(function(){
 			chrome.storage.sync.set({
