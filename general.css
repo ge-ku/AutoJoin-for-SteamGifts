@@ -1,3 +1,5 @@
+/* Style for page */
+
 #btnSettings{
 	cursor:pointer;
 }
@@ -8,4 +10,68 @@
 
 .btnSingle{
 	cursor:pointer;
+}
+
+/* Style for options window */
+
+@font-face {
+	font-family: 'Droid Sans';
+	src: url('droid-sans.ttf') format('truetype');
+}
+
+#settingsDiv{
+	visibility: hidden;
+	overflow-y: auto;
+	color: black;
+    width: 655px;
+    background-color: #FFFFFF;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    font-family: "Droid Sans";
+    line-height: 25px;
+    box-shadow: 2px 0 15px, -2px 0 15px;
+	background: linear-gradient(#e9e9ef, #bfbed6);
+}
+
+#settingsDiv label{
+	display: inline-block;
+}
+
+#settingsDiv #titlesList{
+	list-style: none; 
+	margin: 20px;
+}
+
+#settingsDiv #titlesList .titleListItem{
+	font-weight: bold;
+	font-size: 20px;
+	line-height: 50px;
+}
+
+#settingsDiv #titlesList ul{
+	list-style: none; 
+}
+
+#settingsDiv input[type='checkbox']{
+	width: 20px;
+}
+
+#settingsDiv #btnSetSave, #btnSetCancel{
+	color: black;
+	padding: 10px;
+	border-radius: 3px;
+	width: 100px;
+	cursor: pointer;
+}
+
+#settingsDiv #SaveCancelContainer{
+	text-align: center;
+}
+
+#settingsDiv #rateSteamContainer{
+	margin-left: 20px;
 }
