@@ -1,107 +1,112 @@
 /* Style for page */
 
-.btnSingle{
-	cursor:pointer;
-	width:130px;
-	height:80px;
+.btnSingle {
+	cursor: pointer;
+	width: 130px;
+	height: 80px;
 }
 
-.btnSingle[walkState="join"]{
-	background-color:#BCED91;
-}
-.btnSingle[walkState="join"]:hover{
-	background-color:#A6D785;
+.btnSingle[walkState="join"] {
+	background-color: #BCED91;
 }
 
-.btnSingle[walkState="leave"]{
-	background-color:#CD9B9B;
-}
-.btnSingle[walkState="leave"]:hover{
-	background-color:#BC8F8F;
+.btnSingle[walkState="join"]:hover {
+	background-color: #A6D785;
 }
 
-.btnSingle[walkState|="no"]{
-	background-color:#FFFFFF;
+.btnSingle[walkState="leave"] {
+	background-color: #CD9B9B;
 }
 
-#btnAutoJoin{
-	position:relative;
-	width:200px;
-	cursor:pointer;
-	background-color:#FFFFFF;
-}
-#btnAutoJoin:hover{
-	backgroundColor:#EAEAEA;
+.btnSingle[walkState="leave"]:hover {
+	background-color: #BC8F8F;
 }
 
-#btnSettings{
+.btnSingle[walkState|="no"] {
+	background-color: #FFFFFF;
+}
+
+#btnAutoJoin {
+	position: relative;
+	width: 200px;
+	cursor: pointer;
+	background-color: #FFFFFF;
+}
+
+#btnAutoJoin:hover {
+	background-color: #EAEAEA;
+}
+
+#btnSettings {
 	width: 30px;
 	height: 30px;
-	cursor:pointer;
+	cursor: pointer;
 	background-color: transparent;
 }
-#btnSettings:hover{
+
+#btnSettings:hover {
 	filter: invert(100%);
 }
 
-#info{
-	position:relative;
-	width:500px;
-	color:#FFFFFF
+#info {
+	position: relative;
+	width: 500px;
+	color: #FFFFFF
 }
 
-.pointsFloating{
-	position:fixed;
+.pointsFloating {
+	position: fixed;
 	opacity: 0;
 }
 
 
-
 /* Style for options window */
 
-#settingsDiv{
+#settingsDiv {
 	visibility: hidden;
 	overflow-y: auto;
 	color: black;
-    width: 700px;
-    background-color: #FFFFFF;
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: auto;
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    line-height: 25px;
-    box-shadow: 2px 0 15px, -2px 0 15px;
+	width: 700px;
+	background-color: #FFFFFF;
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+	font-family: 'Segoe UI', Tahoma, sans-serif;
+	line-height: 25px;
+	box-shadow: 2px 0 15px, -2px 0 15px;
 	background: linear-gradient(#e9e9ef, #bfbed6);
 	z-index: 8000;
 }
 
-#settingsDiv label{
+#settingsDiv label {
 	display: inline-block;
 }
 
-#settingsDiv #titlesList{
-	list-style: none; 
+#settingsDiv #titlesList {
+	list-style: none;
 	margin: 20px;
 }
 
-#settingsDiv #titlesList .titleListItem{
+#settingsDiv #titlesList .titleListItem {
 	font-weight: bold;
 	font-size: 20px;
 	line-height: 50px;
 }
 
-#settingsDiv #titlesList ul{
-	list-style: none; 
+#settingsDiv #titlesList ul {
+	list-style: none;
 }
 
-#settingsDiv input[type='checkbox'], #settingsDiv input[type='radio']{
+#settingsDiv input[type='checkbox'],
+#settingsDiv input[type='radio'] {
 	width: 20px;
 }
 
-#settingsDiv #btnSetSave, #btnSetCancel{
+#settingsDiv #btnSetSave,
+#btnSetCancel {
 	color: black;
 	padding: 10px;
 	border-radius: 3px;
@@ -109,30 +114,30 @@
 	cursor: pointer;
 }
 
-#settingsDiv #SaveCancelContainer{
+#settingsDiv #SaveCancelContainer {
 	text-align: center;
 }
 
-#settingsDiv #rateSteamContainer{
+#settingsDiv #rateSteamContainer {
 	margin-left: 20px;
 }
 
-#settingsDiv input[type=number]{
+#settingsDiv input[type=number] {
 	width: 55px;
 }
 
-#settingsDiv a{
-	text-decoration:underline;
+#settingsDiv a {
+	text-decoration: underline;
 }
 
-#settingsShade{
-	z-index: 7999; 
-	visibility: hidden; 
-	position: fixed; 
-	top: 0; 
-	left: 0; 
-	background-color:white; 
-	width:100%; 
-	height:100%; 
+#settingsShade {
+	z-index: 7999;
+	visibility: hidden;
+	position: fixed;
+	top: 0;
+	left: 0;
+	background-color: white;
+	width: 100%;
+	height: 100%;
 	opacity: 0.0;
 }
