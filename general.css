@@ -66,23 +66,23 @@
 	visibility: hidden;
 	overflow-y: auto;
 	color: black;
-	width: 700px;
+	width: 600px;
+	height: 720px;
 	background-color: #FFFFFF;
 	position: fixed;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	margin: auto;
+	top: 50%;
+	left: 50%;
+	margin-left: -300px;
+	margin-top: -360px;
 	font-family: 'Segoe UI', Tahoma, sans-serif;
-	line-height: 25px;
-	box-shadow: 2px 0 15px, -2px 0 15px;
-	background: linear-gradient(#e9e9ef, #bfbed6);
+	box-shadow: 0 4px 23px 5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+	background: white;
 	z-index: 8000;
 }
 
 #settingsDiv label {
 	display: inline-block;
+	color: rgb(48, 57, 66);
 }
 
 #settingsDiv #titlesList {
@@ -91,22 +91,31 @@
 }
 
 #settingsDiv #titlesList .titleListItem {
-	font-weight: bold;
-	font-size: 20px;
-	line-height: 50px;
+	color: black;
+	font-size: 1.2em;
+	margin-bottom: 0.8em;
 }
 
 #settingsDiv #titlesList ul {
 	list-style: none;
 }
 
+#settingsDiv #titlesList ul li {
+	margin-left: 18px;
+	margin-bottom: 0.3em;
+}
+
 #settingsDiv input[type='checkbox'],
 #settingsDiv input[type='radio'] {
-	width: 20px;
+	width: 13px;
+	height: 13px;
+	margin-right: 4px;
+	margin-top: -3px;
+	vertical-align: middle;
 }
 
 #settingsDiv #btnSetSave,
-#btnSetCancel {
+#settingsDiv #btnSetCancel {
 	color: black;
 	padding: 10px;
 	border-radius: 3px;

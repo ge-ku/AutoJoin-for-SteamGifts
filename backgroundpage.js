@@ -234,7 +234,7 @@ var arr = [],
     settingsRepeatHoursBG = 2,
 	settingsDelayBG = 10,
     settingsMinLevelBG = 0,
-	settingsIgnorePinnedBG = false;
+	settingsIgnorePinnedBG = false,
 	settingsLastKnownLevel = 10;
 
 /*Creating a new tab if notification is clicked*/
