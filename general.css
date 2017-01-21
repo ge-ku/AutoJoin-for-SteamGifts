@@ -71,3 +71,15 @@
 #settingsDiv #rateSteamContainer{
 	margin-left: 20px;
 }
+
+#settingsShade{
+	z-index: 7999; 
+	visibility: hidden; 
+	position: fixed; 
+	top: 0; 
+	left: 0; 
+	background-color:black; 
+	width:100%; 
+	height:100%; 
+	opacity: 0.0;
+}
