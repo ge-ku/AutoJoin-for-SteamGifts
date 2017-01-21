@@ -21,7 +21,7 @@ var settingsIgnoreGroups = false;
 var settingsIgnoreGroupsBG = false;
 var settingsIgnorePinnedBG = false;
 var settingsPlayAudio = true;
-var settingsDelayBG = 2;
+var settingsDelayBG = 10;
 var settingsMinLevelBG = 0;
 var settingsIgnorePinned = false;
 var settingsShowChance = true;
@@ -52,7 +52,7 @@ $(document).ready(function() {
 		nightTheme: 'false',
 		levelPriority: 'false',
 		PlayAudio: 'true',
-		DelayBG: '2',
+		DelayBG: '10',
 		MinLevelBG: '0',
 		ShowChance: 'true'
 		}, function(data) {

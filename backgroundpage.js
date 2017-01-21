@@ -166,7 +166,7 @@ function loadsettings() {
 	chrome.storage.sync.get({
 		PageForBG: 'wishlist',
 		RepeatHoursBG: '2',
-		DelayBG: '2',
+		DelayBG: '10',
 		MinLevelBG: '0',
 		PagestoloadBG: '3',
 		BackgroundAJ: 'true',
@@ -187,6 +187,16 @@ function loadsettings() {
 			settingsIgnoreGroupsBG = (data['IgnoreGroupsBG'] == 'true');
 			settingsIgnorePinnedBG = (data['IgnorePinnedBG'] == 'true');
 			settingsLastKnownLevel = parseInt(data['LastKnownLevel'], 10);
+			
+			//This section is temporary. I noticed that default value for delay between 
+			//requests was 2 seconds (even though you can't set it less to than 5 in settings).
+			//This will set this value to default (10) for those who had it set to 2.
+			if (settingsDelayBG < 5) {
+				settingsDelayBG = 10;
+				chrome.storage.sync.set({DelayBG: "10"});
+			}
+			//Can be removed after some time when most users get this update.
+			
 			settingsloaded();
 		}
 	);
@@ -222,7 +232,7 @@ var arr = [],
     settingsPagestoloadBG = 3,
     settingsPageForBG = "all",
     settingsRepeatHoursBG = 2,
-	settingsDelayBG = 2,
+	settingsDelayBG = 10,
     settingsMinLevelBG = 0,
 	settingsIgnorePinnedBG = false;
 	settingsLastKnownLevel = 10;
