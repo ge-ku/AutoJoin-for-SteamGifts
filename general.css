@@ -30,6 +30,7 @@
     line-height: 25px;
     box-shadow: 2px 0 15px, -2px 0 15px;
 	background: linear-gradient(#e9e9ef, #bfbed6);
+	z-index: 8000;
 }
 
 #settingsDiv label{

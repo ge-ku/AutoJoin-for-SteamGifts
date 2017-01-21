@@ -87,10 +87,24 @@ $(document).ready(function() {
 			settingsPlayAudio = (data['PlayAudio'] == 'true');
 			settingsShowChance = (data['ShowChance'] == 'true');
 
-			onPageLoad();
+			/* Wait for the settings page to be added to manipulate settings*/
+			$.when(loadSettingsFromHTML()).done(function () {
+				onPageLoad();
+			});
 		}
 	);
 });
+
+/* Appends the settings window to the end of the document from settings.html */
+function loadSettingsFromHTML(){
+	return $.ajax({
+		url : chrome.extension.getURL("/settings.html"),
+		dataType: "text",
+		success : function (data) {
+		$('body').append(data);
+	}
+	});
+}
 
 function onPageLoad(){
 	
