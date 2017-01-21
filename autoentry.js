@@ -133,20 +133,15 @@ function onPageLoad(){
 		$('#minLevelBG').val(settingsMinLevelBG);
 
 		$('#btnSettings')
-			.hover(function(){
-					$(this).html('<i class="fa fa-cog fa-4x">');
-			},function(){
-					$(this).html('<i class="fa fa-cog fa-4x fa-inverse">');
-			})
 			.click(function(){
-				$("#settingsShade").css("visibility","visible").animate({opacity:0.7}, "fast");
-				$("#settingsDiv").css("visibility","visible").animate({opacity:1.0}, "fast");
+				$("#settingsShade").css("visibility","visible").animate({opacity:0.75}, 200);
+				$("#settingsDiv").css("visibility","visible").animate({opacity:1.0}, 200);
 			});
 		$('.settingsCancel').click(function(){
-			$("#settingsShade").animate({opacity:0.0}, "slow");
+			$("#settingsShade").animate({opacity:0.0}, 200);
 			$("#settingsDiv").animate({opacity: 0.0}, {
 				easing: 'swing',
-				duration: 600,
+				duration: 200,
 				complete: function() {
 					$("#settingsShade").css("visibility","hidden");
 					$("#settingsDiv").css("visibility","hidden");
@@ -231,18 +226,18 @@ function onPageLoad(){
 							$(this).parent().remove();
 							return;
 						}else if (settingsShowButtons){
-							$('<input type="button" value="Leave" class="btnSingle" walkState="leave" style="width:130px; height:80px; background-color:#CD9B9B;">').appendTo(this);
+							$('<input type="button" value="Leave" class="btnSingle" walkState="leave">').appendTo(this);
 						}
 					}else{
 						if ($(this).find('.giveaway__column--contributor-level--negative').length && settingsShowButtons){
-							$('<input type="button" value="Need a higher level" class="btnSingleLvl" walkState="no-level" style="width:130px; height:80px; background-color:#FFFFFF;" disabled>').appendTo(this);
+							$('<input type="button" value="Need a higher level" class="btnSingle" walkState="no-level" disabled>').appendTo(this);
 						}else{
 							var pointsNeededRaw = $(this).parent().find('.giveaway__heading__thin').text().match(/(\d+)P/);
 							var pointsNeeded = pointsNeededRaw[pointsNeededRaw.length-1];
 							if (parseInt(pointsNeeded, 10) > parseInt($('.nav__points').first().text(),10) && settingsShowButtons){
-								$('<input type="button" value="Not enough points" class="btnSingle" walkState="no-points" style="width:130px; height:80px; background-color:#FFFFFF;" disabled>').appendTo(this);
+								$('<input type="button" value="Not enough points" class="btnSingle" walkState="no-points" disabled>').appendTo(this);
 							}else if (settingsShowButtons){
-								$('<input type="button" value="Join" class="btnSingle" walkState="join" style="width:130px; height:80px; background-color:#BCED91;">').appendTo(this);
+								$('<input type="button" value="Join" class="btnSingle" walkState="join">').appendTo(this);
 							}
 						}
 					}
@@ -309,7 +304,7 @@ function onPageLoad(){
 						current.toggleClass('is-faded');
 						$('.nav__points').text(json_response.points);
 						entered++;
-						current.find('.btnSingle').attr('walkState', 'leave').prop("disabled", false).val('Leave').css({backgroundColor: '#CD9B9B'});
+						current.find('.btnSingle').attr('walkState', 'leave').prop("disabled", false).val('Leave');
 						updateButtons();
 					}
 					if (json_response.points < 5) {
@@ -328,7 +323,7 @@ function onPageLoad(){
 				});
 			}, this), iteration * 3000));
 		});
-		$('#btnJoin').val('Good luck!');
+		$('#btnAutoJoin').val('Good luck!');
 	}
 	
 	/*
@@ -372,7 +367,7 @@ function onPageLoad(){
 							current.toggleClass('is-faded');
 							$('.nav__points').text(json_response.points);
 							entered++;
-							current.find('.btnSingle').attr('walkState', 'leave').prop("disabled", false).val('Leave').css({backgroundColor: '#CD9B9B'});
+							current.find('.btnSingle').attr('walkState', 'leave').prop("disabled", false).val('Leave');
 							updateButtons();
 							console.log(json_response.points);
 							if (json_response.points < 5) {
@@ -393,7 +388,7 @@ function onPageLoad(){
 				}, this), iteration * 1500));
 			});
 		}
-		$('#btnJoin').val('Good luck!');
+		$('#btnAutoJoin').val('Good luck!');
 	}*/
 	
 	if (splitPageLinkCheck.length > 0){
@@ -437,19 +432,14 @@ function onPageLoad(){
 		});
 	}
 	
-	$('<div id="info" style="position:relative;width:500px;color:#FFFFFF">&nbsp</div>').prependTo('.featured__summary');
-	$('<div id="buttonsAJ"><button id="btnSettings" style="width: 30px; height: 30px; background-color: transparent;"><i class="fa fa-cog fa-4x fa-inverse"></i></button></div>').prependTo('.featured__summary');
-	$('<input type="button" value="AutoJoin" id="btnJoin" style="position:relative;width:200px;background-color:#FFFFFF;">')
+	$('<div id="info"></div>').prependTo('.featured__summary');
+	$('<div id="buttonsAJ"><button id="btnSettings"><i class="fa fa-cog fa-4x fa-inverse"></i></button></div>').prependTo('.featured__summary');
+	$('<input type="button" value="AutoJoin" id="btnAutoJoin">')
 		.prependTo('#buttonsAJ')
-		.hover(function(){
-				this.style.backgroundColor = '#EAEAEA';
-		},function(){
-				this.style.backgroundColor = '#FFFFFF';
-		})
 		.click(function(){
-				$('#btnJoin').prop("disabled", true);
+				$('#btnAutoJoin').prop("disabled", true);
 				if (settingsLoadFive && pagesLoaded < 5){
-					$('#btnJoin').val("Loading Pages..");
+					$('#btnAutoJoin').val("Loading Pages..");
 				}	
 				//if (settingsLevelPriority){
 				//	fireAutoJoinPriority();
@@ -460,7 +450,7 @@ function onPageLoad(){
 			
 	function updateButtons(){
 		if (settingsShowButtons){
-			$('.btnSingle').each(function(){
+			$('.btnSingle:not([walkState="no-level"])').each(function(){
 				if ($(this).parent().attr('class') != 'giveaway__row-inner-wrap is-faded'){
 					var pointsNeededRaw = $(this).parent().find('.giveaway__heading__thin').text().match(/(\d+)P/);
 					var pointsNeeded = pointsNeededRaw[pointsNeededRaw.length-1];
@@ -468,12 +458,10 @@ function onPageLoad(){
 						$(this).prop("disabled", true);
 						$(this).attr('walkState', 'no-points');
 						$(this).attr('value', 'Not enough points');
-						this.style.backgroundColor = '#FFFFFF';
 					}else{
 						$(this).prop("disabled", false);
 						$(this).attr('walkState', 'join');
 						$(this).attr('value', 'Join');
-						this.style.backgroundColor = '#BCED91';
 					}
 				}
 			});
@@ -493,18 +481,18 @@ function onPageLoad(){
 				$(this).parent().remove();
 				return;
 			}else if (settingsShowButtons){
-				$('<input type="button" value="Leave" class="btnSingle" walkState="leave" style="width:130px; height:80px; background-color:#CD9B9B;">').appendTo(this);
+				$('<input type="button" value="Leave" class="btnSingle" walkState="leave">').appendTo(this);
 			}				
 		}else if (settingsShowButtons){
 			if ($(this).find('.giveaway__column--contributor-level--negative').length){
-				$('<input type="button" value="Need a higher level" class="btnSingleLvl" walkState="no-level" style="width:130px; height:80px; background-color:#FFFFFF;" disabled>').appendTo(this);
+				$('<input type="button" value="Need a higher level" class="btnSingle" walkState="no-level" disabled>').appendTo(this);
 			}else{
 				var pointsNeededRaw = $(this).parent().find('.giveaway__heading__thin').text().match(/(\d+)P/);
 				var pointsNeeded = pointsNeededRaw[pointsNeededRaw.length-1];
 				if (parseInt(pointsNeeded, 10) > parseInt($('.nav__points').first().text(),10)){
-					$('<input type="button" value="Not enough points" class="btnSingle" walkState="no-points" style="width:130px; height:80px; background-color:#FFFFFF;" disabled>').appendTo(this);
+					$('<input type="button" value="Not enough points" class="btnSingle" walkState="no-points" disabled>').appendTo(this);
 				}else{
-					$('<input type="button" value="Join" class="btnSingle" walkState="join" style="width:130px; height:80px; background-color:#BCED91;">').appendTo(this);
+					$('<input type="button" value="Join" class="btnSingle" walkState="join">').appendTo(this);
 				}
 			}
 		}
@@ -547,20 +535,6 @@ function onPageLoad(){
 	});
 
 	$(document).on({
-		mouseenter: function () {
-			if ($(this).attr('walkState') == "join"){
-				this.style.backgroundColor = '#A6D785';
-			}else if ($(this).attr('walkState') == "leave"){
-				this.style.backgroundColor = '#BC8F8F';
-			}
-		},
-		mouseleave: function () {
-			if ($(this).attr('walkState') == "join"){
-				this.style.backgroundColor = '#BCED91';
-			}else if ($(this).attr('walkState') == "leave"){
-				this.style.backgroundColor = '#CD9B9B';
-			}
-		},
 		click: function () {
 			var thisButton = $(this);
 			var thisWrap = $(this).parent();
@@ -586,7 +560,6 @@ function onPageLoad(){
 							thisButton.prop("disabled", false);
 							thisButton.val('Leave');
 							updateButtons();
-							$(thisButton).css({backgroundColor: '#CD9B9B'});
 						}
 					}else{
 						thisWrap.toggleClass('is-faded');
@@ -608,7 +581,6 @@ function onPageLoad(){
 						thisButton.prop("disabled", false);
 						thisButton.val('Join');
 						updateButtons();
-						$(thisButton).css({backgroundColor: '#BCED91'});
 					}else{
 						thisButton.val('Error: '+json_response.msg);
 					}

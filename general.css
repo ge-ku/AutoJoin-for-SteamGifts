@@ -1,16 +1,61 @@
 /* Style for page */
 
-#btnSettings{
-	cursor:pointer;
-}
-
-#btnJoin{
-	cursor:pointer;
-}
-
 .btnSingle{
 	cursor:pointer;
+	width:130px;
+	height:80px;
 }
+
+.btnSingle[walkState="join"]{
+	background-color:#BCED91;
+}
+.btnSingle[walkState="join"]:hover{
+	background-color:#A6D785;
+}
+
+.btnSingle[walkState="leave"]{
+	background-color:#CD9B9B;
+}
+.btnSingle[walkState="leave"]:hover{
+	background-color:#BC8F8F;
+}
+
+.btnSingle[walkState|="no"]{
+	background-color:#FFFFFF;
+}
+
+#btnAutoJoin{
+	position:relative;
+	width:200px;
+	cursor:pointer;
+	background-color:#FFFFFF;
+}
+#btnAutoJoin:hover{
+	backgroundColor:#EAEAEA;
+}
+
+#btnSettings{
+	width: 30px;
+	height: 30px;
+	cursor:pointer;
+	background-color: transparent;
+}
+#btnSettings:hover{
+	filter: invert(100%);
+}
+
+#info{
+	position:relative;
+	width:500px;
+	color:#FFFFFF
+}
+
+.pointsFloating{
+	position:fixed;
+	opacity: 0;
+}
+
+
 
 /* Style for options window */
 
@@ -18,7 +63,7 @@
 	visibility: hidden;
 	overflow-y: auto;
 	color: black;
-    width: 655px;
+    width: 700px;
     background-color: #FFFFFF;
     position: fixed;
     top: 0;
@@ -26,7 +71,7 @@
     left: 0;
     right: 0;
     margin: auto;
-    font-family: "Arial";
+    font-family: 'Segoe UI', Tahoma, sans-serif;
     line-height: 25px;
     box-shadow: 2px 0 15px, -2px 0 15px;
 	background: linear-gradient(#e9e9ef, #bfbed6);
@@ -72,13 +117,21 @@
 	margin-left: 20px;
 }
 
+#settingsDiv input[type=number]{
+	width: 55px;
+}
+
+#settingsDiv a{
+	text-decoration:underline;
+}
+
 #settingsShade{
 	z-index: 7999; 
 	visibility: hidden; 
 	position: fixed; 
 	top: 0; 
 	left: 0; 
-	background-color:black; 
+	background-color:white; 
 	width:100%; 
 	height:100%; 
 	opacity: 0.0;
