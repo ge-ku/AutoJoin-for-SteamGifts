@@ -67,13 +67,13 @@
 	overflow-y: auto;
 	color: black;
 	width: 600px;
-	height: 720px;
+	height: 700px;
 	background-color: #FFFFFF;
 	position: fixed;
 	top: 50%;
 	left: 50%;
 	margin-left: -300px;
-	margin-top: -360px;
+	margin-top: -350px;
 	font-family: 'Segoe UI', Tahoma, sans-serif;
 	box-shadow: 0 4px 23px 5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
 	background: white;
