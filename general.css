@@ -74,7 +74,7 @@
 	left: 50%;
 	margin-left: -300px;
 	margin-top: -350px;
-	font-family: 'Segoe UI', Tahoma, sans-serif;
+	font-family: Cantarell, 'Segoe UI', Tahoma, sans-serif;
 	box-shadow: 0 4px 23px 5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
 	background: white;
 	z-index: 8000;
@@ -109,18 +109,35 @@
 #settingsDiv input[type='radio'] {
 	width: 13px;
 	height: 13px;
-	margin-right: 4px;
+	margin-right: 0.6em; /* As in the chrome://settings page */
 	margin-top: -3px;
 	vertical-align: middle;
 }
 
 #settingsDiv #btnSetSave,
 #settingsDiv #btnSetCancel {
-	color: black;
 	padding: 10px;
-	border-radius: 3px;
 	width: 100px;
-	cursor: pointer;
+	background-image: -webkit-linear-gradient(#ededed, #ededed 38%, #dedede);
+	border: 1px solid rgba(0, 0, 0, 0.25);
+	border-radius: 2px;
+	box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08),
+	inset 0 1px 2px rgba(255, 255, 255, 0.75);
+	color: #444;
+	font: inherit;
+	margin: 0 1px 0 0;
+	outline: none;
+	text-shadow: 0 1px 0 rgb(240, 240, 240);
+}
+
+#settingsDiv #btnSetSave:hover,
+#settingsDiv #btnSetCancel:hover
+{
+	background-image: -webkit-linear-gradient(#f0f0f0, #f0f0f0 38%, #e0e0e0);
+	border-color: rgba(0, 0, 0, 0.3);
+	box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12),
+	inset 0 1px 2px rgba(255, 255, 255, 0.95);
+	color: black;
 }
 
 #settingsDiv #SaveCancelContainer {
