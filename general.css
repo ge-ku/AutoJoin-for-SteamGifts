@@ -65,7 +65,7 @@
 #settingsDiv {
 	visibility: hidden;
 	overflow-y: auto;
-	color: black;
+	color: rgb(48, 57, 66);
 	width: 600px;
 	height: 700px;
 	background-color: #FFFFFF;
@@ -140,6 +140,22 @@
 	color: black;
 }
 
+#settingsDiv #btnSetSave:focus,
+#settingsDiv #btnSetCancel:focus
+{
+	background-image: -webkit-linear-gradient(#e7e7e7, #e7e7e7 38%, #d7d7d7);
+	box-shadow: none;
+	text-shadow: none;
+}
+
+#settingsDiv #btnSetSave:active,
+#settingsDiv #btnSetCancel:active
+{
+	-webkit-transition: border-color 200ms;
+	border-color: rgb(77, 144, 254);
+	outline: none;
+}
+
 #settingsDiv #SaveCancelContainer {
 	text-align: center;
 }
@@ -153,6 +169,11 @@
 }
 
 #settingsDiv a {
+	text-decoration: none;
+	color: rgb(17, 85, 204);
+}
+
+#settingsDiv a:hover {
 	text-decoration: underline;
 }
 
