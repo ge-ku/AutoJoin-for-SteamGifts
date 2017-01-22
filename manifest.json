@@ -26,7 +26,7 @@
        "settings.html",
        "night.css" 
     ],
-   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm/FQjecKEYQPsR+QswcsO4zN8TGAhkJVRR3fVSk28RSIXyDq8RXBHvGVJZnubt6YCX5N3ub/YWAsP+IrOnBkJ5UiEEZ0ldcRXPqmtKqX6XPYwKO4D2U2OKgVq9lLqOo3zP4P1r8dnQWz0c6DAbLpvN5IMA9/J8HLTKzUOOfPfHtJMiWvxGzrPpm17ctmIWp3yN82BZtkoyOxuOSiKqxfK+piQRpXGecQsl8SfIcI6WKx7zxbuFanM3D9SkMUtl5wCatDixcbw9Jnk4df2/tBCjYIBagKbLo4+eN+ARf9G4pUjnA8PV+fc9vAk0v67qVSOd+e4ZeSKtDJMb/76uSDPwIDAQAB",
+   
     "options_ui": {
       "page": "settings.html",
       "chrome_style": true
