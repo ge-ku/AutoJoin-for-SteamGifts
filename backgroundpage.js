@@ -239,7 +239,7 @@ var arr = [],
 
 /*Creating a new tab if notification is clicked*/
 chrome.alarms.create("routine", {
-    delayInMinutes: .1
+    delayInMinutes: 1
 }), chrome.notifications.onClicked.addListener(function() {
 	chrome.windows.getCurrent(function(currentWindow) {
 		if (currentWindow != null) {

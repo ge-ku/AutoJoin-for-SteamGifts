@@ -1,139 +1,149 @@
-<div id="settingsDiv">
-    <ul id="titlesList">
-        <li class="titleListItem">General settings</li>
-        <ul>
-            <li>
-                <label> 
-                        <input id="chkInfiniteScroll" type="checkbox"/>Enable Infinite Scrolling (also hides everything below giveaways)
-                    </label>
-            </li>
-            <li>
-                <label> 
-                        <input id="chkShowPoints" type="checkbox"/>Show points and level in top-left corner if scrolled down
-                    </label>
-            </li>
-            <li>
-                <label> 
-                        <input id="chkShowButtons" type="checkbox"/>Show buttons to join/leave and warnings besides each giveaway
-                    </label>
-            </li>
-            <li>
-                <label>
-                        <input id="chkShowChance" type="checkbox" />Show approximate odds of winning
-                    </label>
-            </li>
-            <li>
-                <label> 
-                        <input id="chkLoadFive" type="checkbox"/>Load 
-                        <input type="number" size="2" id="pagestoload" min="1" max="5" value="3"> pages before trying to Auto-join (1-5)
-                    </label>
-            </li>
-            <li>
-                <label> 
-                        <input id="chkHideDlc" type="checkbox"/>Hide all DLC giveaways
-                    </label>
-            </li>
-            <li>
-                <label> 
-                        <input id="chkRepeatIfOnPage" type="checkbox"/>AutoJoin every 
-                        <input type="number" size="2" id="hoursField" min="1" max="24" value="2"> hours if page is opened (1-24)
-                    </label>
-            </li>
-            <li>
-                <label> 
-                        <input id="chkNightTheme" type="checkbox"/>Enable Night theme
-                    </label>
-            </li>
-            <li>
-                <label> 
-                        <input id="chkHideEntered" type="checkbox"/>Hide joined giveaways
-                    </label>
-            </li>
-            <li>
-                <label> 
-                        <input id="chkIgnoreGroups" type="checkbox"/>Ignore group giveaways for AutoJoin
-                    </label> &nbsp;&nbsp;
-                <label> 
-                        <input id="chkHideGroups" type="checkbox"/>Completely hide them
-                    </label>
-            </li>
-            <li>
-                <label>
-                        <input id="chkIgnorePinned" type="checkbox">Ignore featured giveaways for AutoJoin
-                    </label>
-            </li>
-        </ul>
-        <br />
-        <li class="titleListItem">AutoJoin in background (even when steamgifts.com in not opened)</li>
-        <ul>
-            <li>
-                <label>
-                        <input id="chkEnableBG" type="checkbox"/>Enable AutoJoin in background on 
-                        <select style="width: 150px;" id="pageforBG"> 
-                            <option value="all">        Main page (All) </option>
-                            <option value="wishlist">   Wishlist        </option>
-                            <option value="group">      Group           </option>
-                            <option value="new">        New             </option>
-                            <option value="recommended">Recommended     </option>
-                        </select>
-                    </label>
-            </li>
-            <li>
-                Priority:&nbsp;
-                <label><input id="chkNoPriorityBG" name="BGpriority" type="radio" checked="checked"/>No priority</label>&nbsp;&nbsp;
-                <label><input id="chkLevelPriorityBG" name="BGpriority" type="radio" />Higher level giveaways</label>&nbsp;&nbsp;
-                <label><input id="chkOddsPriorityBG" name="BGpriority" type="radio" />Higher odds of winning</label>
-            </li>
-            <li>
-                <label>
-                        <input id="chkIgnoreGroupsBG" type="checkbox"/>Ignore groups giveaways for Main page (All)
-                    </label>
-            </li>
-            <li>
-                <label>
-                        <input id="chkIgnorePinnedBG" type="checkbox"/>Ignore featured giveaways (All)
-                    </label>
-            </li>
-            <li>
-                <label>
-                        <input id="chkPlayAudio" type="checkbox"/>Play sound when won
-                    </label>
-            </li>
-            <li>
-                <label>Try to AutoJoin in background every 
-                        <input type="number" size="2" id="hoursFieldBG" min="1" max="24" value="2"> hours (1-24)
-                    </label>
-            </li>
-            <li>
-                <label>Load 
-                        <input type="number" size="2" id="pagestoloadBG" min="1" max="3" value="2"> pages before trying to join giveaways (1-3)
-                    </label>
-            </li>
-            <li>
-                <label>Delay between requests: 
-                        <input type="number" size="2" id="delayBG" min="5" max="60" value="10"> seconds
-                    </label>
-            </li>
-            <li>
-                <label>Minimum giveaway level to enter: 
-                        <input type="number" size="2" id="minLevelBG" min="0" max="10" value="0"> (set it to 0 to enter all giveaways)
-                    </label>
-            </li>
-        </ul>
-    </ul>
-    <div id="rateSteamContainer">
-        <ul>
-            <li>
-                <a target="_blank" href="https://chrome.google.com/webstore/detail/autojoin-for-steamgifts/bchhlccjhoedhhegglilngpbnldfcidc">Rate this extension in Chrome Web Store
-                </a>
-            </li>
-            <li>
-                <a target="_blank" href="http://steamcommunity.com/groups/autojoin">Join Steam group</a>
-            </li>
-        </ul>
-    </div>
-    <div id="SaveCancelContainer">
-        <button id="btnSetSave">Save</button> &nbsp;&nbsp; <button id="btnSetCancel" class="settingsCancel">Cancel</button>
-    </div>
-</div>
-<div id="settingsShade" class="settingsCancel" \>
+<!doctype html>
+<html>
+    <head>
+        <link rel="alternate stylesheet" href="general.css" title="chromeOptions" />
+        <link rel="stylesheet" href="chromeOptions.css" title="chromeOptions" />
+        <script type="text/javascript" src="chromeOptions.js"></script>
+    </head>
+    <body>
+        <div id="settingsDiv">
+            <ul id="titlesList">
+                <li class="titleListItem">General settings</li>
+                <ul>
+                    <li>
+                        <label> 
+                                <input id="chkInfiniteScroll" type="checkbox"/>Enable Infinite Scrolling (also hides everything below giveaways)
+                            </label>
+                    </li>
+                    <li>
+                        <label> 
+                                <input id="chkShowPoints" type="checkbox"/>Show points and level in top-left corner if scrolled down
+                            </label>
+                    </li>
+                    <li>
+                        <label> 
+                                <input id="chkShowButtons" type="checkbox"/>Show buttons to join/leave and warnings besides each giveaway
+                            </label>
+                    </li>
+                    <li>
+                        <label>
+                                <input id="chkShowChance" type="checkbox" />Show approximate odds of winning
+                            </label>
+                    </li>
+                    <li>
+                        <label> 
+                                <input id="chkLoadFive" type="checkbox"/>Load 
+                                <input type="number" size="2" id="pagestoload" min="1" max="5" value="3"> pages before trying to Auto-join (1-5)
+                            </label>
+                    </li>
+                    <li>
+                        <label> 
+                                <input id="chkHideDlc" type="checkbox"/>Hide all DLC giveaways
+                            </label>
+                    </li>
+                    <li>
+                        <label> 
+                                <input id="chkRepeatIfOnPage" type="checkbox"/>AutoJoin every 
+                                <input type="number" size="2" id="hoursField" min="1" max="24" value="2"> hours if page is opened (1-24)
+                            </label>
+                    </li>
+                    <li>
+                        <label> 
+                                <input id="chkNightTheme" type="checkbox"/>Enable Night theme
+                            </label>
+                    </li>
+                    <li>
+                        <label> 
+                                <input id="chkHideEntered" type="checkbox"/>Hide joined giveaways
+                            </label>
+                    </li>
+                    <li>
+                        <label> 
+                                <input id="chkIgnoreGroups" type="checkbox"/>Ignore group giveaways for AutoJoin
+                            </label> &nbsp;&nbsp;
+                        <label> 
+                                <input id="chkHideGroups" type="checkbox"/>Completely hide them
+                            </label>
+                    </li>
+                    <li>
+                        <label>
+                                <input id="chkIgnorePinned" type="checkbox">Ignore featured giveaways for AutoJoin
+                            </label>
+                    </li>
+                </ul>
+                <br />
+                <li class="titleListItem">AutoJoin in background (even when steamgifts.com in not opened)</li>
+                <ul>
+                    <li>
+                        <label>
+                                <input id="chkEnableBG" type="checkbox"/>Enable AutoJoin in background on 
+                                <select style="width: 150px;" id="pageforBG"> 
+                                    <option value="all">        Main page (All) </option>
+                                    <option value="wishlist">   Wishlist        </option>
+                                    <option value="group">      Group           </option>
+                                    <option value="new">        New             </option>
+                                    <option value="recommended">Recommended     </option>
+                                </select>
+                            </label>
+                    </li>
+                    <li>
+                        Priority:&nbsp;
+                        <label><input id="chkNoPriorityBG" name="BGpriority" type="radio" checked="checked"/>No priority</label>&nbsp;&nbsp;
+                        <label><input id="chkLevelPriorityBG" name="BGpriority" type="radio" />Higher level giveaways</label>&nbsp;&nbsp;
+                        <label><input id="chkOddsPriorityBG" name="BGpriority" type="radio" />Higher odds of winning</label>
+                    </li>
+                    <li>
+                        <label>
+                                <input id="chkIgnoreGroupsBG" type="checkbox"/>Ignore groups giveaways for Main page (All)
+                            </label>
+                    </li>
+                    <li>
+                        <label>
+                                <input id="chkIgnorePinnedBG" type="checkbox"/>Ignore featured giveaways (All)
+                            </label>
+                    </li>
+                    <li>
+                        <label>
+                                <input id="chkPlayAudio" type="checkbox"/>Play sound when won
+                            </label>
+                    </li>
+                    <li>
+                        <label>Try to AutoJoin in background every 
+                                <input type="number" size="2" id="hoursFieldBG" min="1" max="24" value="2"> hours (1-24)
+                            </label>
+                    </li>
+                    <li>
+                        <label>Load 
+                                <input type="number" size="2" id="pagestoloadBG" min="1" max="3" value="2"> pages before trying to join giveaways (1-3)
+                            </label>
+                    </li>
+                    <li>
+                        <label>Delay between requests: 
+                                <input type="number" size="2" id="delayBG" min="5" max="60" value="10"> seconds
+                            </label>
+                    </li>
+                    <li>
+                        <label>Minimum giveaway level to enter: 
+                                <input type="number" size="2" id="minLevelBG" min="0" max="10" value="0"> (set it to 0 to enter all giveaways)
+                            </label>
+                    </li>
+                </ul>
+            </ul>
+            <div id="rateSteamContainer">
+                <ul>
+                    <li>
+                        <a target="_blank" href="https://chrome.google.com/webstore/detail/autojoin-for-steamgifts/bchhlccjhoedhhegglilngpbnldfcidc">Rate this extension in Chrome Web Store
+                        </a>
+                    </li>
+                    <li>
+                        <a target="_blank" href="http://steamcommunity.com/groups/autojoin">Join Steam group</a>
+                    </li>
+                </ul>
+            </div>
+            <div id="SaveCancelContainer">
+                <button id="btnSetSave">Save</button> &nbsp;&nbsp; <button id="btnSetCancel" class="settingsCancel">Cancel</button>
+            </div>
+        </div>
+        <div id="settingsShade" class="settingsCancel" \></div>
+    </body>
+</html>
