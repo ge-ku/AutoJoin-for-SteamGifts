@@ -1,62 +1,121 @@
 /* Style for page */
 
-#btnSettings{
-	cursor:pointer;
+.btnSingle {
+	cursor: pointer;
+	width: 130px;
+	height: 80px;
 }
 
-#btnJoin{
-	cursor:pointer;
+.btnSingle[walkState="join"] {
+	background-color: #BCED91;
 }
 
-.btnSingle{
-	cursor:pointer;
+.btnSingle[walkState="join"]:hover {
+	background-color: #A6D785;
 }
+
+.btnSingle[walkState="leave"] {
+	background-color: #CD9B9B;
+}
+
+.btnSingle[walkState="leave"]:hover {
+	background-color: #BC8F8F;
+}
+
+.btnSingle[walkState|="no"] {
+	background-color: #FFFFFF;
+}
+
+#btnAutoJoin {
+	position: relative;
+	width: 200px;
+	cursor: pointer;
+	background-color: #FFFFFF;
+}
+
+#btnAutoJoin:hover {
+	background-color: #EAEAEA;
+}
+
+#btnSettings {
+	width: 30px;
+	height: 30px;
+	cursor: pointer;
+	background-color: transparent;
+}
+
+#btnSettings:hover {
+	filter: invert(100%);
+}
+
+#info {
+	position: relative;
+	width: 500px;
+	color: #FFFFFF
+}
+
+.pointsFloating {
+	position: fixed;
+	opacity: 0;
+}
+
 
 /* Style for options window */
 
-#settingsDiv{
+#settingsDiv {
 	visibility: hidden;
 	overflow-y: auto;
 	color: black;
-    width: 655px;
-    background-color: #FFFFFF;
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: auto;
-    font-family: "Arial";
-    line-height: 25px;
-    box-shadow: 2px 0 15px, -2px 0 15px;
-	background: linear-gradient(#e9e9ef, #bfbed6);
+	width: 600px;
+	height: 700px;
+	background-color: #FFFFFF;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	margin-left: -300px;
+	margin-top: -350px;
+	font-family: 'Segoe UI', Tahoma, sans-serif;
+	box-shadow: 0 4px 23px 5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+	background: white;
 	z-index: 8000;
 }
 
-#settingsDiv label{
+#settingsDiv label {
 	display: inline-block;
+	color: rgb(48, 57, 66);
 }
 
-#settingsDiv #titlesList{
-	list-style: none; 
+#settingsDiv #titlesList {
+	list-style: none;
 	margin: 20px;
 }
 
-#settingsDiv #titlesList .titleListItem{
-	font-weight: bold;
-	font-size: 20px;
-	line-height: 50px;
+#settingsDiv #titlesList .titleListItem {
+	color: black;
+	font-size: 1.2em;
+	margin-bottom: 0.8em;
 }
 
-#settingsDiv #titlesList ul{
-	list-style: none; 
+#settingsDiv #titlesList ul {
+	list-style: none;
 }
 
-#settingsDiv input[type='checkbox'], #settingsDiv input[type='radio']{
-	width: 20px;
+#settingsDiv #titlesList ul li {
+	margin-left: 18px;
+	margin-bottom: 0.3em;
 }
 
-#settingsDiv #btnSetSave, #btnSetCancel{
+#settingsDiv input[type='checkbox'],
+#settingsDiv input[type='radio'] {
+	width: 13px;
+	height: 13px;
+	margin-right: 4px;
+	margin-top: -3px;
+	vertical-align: middle;
+}
+
+#settingsDiv #btnSetSave,
+#settingsDiv #btnSetCancel {
 	color: black;
 	padding: 10px;
 	border-radius: 3px;
@@ -64,22 +123,30 @@
 	cursor: pointer;
 }
 
-#settingsDiv #SaveCancelContainer{
+#settingsDiv #SaveCancelContainer {
 	text-align: center;
 }
 
-#settingsDiv #rateSteamContainer{
+#settingsDiv #rateSteamContainer {
 	margin-left: 20px;
 }
 
-#settingsShade{
-	z-index: 7999; 
-	visibility: hidden; 
-	position: fixed; 
-	top: 0; 
-	left: 0; 
-	background-color:black; 
-	width:100%; 
-	height:100%; 
+#settingsDiv input[type=number] {
+	width: 55px;
+}
+
+#settingsDiv a {
+	text-decoration: underline;
+}
+
+#settingsShade {
+	z-index: 7999;
+	visibility: hidden;
+	position: fixed;
+	top: 0;
+	left: 0;
+	background-color: white;
+	width: 100%;
+	height: 100%;
 	opacity: 0.0;
 }
