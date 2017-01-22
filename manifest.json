@@ -25,5 +25,10 @@
    "web_accessible_resources": [ 
        "settings.html",
        "night.css" 
-    ]
+    ],
+   
+    "options_ui": {
+      "page": "settings.html",
+      "chrome_style": true
+   }
 }
