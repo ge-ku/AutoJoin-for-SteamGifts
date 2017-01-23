@@ -10,3 +10,7 @@ body, #titlesList{
       margin: 0;
       padding: 0;
 }
+
+.settingsCancel{
+      display: none;
+}

@@ -1,10 +1,5 @@
 //Call this function when #settingsDiv is present on the page.
 function loadSettings() {
-	//remove "Cancel" button if opened from Chrome settings
-	if (location.protocol == "chrome-extension:"){
-		document.getElementById("btnSetCancel").remove();
-	}
-
 	chrome.storage.sync.get({
 		HideGroups: false,
 		IgnoreGroups: false,

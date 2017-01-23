@@ -98,6 +98,7 @@
 
 #settingsDiv #titlesList ul {
 	list-style: none;
+	padding: 0;
 }
 
 #settingsDiv #titlesList ul li {
