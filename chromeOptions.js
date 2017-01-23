@@ -1,94 +1,86 @@
 var newVersionLaunched = false;
-var settingsInfiniteScrolling = false;
-var settingsShowPoints = false;
-var settingsShowButtons = false;
-var settingsLoadFive = false;
-var settingsHideDlc = false;
-var settingsRepeatIfOnPage = false;
-var settingsRepeatHours = 2;
-var settingsNightTheme = false;
-var settingsLevelPriority = false;
-var settingsBackgroundAJ = false;
-var settingsLevelPriorityBG = false;
-var settingsOddsPriorityBG = false;
-var settingsHideEntered = false;
-var settingsPagestoload = 3;
-var settingsPagestoloadBG = 2;
-var settingsPageForBG = "wishlist";
-var settingsRepeatHoursBG = 2;
-var settingsHideGroups = false;
-var settingsIgnoreGroups = false;
-var settingsIgnoreGroupsBG = false;
-var settingsIgnorePinnedBG = false;
-var settingsPlayAudio = true;
-var settingsDelayBG = 10;
-var settingsMinLevelBG = 0;
-var settingsIgnorePinned = false;
-var settingsShowChance = true;
+var thisVersion = 20170101;
+
+var settings;
+
+function changeSettingsFormat(oldFormatSettings) {
+	chrome.storage.sync.set({
+		InfiniteScrolling: (oldFormatSettings.infiniteScrolling == "true"),
+		ShowPoints: (oldFormatSettings.showPoints == "true"),
+		ShowButtons: (oldFormatSettings.showButtons == "true"),
+		LoadFive: (oldFormatSettings.loadFive == "true"),
+		HideDlc: (oldFormatSettings.hideDlc == 'true'),
+		RepeatIfOnPage: (oldFormatSettings.repeatIfOnPage == 'true'),
+		NightTheme: (oldFormatSettings.nightTheme == 'true'),
+		LevelPriority: (oldFormatSettings.levelPriority == 'true'),
+		LevelPriorityBG: (oldFormatSettings.LevelPriorityBG == 'true'),
+		OddsPriorityBG: (oldFormatSettings.OddsPriorityBG == 'true'),
+		BackgroundAJ: (oldFormatSettings.BackgroundAJ == 'true'),
+		HideEntered: (oldFormatSettings.HideEntered == 'true'),
+		IgnoreGroups: (oldFormatSettings.IgnoreGroups == 'true'),
+		IgnorePinned: (oldFormatSettings.IgnorePinned == 'true'),
+		IgnoreGroupsBG: (oldFormatSettings.IgnoreGroupsBG == 'true'),
+		IgnorePinnedBG: (oldFormatSettings.IgnorePinnedBG == 'true'),
+		HideGroups: (oldFormatSettings.HideGroups == 'true'),
+		PlayAudio: (oldFormatSettings.PlayAudio == 'true'),
+		RepeatHours: parseInt(oldFormatSettings.repeatHours, 10),
+		RepeatHoursBG: parseInt(oldFormatSettings.RepeatHoursBG, 10),
+		PagesToLoad: parseInt(oldFormatSettings.Pagestoload, 10),
+		PagesToLoadBG: parseInt(oldFormatSettings.PagestoloadBG, 10),
+		PageForBG: oldFormatSettings.PageForBG,
+		DelayBG: parseInt(oldFormatSettings.DelayBG, 10),
+		MinLevelBG: parseInt(oldFormatSettings.MinLevelBG, 10),
+		ShowChance: (oldFormatSettings.ShowChance == 'true')
+	}, function(){
+		chrome.storage.sync.get(null, function (data) {
+			console.log(data); 
+			settings = data;
+			fillSettingsDiv();
+		});
+	});		
+}
 
 $(document).ready(function() {
 
 	$("#btnSetCancel").remove();
 
 	chrome.storage.sync.get({
-		HideGroups: 'false',
-		IgnoreGroups: 'false',
-		IgnorePinned: 'true',
-		IgnoreGroupsBG: 'false',
-		IgnorePinnedBG: 'false',
-		HideEntered: 'false',
+		HideGroups: false,
+		IgnoreGroups: false,
+		IgnorePinned: true,
+		IgnoreGroupsBG: false,
+		IgnorePinnedBG: false,
+		HideEntered: false,
 		PageForBG: 'wishlist',
-		RepeatHoursBG: '2',
-		Pagestoload: '3',
-		PagestoloadBG: '2',
-		BackgroundAJ: 'true',
-		LevelPriorityBG: 'true',
-		OddsPriorityBG: 'false',
-		lastLaunchedVersion: '20160226',
-		infiniteScrolling: 'true',
-		showPoints: 'true',
-		showButtons: 'true',
-		loadFive: 'false',
-		hideDlc: 'false',
-		repeatIfOnPage: 'false',
-		repeatHours: '2',
-		nightTheme: 'false',
-		levelPriority: 'false',
-		PlayAudio: 'true',
-		DelayBG: '10',
-		MinLevelBG: '0',
-		ShowChance: 'true'
+		RepeatHoursBG: 2,
+		PagesToLoad: 3,
+		PagesToLoadBG: 2,
+		BackgroundAJ: true,
+		LevelPriorityBG: true,
+		OddsPriorityBG: false,
+		LastLaunchedVersion: thisVersion,
+		InfiniteScrolling: true,
+		ShowPoints: true,
+		ShowButtons: true,
+		LoadFive: false,
+		HideDlc: false,
+		RepeatIfOnPage: false,
+		RepeatHours: 2,
+		NightTheme: false,
+		LevelPriority: false,
+		PlayAudio: true,
+		DelayBG: 10,
+		MinLevelBG: 0,
+		ShowChance: true
 		}, function(data) {
-			settingsHideGroups = (data['HideGroups'] == 'true');
-			settingsIgnoreGroups = (data['IgnoreGroups'] == 'true');
-			settingsIgnorePinned = (data['IgnorePinned'] == 'true');
-			settingsIgnoreGroupsBG = (data['IgnoreGroupsBG'] == 'true');
-			settingsIgnorePinnedBG = (data['IgnorePinnedBG'] == 'true');
-			settingsHideEntered = (data['HideEntered'] == 'true');
-			settingsPageForBG = data['PageForBG'];
-			settingsRepeatHoursBG = parseInt(data['RepeatHoursBG'], 10);
-			settingsPagestoload = parseInt(data['Pagestoload'], 10);
-			settingsPagestoloadBG = parseInt(data['PagestoloadBG'], 10);
-			settingsDelayBG = parseInt(data['DelayBG'], 10);
-			settingsMinLevelBG = parseInt(data['MinLevelBG'], 10);
-			settingsBackgroundAJ = (data['BackgroundAJ'] == 'true');
-			settingsLevelPriorityBG = (data['LevelPriorityBG'] == 'true');
-			settingsOddsPriorityBG = (data['OddsPriorityBG'] == 'true');
-			if (!(parseInt(data['lastLaunchedVersion'], 10) < 20160226)){
+			settings = data;
+
+			if (data['lastLaunchedVersion'] < thisVersion){
 				newVersionLaunched = true;
-				chrome.storage.sync.set({'lastLaunchedVersion': '20160226'});
+				changeSettingsFormat(data);
+				chrome.storage.sync.set({'lastLaunchedVersion': thisVersion});
+				return;
 			}
-			settingsInfiniteScrolling = (data['infiniteScrolling'] == 'true');
-			settingsShowPoints = (data['showPoints'] == 'true');
-			settingsShowButtons = (data['showButtons'] == 'true');
-			settingsLoadFive = (data['loadFive'] == 'true');
-			settingsHideDlc = (data['hideDlc'] == 'true');
-			settingsRepeatIfOnPage = (data['repeatIfOnPage'] == 'true');
-			settingsRepeatHours = parseInt(data['repeatHours'], 10);
-			settingsNightTheme = (data['nightTheme'] == 'true');
-			settingsLevelPriority = (data['levelPriority'] == 'true');
-			settingsPlayAudio = (data['PlayAudio'] == 'true');
-			settingsShowChance = (data['ShowChance'] == 'true');
 
 			fillSettingsDiv();
 		}
@@ -97,64 +89,65 @@ $(document).ready(function() {
 
 function fillSettingsDiv(){
 
-	if (settingsInfiniteScrolling){$('#chkInfiniteScroll').prop('checked', true)};
-	if (settingsShowPoints){$('#chkShowPoints').prop('checked', true)};
-	if (settingsShowButtons){$('#chkShowButtons').prop('checked', true)};
-	if (settingsLoadFive){$('#chkLoadFive').prop('checked', true)};
-	if (settingsHideDlc){$('#chkHideDlc').prop('checked', true)};
-	if (settingsNightTheme){$('#chkNightTheme').prop('checked', true)};
-	if (settingsLevelPriority){$('#chkLevelPriority').prop('checked', true)};
-	if (settingsRepeatIfOnPage){$('#chkRepeatIfOnPage').prop('checked', true)};
-	if (settingsHideEntered){$('#chkHideEntered').prop('checked', true)};
-	if (settingsHideGroups){$('#chkHideGroups').prop('checked', true)};
-	if (settingsIgnoreGroups){$('#chkIgnoreGroups').prop('checked', true)};
-	if (settingsIgnorePinned){$('#chkIgnorePinned').prop('checked', true)};
-	if (settingsIgnoreGroupsBG){$('#chkIgnoreGroupsBG').prop('checked', true)};
-	if (settingsIgnorePinnedBG){$('#chkIgnorePinnedBG').prop('checked', true)};
-	if (settingsBackgroundAJ){$('#chkEnableBG').prop('checked', true)};
-	if (settingsLevelPriorityBG){$('#chkLevelPriorityBG').prop('checked', true)};
-	if (settingsOddsPriorityBG){$('#chkOddsPriorityBG').prop('checked', true)};
-	if (settingsPlayAudio){$('#chkPlayAudio').prop('checked', true)};
-	if (settingsShowChance){$('#chkShowChance').prop('checked', true)};
-	$('#hoursField').val(settingsRepeatHours);
-	$('#pagestoload').val(settingsPagestoload);
-	$('#pagestoloadBG').val(settingsPagestoloadBG);
-	if (settingsRepeatHoursBG == 0) { $('#hoursFieldBG').val("0.5") } else { $('#hoursFieldBG').val(settingsRepeatHoursBG) }
-	$('#pageforBG').val(settingsPageForBG);
-	$('#delayBG').val(settingsDelayBG);
-	$('#minLevelBG').val(settingsMinLevelBG);
+	$('#chkInfiniteScroll').prop('checked', settings.InfiniteScrolling);
+	$('#chkShowPoints').prop('checked', settings.ShowPoints);
+	$('#chkShowButtons').prop('checked', settings.ShowButtons);
+	$('#chkLoadFive').prop('checked', settings.LoadFive);
+	$('#chkHideDlc').prop('checked', settings.HideDlc);
+	$('#chkNightTheme').prop('checked', settings.NightTheme);
+	$('#chkLevelPriority').prop('checked', settings.LevelPriority);
+	$('#chkRepeatIfOnPage').prop('checked', settings.RepeatIfOnPage);
+	$('#chkHideEntered').prop('checked', settings.HideEntered);
+	$('#chkHideGroups').prop('checked', settings.HideGroups);
+	$('#chkIgnoreGroups').prop('checked', settings.IgnoreGroups);
+	$('#chkIgnorePinned').prop('checked', settings.IgnorePinned);
+	$('#chkIgnoreGroupsBG').prop('checked', settings.IgnoreGroupsBG);
+	$('#chkIgnorePinnedBG').prop('checked', settings.IgnorePinnedBG);
+	$('#chkEnableBG').prop('checked', settings.BackgroundAJ);
+	$('#chkLevelPriorityBG').prop('checked', settings.LevelPriorityBG);
+	$('#chkOddsPriorityBG').prop('checked', settings.OddsPriorityBG);
+	$('#chkPlayAudio').prop('checked', settings.PlayAudio);
+	$('#chkShowChance').prop('checked', settings.ShowChance);
+	$('#hoursField').val(settings.RepeatHours);
+	$('#pagestoload').val(settings.PagesToLoad);
+	$('#pagestoloadBG').val(settings.PagesToLoadBG);
+	if (settings.RepeatHoursBG == 0) { $('#hoursFieldBG').val("0.5") } else { $('#hoursFieldBG').val(settings.RepeatHoursBG) }
+	$('#pageforBG').val(settings.PageForBG);
+	$('#delayBG').val(settings.DelayBG);
+	$('#minLevelBG').val(settings.MinLevelBG);
 
 	
 	$('#btnSetSave').click(function(){
 		chrome.storage.sync.set({
-			infiniteScrolling: $('#chkInfiniteScroll').is(':checked').toString(),
-			showPoints: $('#chkShowPoints').is(':checked').toString(),
-			showButtons: $('#chkShowButtons').is(':checked').toString(),
-			loadFive: $('#chkLoadFive').is(':checked').toString(),
-			hideDlc: $('#chkHideDlc').is(':checked').toString(),
-			repeatIfOnPage: $('#chkRepeatIfOnPage').is(':checked').toString(),
-			nightTheme: $('#chkNightTheme').is(':checked').toString(),
-			levelPriority: $('#chkLevelPriority').is(':checked').toString(),
-			LevelPriorityBG: $('#chkLevelPriorityBG').is(':checked').toString(),
-			OddsPriorityBG: $('#chkOddsPriorityBG').is(':checked').toString(),
-			BackgroundAJ: $('#chkEnableBG').is(':checked').toString(),
-			HideEntered: $('#chkHideEntered').is(':checked').toString(),
-			IgnoreGroups: $('#chkIgnoreGroups').is(':checked').toString(),
-			IgnorePinned: $('#chkIgnorePinned').is(':checked').toString(),
-			IgnoreGroupsBG: $('#chkIgnoreGroupsBG').is(':checked').toString(),
-			IgnorePinnedBG: $('#chkIgnorePinnedBG').is(':checked').toString(),
-			HideGroups: $('#chkHideGroups').is(':checked').toString(),
-			PlayAudio: $('#chkPlayAudio').is(':checked').toString(),
-			repeatHours: $('#hoursField').val(),
-			RepeatHoursBG: parseInt($('#hoursFieldBG').val()), //parseInt to save 0.5 as 0
-			Pagestoload: $('#pagestoload').val(),
-			PagestoloadBG: $('#pagestoloadBG').val(),
+			InfiniteScrolling: $('#chkInfiniteScroll').is(':checked'),
+			ShowPoints: $('#chkShowPoints').is(':checked'),
+			ShowButtons: $('#chkShowButtons').is(':checked'),
+			LoadFive: $('#chkLoadFive').is(':checked'),
+			HideDlc: $('#chkHideDlc').is(':checked'),
+			RepeatIfOnPage: $('#chkRepeatIfOnPage').is(':checked'),
+			NightTheme: $('#chkNightTheme').is(':checked'),
+			LevelPriority: $('#chkLevelPriority').is(':checked'),
+			LevelPriorityBG: $('#chkLevelPriorityBG').is(':checked'),
+			OddsPriorityBG: $('#chkOddsPriorityBG').is(':checked'),
+			BackgroundAJ: $('#chkEnableBG').is(':checked'),
+			HideEntered: $('#chkHideEntered').is(':checked'),
+			IgnoreGroups: $('#chkIgnoreGroups').is(':checked'),
+			IgnorePinned: $('#chkIgnorePinned').is(':checked'),
+			IgnoreGroupsBG: $('#chkIgnoreGroupsBG').is(':checked'),
+			IgnorePinnedBG: $('#chkIgnorePinnedBG').is(':checked'),
+			HideGroups: $('#chkHideGroups').is(':checked'),
+			PlayAudio: $('#chkPlayAudio').is(':checked'),
+			RepeatHours: parseInt($('#hoursField').val(), 10),
+			RepeatHoursBG: parseInt($('#hoursFieldBG').val(), 10), //parseInt to save 0.5 as 0
+			PagesToLoad: parseInt($('#pagestoload').val(), 10),
+			PagesToLoadBG: parseInt($('#pagestoloadBG').val(), 10),
 			PageForBG: $('#pageforBG').val(),
-			DelayBG: $('#delayBG').val(),
-			MinLevelBG: $('#minLevelBG').val(),
-			ShowChance: $('#chkShowChance').is(':checked').toString()
+			DelayBG: parseInt($('#delayBG').val(), 10),
+			MinLevelBG: parseInt($('#minLevelBG').val(), 10),
+			ShowChance: $('#chkShowChance').is(':checked')
 		}, function(){
-			alert("Settings Saved!")
+			//alert("Settings Saved!");
+			console.log("Settings Saved!");
 		});		
 	});
 

@@ -53,7 +53,7 @@ Remember once scanpage is over, pagesloaded is called*/
 function scanpage(e) {
 	var timeLoaded = Math.round(Date.now() / 1000);
     var postsDiv = $(e).find(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent();
-    (settingsIgnorePinnedBG == true ? postsDiv : $(e)).find(".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name").each(function() {
+    (settings.IgnorePinnedBG == true ? postsDiv : $(e)).find(".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name").each(function() {
         var e = $(this).parent().parent().parent(),
             t = this.href.match(/giveaway\/(.+)\//);
         if (t.length > 0) {
@@ -78,14 +78,14 @@ function scanpage(e) {
 /*This function is called once all pages have been parsed
 this sends the requests to steamgifts*/
 function pagesloaded() {
-	if (settingsLevelPriorityBG) {
+	if (settings.LevelPriorityBG) {
 		arr.sort(compareLevel);
-	} else if (settingsOddsPriorityBG) {
+	} else if (settings.OddsPriorityBG) {
 		arr.sort(compareOdds);
 	}
 	var timeouts = [];
 	$.each(arr, function(e) {
-		if (arr[e].level < settingsMinLevelBG) { // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
+		if (arr[e].level < settings.MinLevelBG) { // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
 			return true;
 		}
 		timeouts.push(setTimeout(function(){
@@ -102,19 +102,19 @@ function pagesloaded() {
 					timeouts = [];
 				}
 			})
-		}, e * settingsDelayBG * 1000 + Math.floor(Math.random()*2001)));
+		}, e * settings.DelayBG * 1000 + Math.floor(Math.random()*2001)));
     }), console.log(arr.length)
 }
 
 /*This function checks for a won gift, then calls the scanpage function*/
 /*e is the whole html page*/
 function settingsloaded() {
-		if (settingsIgnoreGroupsBG && settingsPageForBG == "all") {
+		if (settings.IgnoreGroupsBG && settings.PageForBG == "all") {
 			settingsIgnoreGroupsBGTrue = true;
 		}
-		pages = settingsPagestoloadBG;
-		timetopass = 10 * settingsRepeatHoursBG;
-		if (justLaunched || settingsRepeatHoursBG == 0) { // settingsRepeatHoursBG == 0 means it should autojoin every time
+		pages = settings.PagesToLoadBG;
+		timetopass = 10 * settings.RepeatHoursBG;
+		if (justLaunched || settings.RepeatHoursBG == 0) { // settings.RepeatHoursBG == 0 means it should autojoin every time
 			justLaunched = false;
 			timepassed = timetopass;
 		} else {
@@ -122,14 +122,14 @@ function settingsloaded() {
 		}
 
 		/*If background autojoin is disabled or not enough time passed only check if won*/
-		if (settingsBackgroundAJ == false || timepassed < timetopass) {
+		if (settings.BackgroundAJ == false || timepassed < timetopass) {
 			$.get(link + 1, function(data){
 				if ( $(data).filter(".popup--gift-received").length ) {
 					notify();
 				}
 				//check level and save if changed
 				mylevel = $(data).find('a[href="/account"]').find("span").next().html().match(/(\d+)/)[1];
-				if (settingsLastKnownLevel != parseInt(mylevel)) {
+				if (settings.LastKnownLevel != parseInt(mylevel)) {
 					chrome.storage.sync.set({LastKnownLevel:mylevel});
 				}
 			});
@@ -137,7 +137,7 @@ function settingsloaded() {
 		/*Else check if won first (since pop-up disappears after first view), then start scanning pages*/
 		else {
 			timepassed = 0; //reset timepassed
-			link = "https://www.steamgifts.com/giveaways/search?type=" + settingsPageForBG + "&level_min=" + settingsMinLevelBG + "&level_max=" + settingsLastKnownLevel + "&page=";
+			link = "https://www.steamgifts.com/giveaways/search?type=" + settings.PageForBG + "&level_min=" + settings.MinLevelBG + "&level_max=" + settings.LastKnownLevel + "&page=";
 			arr.length = 0;
 			$.get(link + 1, function(data) {
 				if ( $(data).filter(".popup--gift-received").length ) {
@@ -147,7 +147,7 @@ function settingsloaded() {
 				token = $(data).find("input[name=xsrf_token]").val();
 				mylevel = $(data).find('a[href="/account"]').find("span").next().html().match(/(\d+)/)[1];
 				//save new level if it changed
-				if (settingsLastKnownLevel != parseInt(mylevel)) {
+				if (settings.LastKnownLevel != parseInt(mylevel)) {
 					chrome.storage.sync.set({LastKnownLevel:mylevel});
 				}
 				scanpage(data); // scan this page that was already loaded to get info above
@@ -165,35 +165,65 @@ function settingsloaded() {
 function loadsettings() {
 	chrome.storage.sync.get({
 		PageForBG: 'wishlist',
-		RepeatHoursBG: '2',
-		DelayBG: '10',
-		MinLevelBG: '0',
-		PagestoloadBG: '3',
-		BackgroundAJ: 'true',
-		LevelPriorityBG: 'true',
-		OddsPriorityBG: 'fasle',
-		IgnoreGroupsBG: 'false',
-		IgnorePinnedBG: 'false',
-		LastKnownLevel: '10' // set to 10 by default so it loads pages with max_level set to 10 (maximum) before extensions learns actual level
+		RepeatHoursBG: 2,
+		DelayBG: 10,
+		MinLevelBG: 0,
+		PagesToLoadBG: 3,
+		BackgroundAJ: true,
+		LevelPriorityBG: true,
+		OddsPriorityBG: fasle,
+		IgnoreGroupsBG: false,
+		IgnorePinnedBG: false,
+		LastKnownLevel: 10, // set to 10 by default so it loads pages with max_level set to 10 (maximum) before extensions learns actual level
+		lastLaunchedVersion: thisVersion
 		}, function(data) {
-			settingsPageForBG = data['PageForBG'];
-			settingsRepeatHoursBG = parseInt(data['RepeatHoursBG'], 10);
-			settingsDelayBG = parseInt(data['DelayBG'], 10);
-			settingsMinLevelBG = parseInt(data['MinLevelBG'], 10);
-			settingsPagestoloadBG = parseInt(data['PagestoloadBG'], 10);
-			settingsBackgroundAJ = (data['BackgroundAJ'] == 'true');
-			settingsLevelPriorityBG = (data['LevelPriorityBG'] == 'true');
-			settingsOddsPriorityBG = (data['OddsPriorityBG'] == 'true');
-			settingsIgnoreGroupsBG = (data['IgnoreGroupsBG'] == 'true');
-			settingsIgnorePinnedBG = (data['IgnorePinnedBG'] == 'true');
-			settingsLastKnownLevel = parseInt(data['LastKnownLevel'], 10);
+			settings = data;
 			
 			//This section is temporary. I noticed that default value for delay between 
 			//requests was 2 seconds (even though you can't set it less to than 5 in settings).
 			//This will set this value to default (10) for those who had it set to 2.
-			if (settingsDelayBG < 5) {
-				settingsDelayBG = 10;
+			if (data.DelayBG < 5) {
+				data.DelayBG = 10;
 				chrome.storage.sync.set({DelayBG: "10"});
+			}
+
+			//This is also temporary
+			if (data.lastLaunchedVersion < thisVersion) {
+				chrome.storage.sync.set({
+					InfiniteScrolling: (oldFormatSettings.infiniteScrolling == "true"),
+					ShowPoints: (oldFormatSettings.showPoints == "true"),
+					ShowButtons: (oldFormatSettings.showButtons == "true"),
+					LoadFive: (oldFormatSettings.loadFive == "true"),
+					HideDlc: (oldFormatSettings.hideDlc == 'true'),
+					RepeatIfOnPage: (oldFormatSettings.repeatIfOnPage == 'true'),
+					NightTheme: (oldFormatSettings.nightTheme == 'true'),
+					LevelPriority: (oldFormatSettings.levelPriority == 'true'),
+					LevelPriorityBG: (oldFormatSettings.LevelPriorityBG == 'true'),
+					OddsPriorityBG: (oldFormatSettings.OddsPriorityBG == 'true'),
+					BackgroundAJ: (oldFormatSettings.BackgroundAJ == 'true'),
+					HideEntered: (oldFormatSettings.HideEntered == 'true'),
+					IgnoreGroups: (oldFormatSettings.IgnoreGroups == 'true'),
+					IgnorePinned: (oldFormatSettings.IgnorePinned == 'true'),
+					IgnoreGroupsBG: (oldFormatSettings.IgnoreGroupsBG == 'true'),
+					IgnorePinnedBG: (oldFormatSettings.IgnorePinnedBG == 'true'),
+					HideGroups: (oldFormatSettings.HideGroups == 'true'),
+					PlayAudio: (oldFormatSettings.PlayAudio == 'true'),
+					RepeatHours: parseInt(oldFormatSettings.repeatHours),
+					RepeatHoursBG: parseInt(oldFormatSettings.RepeatHoursBG),
+					PagesToLoad: parseInt(oldFormatSettings.Pagestoload),
+					PagesToLoadBG: parseInt(oldFormatSettings.PagestoloadBG),
+					PageForBG: oldFormatSettings.PageForBG,
+					DelayBG: parseInt(oldFormatSettings.DelayBG),
+					MinLevelBG: parseInt(oldFormatSettings.MinLevelBG),
+					ShowChance: (oldFormatSettings.ShowChance == 'true')
+				}, function(){
+					chrome.storage.sync.get(null, function (data) {
+						console.log(data);
+						settings = data;
+						settingsloaded();
+					});
+				});		
+				return;
 			}
 			//Can be removed after some time when most users get this update.
 			
@@ -215,6 +245,7 @@ chrome.alarms.onAlarm.addListener(function(e) {
 /*At the end of the line, there are sometimes colons, sometimes semicolons.
 Is this for optimization purposes, or just a mistake?*/
 var arr = [],
+	settings,
     link = "https://www.steamgifts.com/giveaways/search?page=",
     pages = 1,
     pagestemp = pages,
@@ -224,18 +255,7 @@ var arr = [],
     timepassed = 0,
     timetopass = 20,
     justLaunched = true,
-    settingsIgnoreGroupsBGTrue = false,
-    settingsIgnoreGroupsBG = false,
-    settingsLevelPriorityBG = false,
-	settingsOddsPriorityBG = false,
-    settingsBackgroundAJ = true,
-    settingsPagestoloadBG = 3,
-    settingsPageForBG = "all",
-    settingsRepeatHoursBG = 2,
-	settingsDelayBG = 10,
-    settingsMinLevelBG = 0,
-	settingsIgnorePinnedBG = false,
-	settingsLastKnownLevel = 10;
+    thisVersion = 20170101;
 
 /*Creating a new tab if notification is clicked*/
 chrome.alarms.create("routine", {
