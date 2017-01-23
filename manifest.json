@@ -5,7 +5,7 @@
    },
    "content_scripts": [ {
       "css": [ "general.css" ],
-      "js": [ "jquery.min.js", "autoentry.js" ],
+      "js": [ "jquery.min.js", "autoentry.js", "settings.js" ],
       "matches": [ "*://www.steamgifts.com/", "*://www.steamgifts.com/giveaways/search?*", "*://steamgifts.com/", "*://steamgifts.com/giveaways/search?*" ]
    }, {
       "js": [ "jquery.min.js", "night.js" ],
@@ -24,9 +24,9 @@
    "version": "1.1.38",
    "web_accessible_resources": [ 
        "settings.html",
-       "night.css" 
+       "settings.js",
+       "night.css"
     ],
-   
     "options_ui": {
       "page": "settings.html",
       "chrome_style": true

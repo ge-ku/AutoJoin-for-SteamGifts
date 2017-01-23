@@ -85,8 +85,6 @@ $(document).ready(function() {
 });
 
 function onPageLoad(){
-	
-	console.log(settings);
 
 	if (settings.NightTheme){
 		var path = chrome.extension.getURL('/night.css');
@@ -96,92 +94,14 @@ function onPageLoad(){
 			.attr("href", path));
 	}
 
-	// Maybe replace these ugly settings with proper options page https://developer.chrome.com/extensions/optionsV2 , cog icon will lead to it.
 	$.get(chrome.extension.getURL('/settings.html'), function(settingsDiv){
-		$('body').append(settingsDiv);
-
-		$('#chkInfiniteScroll').prop('checked', settings.InfiniteScrolling);
-		$('#chkShowPoints').prop('checked', settings.ShowPoints);
-		$('#chkShowButtons').prop('checked', settings.ShowButtons);
-		$('#chkLoadFive').prop('checked', settings.LoadFive);
-		$('#chkHideDlc').prop('checked', settings.HideDlc);
-		$('#chkNightTheme').prop('checked', settings.NightTheme);
-		$('#chkLevelPriority').prop('checked', settings.LevelPriority);
-		$('#chkRepeatIfOnPage').prop('checked', settings.RepeatIfOnPage);
-		$('#chkHideEntered').prop('checked', settings.HideEntered);
-		$('#chkHideGroups').prop('checked', settings.HideGroups);
-		$('#chkIgnoreGroups').prop('checked', settings.IgnoreGroups);
-		$('#chkIgnorePinned').prop('checked', settings.IgnorePinned);
-		$('#chkIgnoreGroupsBG').prop('checked', settings.IgnoreGroupsBG);
-		$('#chkIgnorePinnedBG').prop('checked', settings.IgnorePinnedBG);
-		$('#chkEnableBG').prop('checked', settings.BackgroundAJ);
-		$('#chkLevelPriorityBG').prop('checked', settings.LevelPriorityBG);
-		$('#chkOddsPriorityBG').prop('checked', settings.OddsPriorityBG);
-		$('#chkPlayAudio').prop('checked', settings.PlayAudio);
-		$('#chkShowChance').prop('checked', settings.ShowChance);
-		$('#hoursField').val(settings.RepeatHours);
-		$('#pagestoload').val(settings.PagesToLoad);
-		$('#pagestoloadBG').val(settings.PagesToLoadBG);
-		if (settings.RepeatHoursBG == 0) { $('#hoursFieldBG').val("0.5") } else { $('#hoursFieldBG').val(settings.RepeatHoursBG) }
-		$('#pageforBG').val(settings.PageForBG);
-		$('#delayBG').val(settings.DelayBG);
-		$('#minLevelBG').val(settings.MinLevelBG);
-
-		$('#btnSettings')
-			.click(function(){
-				$("#settingsShade").css("visibility","visible").animate({opacity:0.75}, 200);
-				$("#settingsDiv").css("visibility","visible").animate({opacity:1.0}, 200);
-			});
-		$('.settingsCancel').click(function(){
-			$("#settingsShade").animate({opacity:0.0}, 200);
-			$("#settingsDiv").animate({opacity: 0.0}, {
-				easing: 'swing',
-				duration: 200,
-				complete: function() {
-					$("#settingsShade").css("visibility","hidden");
-					$("#settingsDiv").css("visibility","hidden");
-				}
-			});
+		$('body').append($(settingsDiv).filter('#bodyWrapper'));
+		loadSettings();
+		$('#btnSettings').click(function(){
+			$("#settingsShade").css("visibility","visible").animate({opacity:0.75}, 200);
+			$("#settingsDiv").css("visibility","visible").animate({opacity:1.0}, 200);
 		});
-		$('#btnSetSave').click(function(){
-			chrome.storage.sync.set({
-				InfiniteScrolling: $('#chkInfiniteScroll').is(':checked'),
-				ShowPoints: $('#chkShowPoints').is(':checked'),
-				ShowButtons: $('#chkShowButtons').is(':checked'),
-				LoadFive: $('#chkLoadFive').is(':checked'),
-				HideDlc: $('#chkHideDlc').is(':checked'),
-				RepeatIfOnPage: $('#chkRepeatIfOnPage').is(':checked'),
-				NightTheme: $('#chkNightTheme').is(':checked'),
-				LevelPriority: $('#chkLevelPriority').is(':checked'),
-				LevelPriorityBG: $('#chkLevelPriorityBG').is(':checked'),
-				OddsPriorityBG: $('#chkOddsPriorityBG').is(':checked'),
-				BackgroundAJ: $('#chkEnableBG').is(':checked'),
-				HideEntered: $('#chkHideEntered').is(':checked'),
-				IgnoreGroups: $('#chkIgnoreGroups').is(':checked'),
-				IgnorePinned: $('#chkIgnorePinned').is(':checked'),
-				IgnoreGroupsBG: $('#chkIgnoreGroupsBG').is(':checked'),
-				IgnorePinnedBG: $('#chkIgnorePinnedBG').is(':checked'),
-				HideGroups: $('#chkHideGroups').is(':checked'),
-				PlayAudio: $('#chkPlayAudio').is(':checked'),
-				RepeatHours: parseInt($('#hoursField').val(), 10),
-				RepeatHoursBG: parseInt($('#hoursFieldBG').val(), 10), //parseInt to save 0.5 as 0
-				PagesToLoad: parseInt($('#pagestoload').val(), 10),
-				PagesToLoadBG: parseInt($('#pagestoloadBG').val(), 10),
-				PageForBG: $('#pageforBG').val(),
-				DelayBG: parseInt($('#delayBG').val(), 10),
-				MinLevelBG: parseInt($('#minLevelBG').val(), 10),
-				ShowChance: $('#chkShowChance').is(':checked')
-			}, function(){
-				location.reload(); // reload page after saving
-			});		
-		});
-		//to show 0.5 when value goes below 1 in hoursFieldBG field 
-		$("#hoursFieldBG").on('input', function() {
-			if (this.value == 0) this.value = 0.5;
-			else if (this.value % 1 != 0 & this.value > 1) {
-				this.value = parseInt(this.value);
-			}
-		});
+		
 	});
 	/*All of the above is for the "settings" window you can click on the page*/
 	
