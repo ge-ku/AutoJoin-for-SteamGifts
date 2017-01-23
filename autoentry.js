@@ -98,10 +98,9 @@ function onPageLoad(){
 		$('body').append($(settingsDiv).filter('#bodyWrapper'));
 		loadSettings();
 		$('#btnSettings').click(function(){
-			$("#settingsShade").css("visibility","visible").animate({opacity:0.75}, 200);
-			$("#settingsDiv").css("visibility","visible").animate({opacity:1.0}, 200);
+			$("#settingsShade").removeClass("fadeOut").addClass("fadeIn");
+			$("#settingsDiv").removeClass("fadeOut").addClass("fadeIn");
 		});
-		
 	});
 	/*All of the above is for the "settings" window you can click on the page*/
 	

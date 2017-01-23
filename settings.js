@@ -40,7 +40,7 @@ function loadSettings() {
 
 	//remove "Cancel" button if opened from Chrome settings
 	if (location.protocol == "chrome-extension:"){
-		$("#btnSetCancel").remove();
+		document.getElementById("btnSetCancel").remove();
 	}
 
 	chrome.storage.sync.get({
@@ -86,71 +86,77 @@ function loadSettings() {
 }
 
 function fillSettingsDiv(settings){
-	$('#chkInfiniteScroll').prop('checked', settings.InfiniteScrolling);
-	$('#chkShowPoints').prop('checked', settings.ShowPoints);
-	$('#chkShowButtons').prop('checked', settings.ShowButtons);
-	$('#chkLoadFive').prop('checked', settings.LoadFive);
-	$('#chkHideDlc').prop('checked', settings.HideDlc);
-	$('#chkNightTheme').prop('checked', settings.NightTheme);
-	$('#chkLevelPriority').prop('checked', settings.LevelPriority);
-	$('#chkRepeatIfOnPage').prop('checked', settings.RepeatIfOnPage);
-	$('#chkHideEntered').prop('checked', settings.HideEntered);
-	$('#chkHideGroups').prop('checked', settings.HideGroups);
-	$('#chkIgnoreGroups').prop('checked', settings.IgnoreGroups);
-	$('#chkIgnorePinned').prop('checked', settings.IgnorePinned);
-	$('#chkIgnoreGroupsBG').prop('checked', settings.IgnoreGroupsBG);
-	$('#chkIgnorePinnedBG').prop('checked', settings.IgnorePinnedBG);
-	$('#chkEnableBG').prop('checked', settings.BackgroundAJ);
-	$('#chkLevelPriorityBG').prop('checked', settings.LevelPriorityBG);
-	$('#chkOddsPriorityBG').prop('checked', settings.OddsPriorityBG);
-	$('#chkPlayAudio').prop('checked', settings.PlayAudio);
-	$('#chkShowChance').prop('checked', settings.ShowChance);
-	$('#hoursField').val(settings.RepeatHours);
-	$('#pagestoload').val(settings.PagesToLoad);
-	$('#pagestoloadBG').val(settings.PagesToLoadBG);
-	if (settings.RepeatHoursBG == 0) { $('#hoursFieldBG').val("0.5") } else { $('#hoursFieldBG').val(settings.RepeatHoursBG) }
-	$('#pageforBG').val(settings.PageForBG);
-	$('#delayBG').val(settings.DelayBG);
-	$('#minLevelBG').val(settings.MinLevelBG);
+	document.getElementById("chkInfiniteScroll").checked = settings.InfiniteScrolling;
+	document.getElementById("chkShowPoints").checked = settings.ShowPoints;
+	document.getElementById("chkShowButtons").checked = settings.ShowButtons;
+	document.getElementById("chkLoadFive").checked = settings.LoadFive;
+	document.getElementById("chkHideDlc").checked = settings.HideDlc;
+	document.getElementById("chkNightTheme").checked = settings.NightTheme;
+	//document.getElementById("chkLevelPriority").checked = settings.LevelPriority;
+	document.getElementById("chkRepeatIfOnPage").checked = settings.RepeatIfOnPage;
+	document.getElementById("chkHideEntered").checked = settings.HideEntered;
+	document.getElementById("chkHideGroups").checked = settings.HideGroups;
+	document.getElementById("chkIgnoreGroups").checked = settings.IgnoreGroups;
+	document.getElementById("chkIgnorePinned").checked = settings.IgnorePinned;
+	document.getElementById("chkIgnoreGroupsBG").checked = settings.IgnoreGroupsBG;
+	document.getElementById("chkIgnorePinnedBG").checked = settings.IgnorePinnedBG;
+	document.getElementById("chkEnableBG").checked = settings.BackgroundAJ;
+	document.getElementById("chkLevelPriorityBG").checked = settings.LevelPriorityBG;
+	document.getElementById("chkOddsPriorityBG").checked = settings.OddsPriorityBG;
+	document.getElementById("chkPlayAudio").checked = settings.PlayAudio;
+	document.getElementById("chkShowChance").checked = settings.ShowChance;
+	document.getElementById("hoursField").value = settings.RepeatHours;
+	document.getElementById("pagestoload").value = settings.PagesToLoad;
+	document.getElementById("pagestoloadBG").value = settings.PagesToLoadBG;
+	document.getElementById("pageforBG").value = settings.PageForBG;
+	document.getElementById("delayBG").value = settings.DelayBG;
+	document.getElementById("minLevelBG").value = settings.MinLevelBG;
+	if (settings.RepeatHoursBG == 0) { 
+		document.getElementById("#hoursFieldBG").value = "0.5"; 
+	} else { 
+		document.getElementById("hoursFieldBG").value = settings.RepeatHoursBG; 
+	}
 
 	settingsAttachEventListeners();
 }
 
 function settingsAttachEventListeners(){
-	
-	$('#btnSetSave').click(function(){
+	var saveButtonEl = document.getElementById("btnSetSave");
+	saveButtonEl.addEventListener("click", function(){
 		chrome.storage.sync.set({
-			InfiniteScrolling: $('#chkInfiniteScroll').is(':checked'),
-			ShowPoints: $('#chkShowPoints').is(':checked'),
-			ShowButtons: $('#chkShowButtons').is(':checked'),
-			LoadFive: $('#chkLoadFive').is(':checked'),
-			HideDlc: $('#chkHideDlc').is(':checked'),
-			RepeatIfOnPage: $('#chkRepeatIfOnPage').is(':checked'),
-			NightTheme: $('#chkNightTheme').is(':checked'),
-			LevelPriority: $('#chkLevelPriority').is(':checked'),
-			LevelPriorityBG: $('#chkLevelPriorityBG').is(':checked'),
-			OddsPriorityBG: $('#chkOddsPriorityBG').is(':checked'),
-			BackgroundAJ: $('#chkEnableBG').is(':checked'),
-			HideEntered: $('#chkHideEntered').is(':checked'),
-			IgnoreGroups: $('#chkIgnoreGroups').is(':checked'),
-			IgnorePinned: $('#chkIgnorePinned').is(':checked'),
-			IgnoreGroupsBG: $('#chkIgnoreGroupsBG').is(':checked'),
-			IgnorePinnedBG: $('#chkIgnorePinnedBG').is(':checked'),
-			HideGroups: $('#chkHideGroups').is(':checked'),
-			PlayAudio: $('#chkPlayAudio').is(':checked'),
-			RepeatHours: parseInt($('#hoursField').val(), 10),
-			RepeatHoursBG: parseInt($('#hoursFieldBG').val(), 10), //parseInt to save 0.5 as 0
-			PagesToLoad: parseInt($('#pagestoload').val(), 10),
-			PagesToLoadBG: parseInt($('#pagestoloadBG').val(), 10),
-			PageForBG: $('#pageforBG').val(),
-			DelayBG: parseInt($('#delayBG').val(), 10),
-			MinLevelBG: parseInt($('#minLevelBG').val(), 10),
-			ShowChance: $('#chkShowChance').is(':checked')
+			InfiniteScrolling: document.getElementById("chkInfiniteScroll").checked,
+			ShowPoints: document.getElementById("chkShowPoints").checked,
+			ShowButtons: document.getElementById("chkShowButtons").checked,
+			LoadFive: document.getElementById("chkLoadFive").checked,
+			HideDlc: document.getElementById("chkHideDlc").checked,
+			RepeatIfOnPage: document.getElementById("chkRepeatIfOnPage").checked,
+			NightTheme: document.getElementById("chkNightTheme").checked,
+			//LevelPriority: document.getElementById("chkLevelPriority").checked,
+			LevelPriorityBG: document.getElementById("chkLevelPriorityBG").checked,
+			OddsPriorityBG: document.getElementById("chkOddsPriorityBG").checked,
+			BackgroundAJ: document.getElementById("chkEnableBG").checked,
+			HideEntered: document.getElementById("chkHideEntered").checked,
+			IgnoreGroups: document.getElementById("chkIgnoreGroups").checked,
+			IgnorePinned: document.getElementById("chkIgnorePinned").checked,
+			IgnoreGroupsBG: document.getElementById("chkIgnoreGroupsBG").checked,
+			IgnorePinnedBG: document.getElementById("chkIgnorePinnedBG").checked,
+			HideGroups: document.getElementById("chkHideGroups").checked,
+			PlayAudio: document.getElementById("chkPlayAudio").checked,
+			RepeatHours: document.getElementById("hoursField").value,
+			RepeatHoursBG: parseInt(document.getElementById("hoursField").value, 10),
+			PagesToLoad: parseInt(document.getElementById("pagestoload").value, 10),
+			PagesToLoadBG: parseInt(document.getElementById("pagestoloadBG").value, 10),
+			PageForBG: document.getElementById("pageforBG").value,
+			DelayBG: parseInt(document.getElementById("delayBG").value, 10),
+			MinLevelBG: parseInt(document.getElementById("minLevelBG").value, 10),
+			ShowChance: document.getElementById("chkShowChance").checked
 		}, function(){
 			if (location.protocol == "chrome-extension:"){
-				$('#btnSetSave').attr('disabled', true).text("Settings Saved!");
+				saveButtonEl.innerText = "Settings Saved!";
+				saveButtonEl.disabled = true;
 				setTimeout(function(){ 
-					$('#btnSetSave').removeAttr('disabled').text("Save");
+					saveButtonEl.innerText = "Save";
+					saveButtonEl.disabled = false;
 				}, 500);
 			} else {
 				location.reload();
@@ -158,23 +164,24 @@ function settingsAttachEventListeners(){
 		});
 	});
 
-		//to show 0.5 when value goes below 1 in hoursFieldBG field 
-	$("#hoursFieldBG").on('input', function() {
+	//to show 0.5 when value goes below 1 in hoursFieldBG field 
+	document.getElementById("hoursFieldBG").addEventListener("input", function() {
+		console.log(this.value);
 		if (this.value == 0) this.value = 0.5;
-		else if (this.value % 1 != 0 & this.value > 1) {
+		else if (this.value % 1 != 0 && this.value > 1) {
 			this.value = parseInt(this.value);
 		}
 	});
 
-	$('.settingsCancel').click(function(){
-		$("#settingsShade").animate({opacity:0.0}, 200);
-		$("#settingsDiv").animate({opacity: 0.0}, {
-			easing: 'swing',
-			duration: 200,
-			complete: function() {
-				$("#settingsShade").css("visibility","hidden");
-				$("#settingsDiv").css("visibility","hidden");
-			}
+	var settingsCancelElements = document.getElementsByClassName("settingsCancel");
+	Array.from(settingsCancelElements).forEach(function(element){
+		element.addEventListener("click", function(){
+			var settingsShadeEl = document.getElementById("settingsShade");
+			var settingsDivEl = document.getElementById("settingsDiv");
+			settingsShadeEl.classList.remove("fadeIn");
+			settingsShadeEl.classList.add("fadeOut");
+			settingsDivEl.classList.remove("fadeIn");
+			settingsDivEl.classList.add("fadeOut");
 		});
 	});
 
