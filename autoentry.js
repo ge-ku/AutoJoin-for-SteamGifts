@@ -1,46 +1,58 @@
 var newVersionLaunched = false;
-var thisVersion = 20170101;
+var thisVersion = 20170123;
 
 var settings;
 
-function changeSettingsFormat(oldFormatSettings) {
-	chrome.storage.sync.set({
-		InfiniteScrolling: (oldFormatSettings.infiniteScrolling == "true"),
-		ShowPoints: (oldFormatSettings.showPoints == "true"),
-		ShowButtons: (oldFormatSettings.showButtons == "true"),
-		LoadFive: (oldFormatSettings.loadFive == "true"),
-		HideDlc: (oldFormatSettings.hideDlc == 'true'),
-		RepeatIfOnPage: (oldFormatSettings.repeatIfOnPage == 'true'),
-		NightTheme: (oldFormatSettings.nightTheme == 'true'),
-		LevelPriority: (oldFormatSettings.levelPriority == 'true'),
-		LevelPriorityBG: (oldFormatSettings.LevelPriorityBG == 'true'),
-		OddsPriorityBG: (oldFormatSettings.OddsPriorityBG == 'true'),
-		BackgroundAJ: (oldFormatSettings.BackgroundAJ == 'true'),
-		HideEntered: (oldFormatSettings.HideEntered == 'true'),
-		IgnoreGroups: (oldFormatSettings.IgnoreGroups == 'true'),
-		IgnorePinned: (oldFormatSettings.IgnorePinned == 'true'),
-		IgnoreGroupsBG: (oldFormatSettings.IgnoreGroupsBG == 'true'),
-		IgnorePinnedBG: (oldFormatSettings.IgnorePinnedBG == 'true'),
-		HideGroups: (oldFormatSettings.HideGroups == 'true'),
-		PlayAudio: (oldFormatSettings.PlayAudio == 'true'),
-		RepeatHours: parseInt(oldFormatSettings.repeatHours, 10),
-		RepeatHoursBG: parseInt(oldFormatSettings.RepeatHoursBG, 10),
-		PagesToLoad: parseInt(oldFormatSettings.Pagestoload, 10),
-		PagesToLoadBG: parseInt(oldFormatSettings.PagestoloadBG, 10),
-		PageForBG: oldFormatSettings.PageForBG,
-		DelayBG: parseInt(oldFormatSettings.DelayBG, 10),
-		MinLevelBG: parseInt(oldFormatSettings.MinLevelBG, 10),
-		ShowChance: (oldFormatSettings.ShowChance == 'true')
-	}, function(){
-		chrome.storage.sync.get(null, function (data) {
-			console.log(data); 
-			settings = data;
-			onPageLoad();
-		});
-	});		
-}
-
 $(document).ready(function() {
+	chrome.storage.sync.get({
+		lastLaunchedVersion: thisVersion
+	}, function(version) {
+		if (version.lastLaunchedVersion < thisVersion){
+			//this version is old, we need to convert settings to new format:
+			var oldFormatSettings;
+			chrome.storage.sync.get(null, function(oldSettings){
+				oldFormatSettings = oldSettings;
+				chrome.storage.sync.clear(function(){
+					chrome.storage.sync.set({
+						InfiniteScrolling: (oldFormatSettings.infiniteScrolling == "true"),
+						ShowPoints: (oldFormatSettings.showPoints == "true"),
+						ShowButtons: (oldFormatSettings.showButtons == "true"),
+						LoadFive: (oldFormatSettings.loadFive == "true"),
+						HideDlc: (oldFormatSettings.hideDlc == 'true'),
+						RepeatIfOnPage: (oldFormatSettings.repeatIfOnPage == 'true'),
+						NightTheme: (oldFormatSettings.nightTheme == 'true'),
+						LevelPriority: (oldFormatSettings.levelPriority == 'true'),
+						LevelPriorityBG: (oldFormatSettings.LevelPriorityBG == 'true'),
+						OddsPriorityBG: (oldFormatSettings.OddsPriorityBG == 'true'),
+						BackgroundAJ: (oldFormatSettings.BackgroundAJ == 'true'),
+						HideEntered: (oldFormatSettings.HideEntered == 'true'),
+						IgnoreGroups: (oldFormatSettings.IgnoreGroups == 'true'),
+						IgnorePinned: (oldFormatSettings.IgnorePinned == 'true'),
+						IgnoreGroupsBG: (oldFormatSettings.IgnoreGroupsBG == 'true'),
+						IgnorePinnedBG: (oldFormatSettings.IgnorePinnedBG == 'true'),
+						HideGroups: (oldFormatSettings.HideGroups == 'true'),
+						PlayAudio: (oldFormatSettings.PlayAudio == 'true'),
+						RepeatHours: parseInt(oldFormatSettings.repeatHours),
+						RepeatHoursBG: parseInt(oldFormatSettings.RepeatHoursBG),
+						PagesToLoad: parseInt(oldFormatSettings.Pagestoload),
+						PagesToLoadBG: parseInt(oldFormatSettings.PagestoloadBG),
+						PageForBG: oldFormatSettings.PageForBG,
+						DelayBG: parseInt(oldFormatSettings.DelayBG),
+						MinLevelBG: parseInt(oldFormatSettings.MinLevelBG),
+						ShowChance: (oldFormatSettings.ShowChance == 'true'),
+						lastLaunchedVersion: thisVersion,
+						LastKnownLevel: parseInt(oldFormatSettings.LastKnownLevel)
+					}, function(){
+						tempStart();
+					});
+				});
+			});
+		} else {
+			tempStart();
+		}
+	});
+});
+function tempStart() { // this is temporary
 	chrome.storage.sync.get({
 		HideGroups: false,
 		IgnoreGroups: false,
@@ -55,7 +67,7 @@ $(document).ready(function() {
 		BackgroundAJ: true,
 		LevelPriorityBG: true,
 		OddsPriorityBG: false,
-		LastLaunchedVersion: thisVersion,
+		lastLaunchedVersion: thisVersion,
 		InfiniteScrolling: true,
 		ShowPoints: true,
 		ShowButtons: true,
@@ -71,18 +83,10 @@ $(document).ready(function() {
 		ShowChance: true
 		}, function(data) {
 			settings = data;
-
-			if (data['lastLaunchedVersion'] < thisVersion){
-				newVersionLaunched = true;
-				changeSettingsFormat(data);
-				chrome.storage.sync.set({'lastLaunchedVersion': thisVersion});
-				return;
-			}
-
 			onPageLoad();
 		}
 	);
-});
+};
 
 function onPageLoad(){
 

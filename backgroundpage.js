@@ -58,7 +58,7 @@ function scanpage(e) {
             t = this.href.match(/giveaway\/(.+)\//);
         if (t.length > 0) {
             var GAcode = t[1];
-            if (!(settingsIgnoreGroupsBGTrue && 0 != $(this).find(".giveaway__column--group").length || $(e).find(".giveaway__column--contributor-level--negative").length > 0)) {
+            if (!(settings.IgnoreGroupsBG && 0 != $(this).find(".giveaway__column--group").length || $(e).find(".giveaway__column--contributor-level--negative").length > 0)) {
                 if ($(e).find(".giveaway__column--contributor-level--positive").length > 0) var GAlevel = $(e).find(".giveaway__column--contributor-level--positive").html().match(/(\d+)/)[1];
                 else var GAlevel = 0;
                 var s = $(e).find(".global__image-outer-wrap--game-medium").find(".global__image-inner-wrap").css("background-image");
@@ -110,7 +110,7 @@ function pagesloaded() {
 /*e is the whole html page*/
 function settingsloaded() {
 		if (settings.IgnoreGroupsBG && settings.PageForBG == "all") {
-			settingsIgnoreGroupsBGTrue = true;
+			settings.IgnoreGroupsBG = true;
 		}
 		pages = settings.PagesToLoadBG;
 		timetopass = 10 * settings.RepeatHoursBG;
@@ -130,7 +130,7 @@ function settingsloaded() {
 				//check level and save if changed
 				mylevel = $(data).find('a[href="/account"]').find("span").next().html().match(/(\d+)/)[1];
 				if (settings.LastKnownLevel != parseInt(mylevel)) {
-					chrome.storage.sync.set({LastKnownLevel:mylevel});
+					chrome.storage.sync.set({LastKnownLevel: parseInt(mylevel, 10)});
 				}
 			});
 		}
@@ -148,7 +148,7 @@ function settingsloaded() {
 				mylevel = $(data).find('a[href="/account"]').find("span").next().html().match(/(\d+)/)[1];
 				//save new level if it changed
 				if (settings.LastKnownLevel != parseInt(mylevel)) {
-					chrome.storage.sync.set({LastKnownLevel:mylevel});
+					chrome.storage.sync.set({LastKnownLevel: parseInt(mylevel)});
 				}
 				scanpage(data); // scan this page that was already loaded to get info above
 				for (var n = 2; n <= pages; n++) { // scan next pages
@@ -171,79 +171,133 @@ function loadsettings() {
 		PagesToLoadBG: 3,
 		BackgroundAJ: true,
 		LevelPriorityBG: true,
-		OddsPriorityBG: fasle,
+		OddsPriorityBG: false,
 		IgnoreGroupsBG: false,
 		IgnorePinnedBG: false,
 		LastKnownLevel: 10, // set to 10 by default so it loads pages with max_level set to 10 (maximum) before extensions learns actual level
 		lastLaunchedVersion: thisVersion
 		}, function(data) {
-			settings = data;
-			
+
 			//This section is temporary. I noticed that default value for delay between 
 			//requests was 2 seconds (even though you can't set it less to than 5 in settings).
 			//This will set this value to default (10) for those who had it set to 2.
 			if (data.DelayBG < 5) {
 				data.DelayBG = 10;
-				chrome.storage.sync.set({DelayBG: "10"});
-			}
-
-			//This is also temporary
-			if (data.lastLaunchedVersion < thisVersion) {
-				chrome.storage.sync.set({
-					InfiniteScrolling: (oldFormatSettings.infiniteScrolling == "true"),
-					ShowPoints: (oldFormatSettings.showPoints == "true"),
-					ShowButtons: (oldFormatSettings.showButtons == "true"),
-					LoadFive: (oldFormatSettings.loadFive == "true"),
-					HideDlc: (oldFormatSettings.hideDlc == 'true'),
-					RepeatIfOnPage: (oldFormatSettings.repeatIfOnPage == 'true'),
-					NightTheme: (oldFormatSettings.nightTheme == 'true'),
-					LevelPriority: (oldFormatSettings.levelPriority == 'true'),
-					LevelPriorityBG: (oldFormatSettings.LevelPriorityBG == 'true'),
-					OddsPriorityBG: (oldFormatSettings.OddsPriorityBG == 'true'),
-					BackgroundAJ: (oldFormatSettings.BackgroundAJ == 'true'),
-					HideEntered: (oldFormatSettings.HideEntered == 'true'),
-					IgnoreGroups: (oldFormatSettings.IgnoreGroups == 'true'),
-					IgnorePinned: (oldFormatSettings.IgnorePinned == 'true'),
-					IgnoreGroupsBG: (oldFormatSettings.IgnoreGroupsBG == 'true'),
-					IgnorePinnedBG: (oldFormatSettings.IgnorePinnedBG == 'true'),
-					HideGroups: (oldFormatSettings.HideGroups == 'true'),
-					PlayAudio: (oldFormatSettings.PlayAudio == 'true'),
-					RepeatHours: parseInt(oldFormatSettings.repeatHours),
-					RepeatHoursBG: parseInt(oldFormatSettings.RepeatHoursBG),
-					PagesToLoad: parseInt(oldFormatSettings.Pagestoload),
-					PagesToLoadBG: parseInt(oldFormatSettings.PagestoloadBG),
-					PageForBG: oldFormatSettings.PageForBG,
-					DelayBG: parseInt(oldFormatSettings.DelayBG),
-					MinLevelBG: parseInt(oldFormatSettings.MinLevelBG),
-					ShowChance: (oldFormatSettings.ShowChance == 'true')
-				}, function(){
-					chrome.storage.sync.get(null, function (data) {
-						console.log(data);
-						settings = data;
-						settingsloaded();
-					});
-				});		
-				return;
+				chrome.storage.sync.set({DelayBG: 10});
 			}
 			//Can be removed after some time when most users get this update.
 			
+			settings = data;
 			settingsloaded();
 		}
 	);
 }
 
+//This function is to help testing migration to new settings format
+//It clears all current setting!
+//Will be removed later.
+function loadOldFormatSettings(){
+	chrome.storage.sync.clear(function(){
+		chrome.storage.sync.set({
+			BackgroundAJ:"fasle",
+			DelayBG:"10",
+			HideEntered:"false",
+			HideGroups:"false",
+			IgnoreGroups:"false",
+			IgnoreGroupsBG:"false",
+			IgnorePinned:"true",
+			IgnorePinnedBG:"false",
+			LastKnownLevel:"1",
+			LevelPriorityBG:"false",
+			MinLevelBG:"0",
+			OddsPriorityBG:"true",
+			PageForBG:"all",
+			Pagestoload:"3",
+			PagestoloadBG:"2",
+			PlayAudio:"true",
+			RepeatHoursBG:2,
+			ShowChance:"true",
+			hideDlc:"false",
+			infiniteScrolling:"true",
+			lastLaunchedVersion:"20160226",
+			levelPriority:"false",
+			loadFive:"false",
+			nightTheme:"false",
+			repeatHours:"2",
+			repeatIfOnPage:"false",
+			showButtons:"true",
+			showPoints:"true"
+		});
+	});
+}
+function showSettings(){
+	chrome.storage.sync.get(null, function (data) { console.log(data) });
+}
+function checkVersionAndFormat(){
+	var thisVersion = 20170123;
+	chrome.storage.sync.get({
+		lastLaunchedVersion: thisVersion
+	}, function(version) {
+		if (version.lastLaunchedVersion < thisVersion){
+			//this version is old, we need to convert settings to new format:
+			var oldFormatSettings;
+			chrome.storage.sync.get(null, function(oldSettings){
+				oldFormatSettings = oldSettings;
+				chrome.storage.sync.clear(function(){
+					chrome.storage.sync.set({
+						InfiniteScrolling: (oldFormatSettings.infiniteScrolling == "true"),
+						ShowPoints: (oldFormatSettings.showPoints == "true"),
+						ShowButtons: (oldFormatSettings.showButtons == "true"),
+						LoadFive: (oldFormatSettings.loadFive == "true"),
+						HideDlc: (oldFormatSettings.hideDlc == 'true'),
+						RepeatIfOnPage: (oldFormatSettings.repeatIfOnPage == 'true'),
+						NightTheme: (oldFormatSettings.nightTheme == 'true'),
+						LevelPriority: (oldFormatSettings.levelPriority == 'true'),
+						LevelPriorityBG: (oldFormatSettings.LevelPriorityBG == 'true'),
+						OddsPriorityBG: (oldFormatSettings.OddsPriorityBG == 'true'),
+						BackgroundAJ: (oldFormatSettings.BackgroundAJ == 'true'),
+						HideEntered: (oldFormatSettings.HideEntered == 'true'),
+						IgnoreGroups: (oldFormatSettings.IgnoreGroups == 'true'),
+						IgnorePinned: (oldFormatSettings.IgnorePinned == 'true'),
+						IgnoreGroupsBG: (oldFormatSettings.IgnoreGroupsBG == 'true'),
+						IgnorePinnedBG: (oldFormatSettings.IgnorePinnedBG == 'true'),
+						HideGroups: (oldFormatSettings.HideGroups == 'true'),
+						PlayAudio: (oldFormatSettings.PlayAudio == 'true'),
+						RepeatHours: parseInt(oldFormatSettings.repeatHours),
+						RepeatHoursBG: parseInt(oldFormatSettings.RepeatHoursBG),
+						PagesToLoad: parseInt(oldFormatSettings.Pagestoload),
+						PagesToLoadBG: parseInt(oldFormatSettings.PagestoloadBG),
+						PageForBG: oldFormatSettings.PageForBG,
+						DelayBG: parseInt(oldFormatSettings.DelayBG),
+						MinLevelBG: parseInt(oldFormatSettings.MinLevelBG),
+						ShowChance: (oldFormatSettings.ShowChance == 'true'),
+						lastLaunchedVersion: thisVersion,
+						LastKnownLevel: parseInt(oldFormatSettings.LastKnownLevel)
+					}, function(){
+						loadsettings();
+					});
+				});
+			});
+		} else {
+			loadsettings();
+		}
+	});
+}
+
 /*Function declarations over*/
 
 /*It all begins with the loadsettings call*/
-chrome.alarms.onAlarm.addListener(function(e) {
-    console.log("Alarm fired."), "routine" == e.name && (loadsettings(), chrome.alarms.create("routine", {
-        delayInMinutes: 30
-    }))
+chrome.alarms.onAlarm.addListener(function(alarm) {
+    console.log("Alarm fired.")
+	if (alarm.name == "routine") {
+		checkVersionAndFormat();
+		chrome.alarms.create("routine", {
+			delayInMinutes: 30
+		});
+	}
 });
 
 /*Variables declaration*/
-/*At the end of the line, there are sometimes colons, sometimes semicolons.
-Is this for optimization purposes, or just a mistake?*/
 var arr = [],
 	settings,
     link = "https://www.steamgifts.com/giveaways/search?page=",
@@ -255,12 +309,15 @@ var arr = [],
     timepassed = 0,
     timetopass = 20,
     justLaunched = true,
-    thisVersion = 20170101;
+    thisVersion = 20170202;
+
+/*Create first alarm as soon as possible*/
+chrome.alarms.create("routine", {
+    delayInMinutes: .1
+});
 
 /*Creating a new tab if notification is clicked*/
-chrome.alarms.create("routine", {
-    delayInMinutes: 1
-}), chrome.notifications.onClicked.addListener(function() {
+chrome.notifications.onClicked.addListener(function() {
 	chrome.windows.getCurrent(function(currentWindow) {
 		if (currentWindow != null) {
 			return chrome.tabs.create({

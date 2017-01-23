@@ -1,43 +1,5 @@
-function changeSettingsFormat(oldFormatSettings) {
-	chrome.storage.sync.set({
-		InfiniteScrolling: (oldFormatSettings.infiniteScrolling == "true"),
-		ShowPoints: (oldFormatSettings.showPoints == "true"),
-		ShowButtons: (oldFormatSettings.showButtons == "true"),
-		LoadFive: (oldFormatSettings.loadFive == "true"),
-		HideDlc: (oldFormatSettings.hideDlc == 'true'),
-		RepeatIfOnPage: (oldFormatSettings.repeatIfOnPage == 'true'),
-		NightTheme: (oldFormatSettings.nightTheme == 'true'),
-		LevelPriority: (oldFormatSettings.levelPriority == 'true'),
-		LevelPriorityBG: (oldFormatSettings.LevelPriorityBG == 'true'),
-		OddsPriorityBG: (oldFormatSettings.OddsPriorityBG == 'true'),
-		BackgroundAJ: (oldFormatSettings.BackgroundAJ == 'true'),
-		HideEntered: (oldFormatSettings.HideEntered == 'true'),
-		IgnoreGroups: (oldFormatSettings.IgnoreGroups == 'true'),
-		IgnorePinned: (oldFormatSettings.IgnorePinned == 'true'),
-		IgnoreGroupsBG: (oldFormatSettings.IgnoreGroupsBG == 'true'),
-		IgnorePinnedBG: (oldFormatSettings.IgnorePinnedBG == 'true'),
-		HideGroups: (oldFormatSettings.HideGroups == 'true'),
-		PlayAudio: (oldFormatSettings.PlayAudio == 'true'),
-		RepeatHours: parseInt(oldFormatSettings.repeatHours, 10),
-		RepeatHoursBG: parseInt(oldFormatSettings.RepeatHoursBG, 10),
-		PagesToLoad: parseInt(oldFormatSettings.Pagestoload, 10),
-		PagesToLoadBG: parseInt(oldFormatSettings.PagestoloadBG, 10),
-		PageForBG: oldFormatSettings.PageForBG,
-		DelayBG: parseInt(oldFormatSettings.DelayBG, 10),
-		MinLevelBG: parseInt(oldFormatSettings.MinLevelBG, 10),
-		ShowChance: (oldFormatSettings.ShowChance == 'true')
-	}, function(){
-		chrome.storage.sync.get(null, function (settings) {
-			fillSettingsDiv(settings);
-		});
-	});		
-}
-
 //Call this function when #settingsDiv is present on the page.
 function loadSettings() {
-	var newVersionLaunched = false;
-	var thisVersion = 20170101;
-
 	//remove "Cancel" button if opened from Chrome settings
 	if (location.protocol == "chrome-extension:"){
 		document.getElementById("btnSetCancel").remove();
@@ -57,7 +19,6 @@ function loadSettings() {
 		BackgroundAJ: true,
 		LevelPriorityBG: true,
 		OddsPriorityBG: false,
-		LastLaunchedVersion: thisVersion,
 		InfiniteScrolling: true,
 		ShowPoints: true,
 		ShowButtons: true,
@@ -72,14 +33,6 @@ function loadSettings() {
 		MinLevelBG: 0,
 		ShowChance: true
 		}, function(settings) {
-
-			if (settings.lastLaunchedVersion < thisVersion){
-				newVersionLaunched = true;
-				changeSettingsFormat(settings);
-				chrome.storage.sync.set({'lastLaunchedVersion': thisVersion});
-				return;
-			}
-
 			fillSettingsDiv(settings);
 		}
 	);
