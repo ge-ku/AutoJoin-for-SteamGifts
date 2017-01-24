@@ -67,7 +67,6 @@
 	overflow-y: auto;
 	color: rgb(48, 57, 66);
 	width: 600px;
-	height: 700px;
 	background-color: #FFFFFF;
 	position: fixed;
 	top: 50%;
@@ -163,10 +162,25 @@
 
 #settingsDiv #SaveCancelContainer {
 	text-align: center;
+	margin: 20px;
 }
 
-#settingsDiv #rateSteamContainer {
-	margin-left: 20px;
+#settingsDiv #SaveCancelContainer > button {
+	margin: 0 10px 0 10px;
+}
+
+#settingsDiv #linksContainer {
+	display: flex;
+	padding: 0 75px 0 75px;
+}
+
+#settingsDiv #linksContainer div {
+	width: 150px;
+	text-align: center;
+}
+
+#settingsDiv #linksContainer a > img, #settingsDiv #linksContainer a > span {
+	vertical-align: middle;
 }
 
 #settingsDiv input[type=number] {
@@ -174,11 +188,12 @@
 }
 
 #settingsDiv a {
+	vertical-align: middle;
 	text-decoration: none;
 	color: rgb(17, 85, 204);
 }
 
-#settingsDiv a:hover {
+#settingsDiv a:hover > span{
 	text-decoration: underline;
 }
 
