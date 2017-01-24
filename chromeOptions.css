@@ -1,0 +1,16 @@
+#settingsDiv{
+      visibility: visible;
+      position: relative;
+      left: auto;
+      margin-left: auto;
+      margin-top: auto;
+}
+
+body, #titlesList{
+      margin: 0;
+      padding: 0;
+}
+
+.settingsCancel{
+      display: none;
+}

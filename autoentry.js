@@ -1,100 +1,96 @@
 var newVersionLaunched = false;
-var settingsInfiniteScrolling = false;
-var settingsShowPoints = false;
-var settingsShowButtons = false;
-var settingsLoadFive = false;
-var settingsHideDlc = false;
-var settingsRepeatIfOnPage = false;
-var settingsRepeatHours = 2;
-var settingsNightTheme = false;
-var settingsLevelPriority = false;
-var settingsBackgroundAJ = false;
-var settingsLevelPriorityBG = false;
-var settingsOddsPriorityBG = false;
-var settingsHideEntered = false;
-var settingsPagestoload = 3;
-var settingsPagestoloadBG = 2;
-var settingsPageForBG = "wishlist";
-var settingsRepeatHoursBG = 2;
-var settingsHideGroups = false;
-var settingsIgnoreGroups = false;
-var settingsIgnoreGroupsBG = false;
-var settingsIgnorePinnedBG = false;
-var settingsPlayAudio = true;
-var settingsDelayBG = 10;
-var settingsMinLevelBG = 0;
-var settingsIgnorePinned = false;
-var settingsShowChance = true;
+var thisVersion = 20170123;
+
+var settings;
 
 $(document).ready(function() {
 	chrome.storage.sync.get({
-		HideGroups: 'false',
-		IgnoreGroups: 'false',
-		IgnorePinned: 'true',
-		IgnoreGroupsBG: 'false',
-		IgnorePinnedBG: 'false',
-		HideEntered: 'false',
+		lastLaunchedVersion: thisVersion
+	}, function(version) {
+		if (version.lastLaunchedVersion < thisVersion){
+			//this version is old, we need to convert settings to new format:
+			var oldFormatSettings;
+			chrome.storage.sync.get(null, function(oldSettings){
+				oldFormatSettings = oldSettings;
+				chrome.storage.sync.clear(function(){
+					chrome.storage.sync.set({
+						InfiniteScrolling: (oldFormatSettings.infiniteScrolling == "true"),
+						ShowPoints: (oldFormatSettings.showPoints == "true"),
+						ShowButtons: (oldFormatSettings.showButtons == "true"),
+						LoadFive: (oldFormatSettings.loadFive == "true"),
+						HideDlc: (oldFormatSettings.hideDlc == 'true'),
+						RepeatIfOnPage: (oldFormatSettings.repeatIfOnPage == 'true'),
+						NightTheme: (oldFormatSettings.nightTheme == 'true'),
+						LevelPriority: (oldFormatSettings.levelPriority == 'true'),
+						LevelPriorityBG: (oldFormatSettings.LevelPriorityBG == 'true'),
+						OddsPriorityBG: (oldFormatSettings.OddsPriorityBG == 'true'),
+						BackgroundAJ: (oldFormatSettings.BackgroundAJ == 'true'),
+						HideEntered: (oldFormatSettings.HideEntered == 'true'),
+						IgnoreGroups: (oldFormatSettings.IgnoreGroups == 'true'),
+						IgnorePinned: (oldFormatSettings.IgnorePinned == 'true'),
+						IgnoreGroupsBG: (oldFormatSettings.IgnoreGroupsBG == 'true'),
+						IgnorePinnedBG: (oldFormatSettings.IgnorePinnedBG == 'true'),
+						HideGroups: (oldFormatSettings.HideGroups == 'true'),
+						PlayAudio: (oldFormatSettings.PlayAudio == 'true'),
+						RepeatHours: parseInt(oldFormatSettings.repeatHours),
+						RepeatHoursBG: parseInt(oldFormatSettings.RepeatHoursBG),
+						PagesToLoad: parseInt(oldFormatSettings.Pagestoload),
+						PagesToLoadBG: parseInt(oldFormatSettings.PagestoloadBG),
+						PageForBG: oldFormatSettings.PageForBG,
+						DelayBG: parseInt(oldFormatSettings.DelayBG),
+						MinLevelBG: parseInt(oldFormatSettings.MinLevelBG),
+						ShowChance: (oldFormatSettings.ShowChance == 'true'),
+						lastLaunchedVersion: thisVersion,
+						LastKnownLevel: parseInt(oldFormatSettings.LastKnownLevel)
+					}, function(){
+						tempStart();
+					});
+				});
+			});
+		} else {
+			tempStart();
+		}
+	});
+});
+function tempStart() { // this is temporary
+	chrome.storage.sync.get({
+		HideGroups: false,
+		IgnoreGroups: false,
+		IgnorePinned: true,
+		IgnoreGroupsBG: false,
+		IgnorePinnedBG: false,
+		HideEntered: false,
 		PageForBG: 'wishlist',
-		RepeatHoursBG: '2',
-		Pagestoload: '3',
-		PagestoloadBG: '2',
-		BackgroundAJ: 'true',
-		LevelPriorityBG: 'true',
-		OddsPriorityBG: 'false',
-		lastLaunchedVersion: '20160226',
-		infiniteScrolling: 'true',
-		showPoints: 'true',
-		showButtons: 'true',
-		loadFive: 'false',
-		hideDlc: 'false',
-		repeatIfOnPage: 'false',
-		repeatHours: '2',
-		nightTheme: 'false',
-		levelPriority: 'false',
-		PlayAudio: 'true',
-		DelayBG: '10',
-		MinLevelBG: '0',
-		ShowChance: 'true'
+		RepeatHoursBG: 2,
+		PagesToLoad: 3,
+		PagesToLoadBG: 2,
+		BackgroundAJ: true,
+		LevelPriorityBG: true,
+		OddsPriorityBG: false,
+		lastLaunchedVersion: thisVersion,
+		InfiniteScrolling: true,
+		ShowPoints: true,
+		ShowButtons: true,
+		LoadFive: false,
+		HideDlc: false,
+		RepeatIfOnPage: false,
+		RepeatHours: 2,
+		NightTheme: false,
+		LevelPriority: false,
+		PlayAudio: true,
+		DelayBG: 10,
+		MinLevelBG: 0,
+		ShowChance: true
 		}, function(data) {
-			settingsHideGroups = (data['HideGroups'] == 'true');
-			settingsIgnoreGroups = (data['IgnoreGroups'] == 'true');
-			settingsIgnorePinned = (data['IgnorePinned'] == 'true');
-			settingsIgnoreGroupsBG = (data['IgnoreGroupsBG'] == 'true');
-			settingsIgnorePinnedBG = (data['IgnorePinnedBG'] == 'true');
-			settingsHideEntered = (data['HideEntered'] == 'true');
-			settingsPageForBG = data['PageForBG'];
-			settingsRepeatHoursBG = parseInt(data['RepeatHoursBG'], 10);
-			settingsPagestoload = parseInt(data['Pagestoload'], 10);
-			settingsPagestoloadBG = parseInt(data['PagestoloadBG'], 10);
-			settingsDelayBG = parseInt(data['DelayBG'], 10);
-			settingsMinLevelBG = parseInt(data['MinLevelBG'], 10);
-			settingsBackgroundAJ = (data['BackgroundAJ'] == 'true');
-			settingsLevelPriorityBG = (data['LevelPriorityBG'] == 'true');
-			settingsOddsPriorityBG = (data['OddsPriorityBG'] == 'true');
-			if (!(parseInt(data['lastLaunchedVersion'], 10) < 20160226)){
-				newVersionLaunched = true;
-				chrome.storage.sync.set({'lastLaunchedVersion': '20160226'});
-			}
-			settingsInfiniteScrolling = (data['infiniteScrolling'] == 'true');
-			settingsShowPoints = (data['showPoints'] == 'true');
-			settingsShowButtons = (data['showButtons'] == 'true');
-			settingsLoadFive = (data['loadFive'] == 'true');
-			settingsHideDlc = (data['hideDlc'] == 'true');
-			settingsRepeatIfOnPage = (data['repeatIfOnPage'] == 'true');
-			settingsRepeatHours = parseInt(data['repeatHours'], 10);
-			settingsNightTheme = (data['nightTheme'] == 'true');
-			settingsLevelPriority = (data['levelPriority'] == 'true');
-			settingsPlayAudio = (data['PlayAudio'] == 'true');
-			settingsShowChance = (data['ShowChance'] == 'true');
-
+			settings = data;
 			onPageLoad();
 		}
 	);
-});
+};
 
 function onPageLoad(){
-	
-	if (settingsNightTheme){
+
+	if (settings.NightTheme){
 		var path = chrome.extension.getURL('/night.css');
 		$('head').append($('<link>')
 			.attr("rel","stylesheet")
@@ -102,90 +98,12 @@ function onPageLoad(){
 			.attr("href", path));
 	}
 
-	// Maybe replace these ugly settings with proper options page https://developer.chrome.com/extensions/optionsV2 , cog icon will lead to it.
 	$.get(chrome.extension.getURL('/settings.html'), function(settingsDiv){
-		 $('body').append(settingsDiv);
-		if (settingsInfiniteScrolling){$('#chkInfiniteScroll').prop('checked', true)};
-		if (settingsShowPoints){$('#chkShowPoints').prop('checked', true)};
-		if (settingsShowButtons){$('#chkShowButtons').prop('checked', true)};
-		if (settingsLoadFive){$('#chkLoadFive').prop('checked', true)};
-		if (settingsHideDlc){$('#chkHideDlc').prop('checked', true)};
-		if (settingsNightTheme){$('#chkNightTheme').prop('checked', true)};
-		if (settingsLevelPriority){$('#chkLevelPriority').prop('checked', true)};
-		if (settingsRepeatIfOnPage){$('#chkRepeatIfOnPage').prop('checked', true)};
-		if (settingsHideEntered){$('#chkHideEntered').prop('checked', true)};
-		if (settingsHideGroups){$('#chkHideGroups').prop('checked', true)};
-		if (settingsIgnoreGroups){$('#chkIgnoreGroups').prop('checked', true)};
-		if (settingsIgnorePinned){$('#chkIgnorePinned').prop('checked', true)};
-		if (settingsIgnoreGroupsBG){$('#chkIgnoreGroupsBG').prop('checked', true)};
-		if (settingsIgnorePinnedBG){$('#chkIgnorePinnedBG').prop('checked', true)};
-		if (settingsBackgroundAJ){$('#chkEnableBG').prop('checked', true)};
-		if (settingsLevelPriorityBG){$('#chkLevelPriorityBG').prop('checked', true)};
-		if (settingsOddsPriorityBG){$('#chkOddsPriorityBG').prop('checked', true)};
-		if (settingsPlayAudio){$('#chkPlayAudio').prop('checked', true)};
-		if (settingsShowChance){$('#chkShowChance').prop('checked', true)};
-		$('#hoursField').val(settingsRepeatHours);
-		$('#pagestoload').val(settingsPagestoload);
-		$('#pagestoloadBG').val(settingsPagestoloadBG);
-		if (settingsRepeatHoursBG == 0) { $('#hoursFieldBG').val("0.5") } else { $('#hoursFieldBG').val(settingsRepeatHoursBG) }
-		$('#pageforBG').val(settingsPageForBG);
-		$('#delayBG').val(settingsDelayBG);
-		$('#minLevelBG').val(settingsMinLevelBG);
-
-		$('#btnSettings')
-			.click(function(){
-				$("#settingsShade").css("visibility","visible").animate({opacity:0.75}, 200);
-				$("#settingsDiv").css("visibility","visible").animate({opacity:1.0}, 200);
-			});
-		$('.settingsCancel').click(function(){
-			$("#settingsShade").animate({opacity:0.0}, 200);
-			$("#settingsDiv").animate({opacity: 0.0}, {
-				easing: 'swing',
-				duration: 200,
-				complete: function() {
-					$("#settingsShade").css("visibility","hidden");
-					$("#settingsDiv").css("visibility","hidden");
-				}
-			});
-		});
-		$('#btnSetSave').click(function(){
-			chrome.storage.sync.set({
-				infiniteScrolling: $('#chkInfiniteScroll').is(':checked').toString(),
-				showPoints: $('#chkShowPoints').is(':checked').toString(),
-				showButtons: $('#chkShowButtons').is(':checked').toString(),
-				loadFive: $('#chkLoadFive').is(':checked').toString(),
-				hideDlc: $('#chkHideDlc').is(':checked').toString(),
-				repeatIfOnPage: $('#chkRepeatIfOnPage').is(':checked').toString(),
-				nightTheme: $('#chkNightTheme').is(':checked').toString(),
-				levelPriority: $('#chkLevelPriority').is(':checked').toString(),
-				LevelPriorityBG: $('#chkLevelPriorityBG').is(':checked').toString(),
-				OddsPriorityBG: $('#chkOddsPriorityBG').is(':checked').toString(),
-				BackgroundAJ: $('#chkEnableBG').is(':checked').toString(),
-				HideEntered: $('#chkHideEntered').is(':checked').toString(),
-				IgnoreGroups: $('#chkIgnoreGroups').is(':checked').toString(),
-				IgnorePinned: $('#chkIgnorePinned').is(':checked').toString(),
-				IgnoreGroupsBG: $('#chkIgnoreGroupsBG').is(':checked').toString(),
-				IgnorePinnedBG: $('#chkIgnorePinnedBG').is(':checked').toString(),
-				HideGroups: $('#chkHideGroups').is(':checked').toString(),
-				PlayAudio: $('#chkPlayAudio').is(':checked').toString(),
-				repeatHours: $('#hoursField').val(),
-				RepeatHoursBG: parseInt($('#hoursFieldBG').val()), //parseInt to save 0.5 as 0
-				Pagestoload: $('#pagestoload').val(),
-				PagestoloadBG: $('#pagestoloadBG').val(),
-				PageForBG: $('#pageforBG').val(),
-				DelayBG: $('#delayBG').val(),
-				MinLevelBG: $('#minLevelBG').val(),
-				ShowChance: $('#chkShowChance').is(':checked').toString()
-			}, function(){
-				location.reload(); // reload page after saving
-			});		
-		});
-		//to show 0.5 when value goes below 1 in hoursFieldBG field 
-		$("#hoursFieldBG").on('input', function() {
-			if (this.value == 0) this.value = 0.5;
-			else if (this.value % 1 != 0 & this.value > 1) {
-				this.value = parseInt(this.value);
-			}
+		$('body').append($(settingsDiv).filter('#bodyWrapper'));
+		loadSettings();
+		$('#btnSettings').click(function(){
+			$("#settingsShade").removeClass("fadeOut").addClass("fadeIn");
+			$("#settingsDiv").removeClass("fadeOut").addClass("fadeIn");
 		});
 	});
 	/*All of the above is for the "settings" window you can click on the page*/
@@ -193,10 +111,10 @@ function onPageLoad(){
 	var myLevel = $('a[href="/account"]').find('span').next().html().match(/(\d+)/)[1];
 	
 	var pagesLoaded = 1;
-	if (settingsShowPoints){var accountInfo = $('a[href="/account"]').clone().prependTo('body').addClass('pointsFloating').css('position', 'fixed').css('opacity', '0').hide();}
+	if (settings.ShowPoints){var accountInfo = $('a[href="/account"]').clone().prependTo('body').addClass('pointsFloating').css('position', 'fixed').css('opacity', '0').hide();}
 	$(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent().attr('id', 'posts');
 	var token = $("input[name=xsrf_token]").val();		
-	if (settingsInfiniteScrolling){$('.widget-container .widget-container--margin-top').remove();}
+	if (settings.InfiniteScrolling){$('.widget-container .widget-container--margin-top').remove();}
 	var splitPageLinkCheck = $(".pagination__navigation").find('a:contains("Next")');
 	var onlyOnePage = false;
 	if (splitPageLinkCheck.length == 0) {
@@ -215,28 +133,28 @@ function onPageLoad(){
 			loadingNextPage = true;
 			$("<div>").load(pageLink+pageNumber+thirdPart + " :not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap", function() {
 				$(this).find('.giveaway__row-inner-wrap').each(function(){
-					if (settingsHideGroups){
+					if (settings.HideGroups){
 						if ($(this).find('.giveaway__column--group').length != 0){
 							$(this).parent().remove();
 							return;
 						}
 					}
 					if ($(this).attr('class') == 'giveaway__row-inner-wrap is-faded'){
-						if (settingsHideEntered){
+						if (settings.HideEntered){
 							$(this).parent().remove();
 							return;
-						}else if (settingsShowButtons){
+						}else if (settings.ShowButtons){
 							$('<input type="button" value="Leave" class="btnSingle" walkState="leave">').appendTo(this);
 						}
 					}else{
-						if ($(this).find('.giveaway__column--contributor-level--negative').length && settingsShowButtons){
+						if ($(this).find('.giveaway__column--contributor-level--negative').length && settings.ShowButtons){
 							$('<input type="button" value="Need a higher level" class="btnSingle" walkState="no-level" disabled>').appendTo(this);
 						}else{
 							var pointsNeededRaw = $(this).parent().find('.giveaway__heading__thin').text().match(/(\d+)P/);
 							var pointsNeeded = pointsNeededRaw[pointsNeededRaw.length-1];
-							if (parseInt(pointsNeeded, 10) > parseInt($('.nav__points').first().text(),10) && settingsShowButtons){
+							if (parseInt(pointsNeeded, 10) > parseInt($('.nav__points').first().text(),10) && settings.ShowButtons){
 								$('<input type="button" value="Not enough points" class="btnSingle" walkState="no-points" disabled>').appendTo(this);
-							}else if (settingsShowButtons){
+							}else if (settings.ShowButtons){
 								$('<input type="button" value="Join" class="btnSingle" walkState="join">').appendTo(this);
 							}
 						}
@@ -244,10 +162,10 @@ function onPageLoad(){
 					$(this).find('.giveaway__hide').each(function(){
 						$(this).removeAttr('data-popup');
 					});
-					if (settingsHideDlc){								
+					if (settings.HideDlc){								
 						checkDLCbyImage($(this), false, false);
 					}
-					if (settingsShowChance){
+					if (settings.ShowChance){
 						$(this).find('.giveaway__columns').prepend("<div style=\"cursor:help\" title=\"approx. odds of winning\"><i class=\"fa fa-trophy\"></i> " + calculateWinChance(this, timeLoaded) + "%</div>");
 					}
 				});
@@ -255,7 +173,7 @@ function onPageLoad(){
 				pageNumber++;
 				pagesLoaded++;
 				loadingNextPage = false;
-				/*if(($(window).scrollTop() + $(window).height() > $(document).height() - 600) && settingsInfiniteScrolling) {
+				/*if(($(window).scrollTop() + $(window).height() > $(document).height() - 600) && settings.infiniteScrolling) {
 					loadPage();
 				}*/
 			});
@@ -263,7 +181,7 @@ function onPageLoad(){
 	}
 	
 	function fireAutoJoin(){
-		if (settingsLoadFive && pagesLoaded < settingsPagestoload){
+		if (settings.LoadFive && pagesLoaded < settings.PagesToLoad){
 			loadPage();
 			setTimeout(function() {
 				fireAutoJoin();
@@ -278,7 +196,7 @@ function onPageLoad(){
 		//Here I'm filtering the giveaways to enter to only the one created by regular users in the #posts div
 		//which means featured giveaways won't be autojoined if users decides so in the options
 
-		if(settingsIgnorePinned)
+		if(settings.IgnorePinned)
 		{
 			selectItems = "#posts " + selectItems;
 		}
@@ -287,7 +205,7 @@ function onPageLoad(){
 			timeouts.push(setTimeout($.proxy(function(){
 				var current = $(this).parent().parent().parent();
 				
-				if (settingsIgnoreGroups){
+				if (settings.IgnoreGroups){
 					if ($(current).find('.giveaway__column--group').length != 0){
 						return;
 					}
@@ -328,7 +246,7 @@ function onPageLoad(){
 	
 	/*
 	function fireAutoJoinPriority(){
-		if (settingsLoadFive && pagesLoaded < settingsPagestoload){
+		if (settings.LoadFive && pagesLoaded < settings.PagesToLoad){
 			loadPage();
 			setTimeout(function() {
 				fireAutoJoinPriority();
@@ -341,7 +259,7 @@ function onPageLoad(){
 			$('.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name').each(function(iteration){
 				timeouts.push(setTimeout($.proxy(function(){
 					var current = $(this).parent().parent().parent();
-					if (settingsIgnoreGroups){
+					if (settings.IgnoreGroups){
 						if ($(current).find('.giveaway__column--group').length != 0){
 							return;
 						}
@@ -412,13 +330,13 @@ function onPageLoad(){
 								// Proper fix is to check every new page's pagination, last page doesn't have "Next" link.
 		}
 		var loadingNextPage = false;
-		if (settingsInfiniteScrolling){
+		if (settings.InfiniteScrolling){
 			$('.pagination').html('<div style = "margin-left: auto; margin-right: auto;"><i style="font-size: 55px" class="fa fa-refresh fa-spin"></i></div>');
 		}
 		$(window).scroll(function() {
-			if ($(window).scrollTop() > $(window).height() * 2 && settingsShowPoints){
+			if ($(window).scrollTop() > $(window).height() * 2 && settings.ShowPoints){
 				accountInfo.show().stop().animate({opacity: 1}, "slow");
-			}else if ($(window).scrollTop() < $(window).height()+$(window).height() / 2 && settingsShowPoints){
+			}else if ($(window).scrollTop() < $(window).height()+$(window).height() / 2 && settings.ShowPoints){
 				accountInfo.stop().animate({
 					opacity: 0}, {
 					easing: 'swing',
@@ -426,7 +344,7 @@ function onPageLoad(){
 					complete: function() { accountInfo.hide() }
 				});
 			}
-			if(($(window).scrollTop() + $(window).height() > $(document).height() - 600) && settingsInfiniteScrolling) {
+			if(($(window).scrollTop() + $(window).height() > $(document).height() - 600) && settings.InfiniteScrolling) {
 				loadPage();
 			}
 		});
@@ -438,10 +356,10 @@ function onPageLoad(){
 		.prependTo('#buttonsAJ')
 		.click(function(){
 				$('#btnAutoJoin').prop("disabled", true);
-				if (settingsLoadFive && pagesLoaded < 5){
+				if (settings.LoadFive && pagesLoaded < 5){
 					$('#btnAutoJoin').val("Loading Pages..");
 				}	
-				//if (settingsLevelPriority){
+				//if (settings.LevelPriority){
 				//	fireAutoJoinPriority();
 				//}else{
 					fireAutoJoin();
@@ -449,7 +367,7 @@ function onPageLoad(){
 		});
 			
 	function updateButtons(){
-		if (settingsShowButtons){
+		if (settings.ShowButtons){
 			$('.btnSingle:not([walkState="no-level"])').each(function(){
 				if ($(this).parent().attr('class') != 'giveaway__row-inner-wrap is-faded'){
 					var pointsNeededRaw = $(this).parent().find('.giveaway__heading__thin').text().match(/(\d+)P/);
@@ -470,20 +388,20 @@ function onPageLoad(){
 
 	var timeOfFirstPage = Math.round(Date.now() / 1000);
 	$('.giveaway__row-inner-wrap').each(function(){
-		if (settingsHideGroups){
+		if (settings.HideGroups){
 			if ($(this).find('.giveaway__column--group').length != 0){
 				$(this).parent().remove();
 				return;
 			}
 		}
 		if ($(this).attr('class') == 'giveaway__row-inner-wrap is-faded'){
-			if (settingsHideEntered){
+			if (settings.HideEntered){
 				$(this).parent().remove();
 				return;
-			}else if (settingsShowButtons){
+			}else if (settings.ShowButtons){
 				$('<input type="button" value="Leave" class="btnSingle" walkState="leave">').appendTo(this);
 			}				
-		}else if (settingsShowButtons){
+		}else if (settings.ShowButtons){
 			if ($(this).find('.giveaway__column--contributor-level--negative').length){
 				$('<input type="button" value="Need a higher level" class="btnSingle" walkState="no-level" disabled>').appendTo(this);
 			}else{
@@ -499,10 +417,10 @@ function onPageLoad(){
 		$(this).find('.giveaway__hide').each(function(){
 			$(this).removeAttr('data-popup');
 		});
-		if (settingsHideDlc){
+		if (settings.HideDlc){
 			checkDLCbyImage($(this), false, true);
 		}
-		if (settingsShowChance){
+		if (settings.ShowChance){
 			$(this).find('.giveaway__columns').prepend("<div style=\"cursor:help\" title=\"approx. odds of winning\"><i class=\"fa fa-trophy\"></i> " + calculateWinChance(this, timeOfFirstPage) + "%</div>");
 		}
 	});
@@ -510,7 +428,7 @@ function onPageLoad(){
 		$('.pinned-giveaways__inner-wrap').parent().remove();
 	}
 	
-	/*if(($(window).scrollTop() + $(window).height() > $(document).height() - 600) && settingsInfiniteScrolling) {
+	/*if(($(window).scrollTop() + $(window).height() > $(document).height() - 600) && settings.InfiniteScrolling) {
 		loadPage();
 	}*/
 	
@@ -550,7 +468,7 @@ function onPageLoad(){
 					var json_response = jQuery.parseJSON(response);
 					if (json_response.type == "success"){
 						thisWrap.toggleClass('is-faded');
-						if (settingsHideEntered){
+						if (settings.HideEntered){
 							thisWrap.fadeOut(300, function() { $(this).parent().remove(); });
 							$('.nav__points').text(json_response.points);
 							updateButtons();
@@ -589,7 +507,7 @@ function onPageLoad(){
 		}
 	}, ".btnSingle");
 	
-	if (settingsRepeatIfOnPage){
+	if (settings.RepeatIfOnPage){
 		setInterval(function(){
 			if (onlyOnePage){
 				pageLink = window.location.href;
@@ -603,23 +521,23 @@ function onPageLoad(){
 			}else{
 				pagesLoaded = 0;
 				pageNumber = 1;
-				if (settingsInfiniteScrolling){
-					settingsInfiniteScrolling = false;
+				if (settings.InfiniteScrolling){
+					settings.InfiniteScrolling = false;
 					$('#posts').empty();
 					loadPage();
-					setTimeout(function() { settingsInfiniteScrolling = true; }, 5000);
+					setTimeout(function() { settings.InfiniteScrolling = true; }, 5000);
 				}else{
 					$('#posts').empty();
 					loadPage();
 				}
 			}
-			//if (settingsLevelPriority){
+			//if (settings.LevelPriority){
 			//	fireAutoJoinPriority();
 			//}else{
 				fireAutoJoin();
 			//}
-		}, 3600000 * settingsRepeatHours);
-		//}, 5000 * settingsRepeatHours); // For testing
+		}, 3600000 * settings.RepeatHours);
+		//}, 5000 * settings.RepeatHours); // For testing
 	}						
 }
 
