@@ -1,5 +1,6 @@
 var newVersionLaunched = false;
 var thisVersion = 20170123;
+var settingsInjected = false;
 
 var settings;
 
@@ -90,6 +91,7 @@ function tempStart() { // this is temporary
 
 function onPageLoad(){
 
+	/* Inject night.css if night theme enabled in settings*/
 	if (settings.NightTheme){
 		var path = chrome.extension.getURL('/night.css');
 		$('head').append($('<link>')
@@ -98,22 +100,50 @@ function onPageLoad(){
 			.attr("href", path));
 	}
 
-	$.get(chrome.extension.getURL('/settings.html'), function(settingsDiv){
-		$('body').append($(settingsDiv).filter('#bodyWrapper'));
-		loadSettings();
-		$('#btnSettings').click(function(){
+	/* Add AutoJoin and cog button*/
+	$('<div id="info"></div>').prependTo('.featured__summary');
+	$('<div id="buttonsAJ"><button id="btnSettings"><i class="fa fa-cog fa-4x fa-inverse"></i></button></div>').prependTo('.featured__summary');
+	$('<input type="button" value="AutoJoin" id="btnAutoJoin">')
+		.prependTo('#buttonsAJ')
+		.click(function(){
+				$('#btnAutoJoin').prop("disabled", true);
+				if (settings.LoadFive && pagesLoaded < 5){
+					$('#btnAutoJoin').val("Loading Pages..");
+				}	
+				fireAutoJoin();
+		});
+	/*First time cog button is pressed inject part of settings.html and show it
+	  If settings already injected just show them*/
+	$('#btnSettings').click(function(){
+		console.log(settingsInjected);
+		if (settingsInjected) {
 			$("#settingsShade").removeClass("fadeOut").addClass("fadeIn");
 			$("#settingsDiv").removeClass("fadeOut").addClass("fadeIn");
-		});
+		} else {
+			settingsInjected = true;
+			$.get(chrome.extension.getURL('/settings.html'), function(settingsDiv){
+				$('body').append($(settingsDiv).filter('#bodyWrapper'));
+				loadSettings();
+				$("#settingsShade").removeClass("fadeOut").addClass("fadeIn");
+				$("#settingsDiv").removeClass("fadeOut").addClass("fadeIn");
+			});
+		}
 	});
-	/*All of the above is for the "settings" window you can click on the page*/
 	
 	var myLevel = $('a[href="/account"]').find('span').next().html().match(/(\d+)/)[1];
-	
+	var token = $("input[name=xsrf_token]").val();
 	var pagesLoaded = 1;
-	if (settings.ShowPoints){var accountInfo = $('a[href="/account"]').clone().prependTo('body').addClass('pointsFloating').css('position', 'fixed').css('opacity', '0').hide();}
-	$(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent().attr('id', 'posts');
-	var token = $("input[name=xsrf_token]").val();		
+
+	$(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent().attr('id', 'posts'); //give div with giveaways id "posts"
+
+	if (settings.ShowPoints){
+		var accountInfo = $('a[href="/account"]')
+							.clone().prependTo('body')
+							.addClass('pointsFloating')
+							.css({position: 'fixed', opacity: '0'})
+							.hide();
+	}
+	
 	if (settings.InfiniteScrolling){$('.widget-container .widget-container--margin-top').remove();}
 	var splitPageLinkCheck = $(".pagination__navigation").find('a:contains("Next")');
 	var onlyOnePage = false;
@@ -349,22 +379,6 @@ function onPageLoad(){
 			}
 		});
 	}
-	
-	$('<div id="info"></div>').prependTo('.featured__summary');
-	$('<div id="buttonsAJ"><button id="btnSettings"><i class="fa fa-cog fa-4x fa-inverse"></i></button></div>').prependTo('.featured__summary');
-	$('<input type="button" value="AutoJoin" id="btnAutoJoin">')
-		.prependTo('#buttonsAJ')
-		.click(function(){
-				$('#btnAutoJoin').prop("disabled", true);
-				if (settings.LoadFive && pagesLoaded < 5){
-					$('#btnAutoJoin').val("Loading Pages..");
-				}	
-				//if (settings.LevelPriority){
-				//	fireAutoJoinPriority();
-				//}else{
-					fireAutoJoin();
-				//}
-		});
 			
 	function updateButtons(){
 		if (settings.ShowButtons){

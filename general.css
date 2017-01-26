@@ -179,7 +179,8 @@
 	text-align: center;
 }
 
-#settingsDiv #linksContainer a > img, #settingsDiv #linksContainer a > span {
+#settingsDiv #linksContainer a > img,
+#settingsDiv #linksContainer a > span {
 	vertical-align: middle;
 }
 
@@ -193,7 +194,7 @@
 	color: rgb(17, 85, 204);
 }
 
-#settingsDiv a:hover > span{
+#settingsDiv a:hover > span {
 	text-decoration: underline;
 }
 
