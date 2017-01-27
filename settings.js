@@ -90,7 +90,7 @@ function settingsAttachEventListeners(){
 			IgnorePinnedBG: document.getElementById("chkIgnorePinnedBG").checked,
 			HideGroups: document.getElementById("chkHideGroups").checked,
 			PlayAudio: document.getElementById("chkPlayAudio").checked,
-			RepeatHours: document.getElementById("hoursField").value,
+			RepeatHours: document.getElementById("hoursFieldBG").value,
 			RepeatHoursBG: parseInt(document.getElementById("hoursField").value, 10),
 			PagesToLoad: parseInt(document.getElementById("pagestoload").value, 10),
 			PagesToLoadBG: parseInt(document.getElementById("pagestoloadBG").value, 10),

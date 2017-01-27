@@ -115,7 +115,6 @@ function onPageLoad(){
 	/*First time cog button is pressed inject part of settings.html and show it
 	  If settings already injected just show them*/
 	$('#btnSettings').click(function(){
-		console.log(settingsInjected);
 		if (settingsInjected) {
 			$("#settingsShade").removeClass("fadeOut").addClass("fadeIn");
 			$("#settingsDiv").removeClass("fadeOut").addClass("fadeIn");
@@ -521,6 +520,7 @@ function onPageLoad(){
 		}
 	}, ".btnSingle");
 	
+	/*I wonder if anyone actually uses this..*/
 	if (settings.RepeatIfOnPage){
 		setInterval(function(){
 			if (onlyOnePage){
@@ -545,13 +545,8 @@ function onPageLoad(){
 					loadPage();
 				}
 			}
-			//if (settings.LevelPriority){
-			//	fireAutoJoinPriority();
-			//}else{
-				fireAutoJoin();
-			//}
+			fireAutoJoin();
 		}, 3600000 * settings.RepeatHours);
-		//}, 5000 * settings.RepeatHours); // For testing
 	}						
 }
 
