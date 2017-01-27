@@ -60,7 +60,7 @@ function fillSettingsDiv(settings){
 	document.getElementById("delayBG").value = settings.DelayBG;
 	document.getElementById("minLevelBG").value = settings.MinLevelBG;
 	if (settings.RepeatHoursBG == 0) { 
-		document.getElementById("#hoursFieldBG").value = "0.5"; 
+		document.getElementById("hoursFieldBG").value = "0.5"; 
 	} else { 
 		document.getElementById("hoursFieldBG").value = settings.RepeatHoursBG; 
 	}
@@ -90,8 +90,8 @@ function settingsAttachEventListeners(){
 			IgnorePinnedBG: document.getElementById("chkIgnorePinnedBG").checked,
 			HideGroups: document.getElementById("chkHideGroups").checked,
 			PlayAudio: document.getElementById("chkPlayAudio").checked,
-			RepeatHours: document.getElementById("hoursFieldBG").value,
-			RepeatHoursBG: parseInt(document.getElementById("hoursField").value, 10),
+			RepeatHours: document.getElementById("hoursField").value,
+			RepeatHoursBG: parseInt(document.getElementById("hoursFieldBG").value, 10),
 			PagesToLoad: parseInt(document.getElementById("pagestoload").value, 10),
 			PagesToLoadBG: parseInt(document.getElementById("pagestoloadBG").value, 10),
 			PageForBG: document.getElementById("pageforBG").value,
