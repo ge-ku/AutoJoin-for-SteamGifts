@@ -40,6 +40,7 @@ $(document).ready(function() {
 						PageForBG: oldFormatSettings.PageForBG,
 						DelayBG: parseInt(oldFormatSettings.DelayBG),
 						MinLevelBG: parseInt(oldFormatSettings.MinLevelBG),
+						MinCost: parseInt(oldFormatSettings.MinCost),
 						ShowChance: (oldFormatSettings.ShowChance == 'true'),
 						lastLaunchedVersion: thisVersion,
 						LastKnownLevel: parseInt(oldFormatSettings.LastKnownLevel)
@@ -81,6 +82,7 @@ function tempStart() { // this is temporary
 		PlayAudio: true,
 		DelayBG: 10,
 		MinLevelBG: 0,
+		MinCost: 0,
 		ShowChance: true
 		}, function(data) {
 			settings = data;
