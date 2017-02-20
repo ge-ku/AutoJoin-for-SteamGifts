@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         PageForBG: oldFormatSettings.PageForBG,
                         DelayBG: parseInt(oldFormatSettings.DelayBG),
                         MinLevelBG: parseInt(oldFormatSettings.MinLevelBG),
+                        MinCost: parseInt(oldFormatSettings.MinCost),
                         ShowChance: (oldFormatSettings.ShowChance == 'true'),
                         lastLaunchedVersion: thisVersion,
                         LastKnownLevel: parseInt(oldFormatSettings.LastKnownLevel)

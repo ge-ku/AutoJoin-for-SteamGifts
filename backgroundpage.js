@@ -3,8 +3,8 @@ https://developers.google.com/closure/compiler/
 This script page is the background script. autoentry.js is the autojoin button and other page
 modifications*/
 
-function Giveaway(code, level, appid, odds) {
-    this.code = code, this.level = level, this.steamlink = appid, this.odds = odds
+function Giveaway(code, level, appid, odds, cost) {
+    this.code = code, this.level = level, this.steamlink = appid, this.odds = odds, this.cost = cost
 }
 
 function compareLevel(a, b) {
@@ -68,8 +68,9 @@ function scanpage(e) {
                     if (null == i) var GAsteamAppID = "0";
                     else var GAsteamAppID = i[1]
                 }
+            	var cost = $(e).find(".giveaway__heading__thin").last().html().match(/\d+/)[0];
 				var oddsOfWinning = calculateWinChance(e, timeLoaded);
-                arr.push(new Giveaway(GAcode, parseInt(GAlevel), GAsteamAppID, oddsOfWinning));
+                arr.push(new Giveaway(GAcode, parseInt(GAlevel), GAsteamAppID, oddsOfWinning, parseInt(cost)));
             }
         }
     }), pagestemp--, 0 == pagestemp && pagesloaded()
@@ -86,6 +87,9 @@ function pagesloaded() {
 	var timeouts = [];
 	$.each(arr, function(e) {
 		if (arr[e].level < settings.MinLevelBG) { // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
+			return true;
+		}
+		if (arr[e].cost < settings.MinCost){
 			return true;
 		}
 		timeouts.push(setTimeout(function(){
@@ -168,6 +172,7 @@ function loadsettings() {
 		RepeatHoursBG: 2,
 		DelayBG: 10,
 		MinLevelBG: 0,
+		MinCost: 0,
 		PagesToLoadBG: 3,
 		BackgroundAJ: true,
 		LevelPriorityBG: true,
@@ -210,6 +215,7 @@ function loadOldFormatSettings(){
 			LastKnownLevel:"1",
 			LevelPriorityBG:"false",
 			MinLevelBG:"0",
+			MinCost:"0",
 			OddsPriorityBG:"true",
 			PageForBG:"all",
 			Pagestoload:"3",
@@ -270,6 +276,7 @@ function checkVersionAndFormat(){
 						PageForBG: oldFormatSettings.PageForBG,
 						DelayBG: parseInt(oldFormatSettings.DelayBG),
 						MinLevelBG: parseInt(oldFormatSettings.MinLevelBG),
+						MinCost: parseInt(oldFormatSettings.MinCost),
 						ShowChance: (oldFormatSettings.ShowChance == 'true'),
 						lastLaunchedVersion: thisVersion,
 						LastKnownLevel: parseInt(oldFormatSettings.LastKnownLevel)
