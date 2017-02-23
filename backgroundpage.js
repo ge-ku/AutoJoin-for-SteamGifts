@@ -84,25 +84,34 @@ function pagesloaded() {
 	} else if (settings.OddsPriorityBG) {
 		arr.sort(compareOdds);
 	}
-	var myPoints=0;
+var currPoints=0;
 	link = "https://www.steamgifts.com/";
 	$.get(link, function(data) {
-		myPoints = parseInt($(data).find('a[href="/account"]').find("span.nav__points").text(), 10);
+		currPoints = parseInt($(data).find('a[href="/account"]').find("span.nav__points").text(), 10);
 		}).done(function(){
-			if(myPoints >= settings.MinPoints){
+			if(currPoints >= settings.PointsToPreserve){
 				var totalCost = 0;
 				var entCnt = 0;
-				var pointDiff = myPoints - settings.MinPoints;
+				var pointDiff = currPoints - settings.PointsToPreserve;
 				$.each(arr, function(e) {
-					if((totalCost < pointDiff || totalCost == 0) && arr[e].level > settings.MinLevelBG && arr[e].cost > settings.MinCost){
+					if((totalCost < pointDiff || totalCost == 0) 
+						&& arr[e].level > settings.MinLevelBG 
+						&& arr[e].cost > settings.MinCost){
 						totalCost += arr[e].cost;
 						entCnt++;
+						
+						if(entCnt != 1 && totalCost < pointDiff){
+							entCnt++; 
+							/*This is to go under the preserve limit for the case where
+							the entered giveaway is the last one and we are still above the preserve limit
+							but the last giveaway puts your points under the limit*/
+						}
 					}else{
 						return false;
 					}
 				});
 				arr = arr.splice(0, entCnt);
-				console.log(myPoints);
+				console.log('Current Points: ' + currPoints);
 				
 				var timeouts = [];
 				$.each(arr, function(e) {
@@ -188,7 +197,7 @@ function loadsettings() {
 		DelayBG: 10,
 		MinLevelBG: 0,
 		MinCost: 0,
-		MinPoints: 0,
+		PointsToPreserve: 0,
 		PagesToLoadBG: 3,
 		BackgroundAJ: true,
 		LevelPriorityBG: true,
