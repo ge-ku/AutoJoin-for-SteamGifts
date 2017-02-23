@@ -100,7 +100,7 @@ var currPoints=0;
 						totalCost += arr[e].cost;
 						entCnt++;
 						
-						if(entCnt != 1 && totalCost < pointDiff){
+						if(entCnt != 1 && totalCost > pointDiff){
 							entCnt++; 
 							/*This is to go under the preserve limit for the case where
 							the entered giveaway is the last one and we are still above the preserve limit
