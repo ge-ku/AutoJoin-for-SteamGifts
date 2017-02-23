@@ -84,30 +84,49 @@ function pagesloaded() {
 	} else if (settings.OddsPriorityBG) {
 		arr.sort(compareOdds);
 	}
-	var timeouts = [];
-	$.each(arr, function(e) {
-		if (arr[e].level < settings.MinLevelBG) { // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
-			return true;
-		}
-		if (arr[e].cost < settings.MinCost){
-			return true;
-		}
-		timeouts.push(setTimeout(function(){
-			console.log(arr[e]), $.post("https://www.steamgifts.com/ajax.php", {
-				xsrf_token: token,
-				"do": "entry_insert",
-				code: arr[e].code
-			}, function(response){
-				var json_response = jQuery.parseJSON(response);
-				if (json_response.points < 5) {
-					for (var i = 0; i < timeouts.length; i++) {
-						clearTimeout(timeouts[i]);
+	var myPoints=0;
+	link = "https://www.steamgifts.com/";
+	$.get(link, function(data) {
+		myPoints = parseInt($(data).find('a[href="/account"]').find("span.nav__points").text(), 10);
+		}).done(function(){
+			if(myPoints >= settings.MinPoints){
+				var totalCost = 0;
+				var entCnt = 0;
+				var pointDiff = myPoints - settings.MinPoints;
+				$.each(arr, function(e) {
+					if(totalCost < pointDiff || totalCost == 0){
+						totalCost += arr[e].cost;
+						entCnt++;
 					}
-					timeouts = [];
-				}
-			})
-		}, e * settings.DelayBG * 1000 + Math.floor(Math.random()*2001)));
-    }), console.log(arr.length)
+				});
+				arr = arr.splice(0, entCnt);
+				
+				var timeouts = [];
+				$.each(arr, function(e) {
+					if (arr[e].level < settings.MinLevelBG) { // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
+						return true;
+					}
+					if (arr[e].cost < settings.MinCost){
+						return true;
+					}
+					
+					timeouts.push(setTimeout(function(){
+						console.log(arr[e]), $.post("https://www.steamgifts.com/ajax.php", {
+							xsrf_token: token,
+							"do": "entry_insert",
+							code: arr[e].code
+						}, function(response){
+							var json_response = jQuery.parseJSON(response);
+							if (json_response.points < 5) {
+								for (var i = 0; i < timeouts.length; i++) {
+									clearTimeout(timeouts[i]);
+								}
+								timeouts = [];
+							}
+						})
+					}, e * settings.DelayBG * 1000 + Math.floor(Math.random()*2001)));
+				}), console.log(arr.length)
+		}})
 }
 
 /*This function checks for a won gift, then calls the scanpage function*/
@@ -173,6 +192,7 @@ function loadsettings() {
 		DelayBG: 10,
 		MinLevelBG: 0,
 		MinCost: 0,
+		MinPoints: 0,
 		PagesToLoadBG: 3,
 		BackgroundAJ: true,
 		LevelPriorityBG: true,
