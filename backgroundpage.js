@@ -84,37 +84,20 @@ function pagesloaded() {
 	} else if (settings.OddsPriorityBG) {
 		arr.sort(compareOdds);
 	}
-var currPoints=0;
-	link = "https://www.steamgifts.com/";
-	$.get(link, function(data) {
+	var currPoints=0;
+	$.get("https://www.steamgifts.com/", function(data) {
 		currPoints = parseInt($(data).find('a[href="/account"]').find("span.nav__points").text(), 10);
 		}).done(function(){
+			console.log('Current Points: ' + currPoints);
 			if(currPoints >= settings.PointsToPreserve){
-				var totalCost = 0;
-				var entCnt = 0;
-				var pointDiff = currPoints - settings.PointsToPreserve;
-				$.each(arr, function(e) {
-					if((totalCost < pointDiff || totalCost == 0) 
-						&& arr[e].level > settings.MinLevelBG 
-						&& arr[e].cost > settings.MinCost){
-						totalCost += arr[e].cost;
-						entCnt++;
-						
-						if(entCnt != 1 && totalCost > pointDiff){
-							entCnt++; 
-							/*This is to go under the preserve limit for the case where
-							the entered giveaway is the last one and we are still above the preserve limit
-							but the last giveaway puts your points under the limit*/
-						}
-					}else{
-						return false;
-					}
-				});
-				arr = arr.splice(0, entCnt);
-				console.log('Current Points: ' + currPoints);
-				
 				var timeouts = [];
 				$.each(arr, function(e) {
+					if (arr[e].level < settings.MinLevelBG) { // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
+						return true;
+					}
+					if (arr[e].cost < settings.MinCost){
+						return true;
+					}
 					timeouts.push(setTimeout(function(){
 						console.log(arr[e]), $.post("https://www.steamgifts.com/ajax.php", {
 							xsrf_token: token,
@@ -122,7 +105,7 @@ var currPoints=0;
 							code: arr[e].code
 						}, function(response){
 							var json_response = jQuery.parseJSON(response);
-							if (json_response.points < 5) {
+							if (json_response.points < settings.PointsToPreserve) {
 								for (var i = 0; i < timeouts.length; i++) {
 									clearTimeout(timeouts[i]);
 								}
@@ -131,7 +114,8 @@ var currPoints=0;
 						})
 					}, e * settings.DelayBG * 1000 + Math.floor(Math.random()*2001)));
 				}), console.log(arr.length)
-		}})
+			}
+		})
 }
 
 /*This function checks for a won gift, then calls the scanpage function*/
