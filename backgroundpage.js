@@ -94,7 +94,7 @@ function pagesloaded() {
 				var entCnt = 0;
 				var pointDiff = myPoints - settings.MinPoints;
 				$.each(arr, function(e) {
-					if(totalCost < pointDiff || totalCost == 0){
+					if((totalCost < pointDiff || totalCost == 0) && arr[e].level > settings.MinLevelBG && arr[e].cost > settings.MinCost){
 						totalCost += arr[e].cost;
 						entCnt++;
 					}else{
@@ -102,16 +102,10 @@ function pagesloaded() {
 					}
 				});
 				arr = arr.splice(0, entCnt);
+				console.log(myPoints);
 				
 				var timeouts = [];
 				$.each(arr, function(e) {
-					if (arr[e].level < settings.MinLevelBG) { // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
-						return true;
-					}
-					if (arr[e].cost < settings.MinCost){
-						return true;
-					}
-					
 					timeouts.push(setTimeout(function(){
 						console.log(arr[e]), $.post("https://www.steamgifts.com/ajax.php", {
 							xsrf_token: token,
