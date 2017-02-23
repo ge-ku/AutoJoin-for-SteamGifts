@@ -105,7 +105,7 @@ function pagesloaded() {
 							code: arr[e].code
 						}, function(response){
 							var json_response = jQuery.parseJSON(response);
-							if (json_response.points < settings.PointsToPreserve) {
+							if (json_response.points < settings.PointsToPreserve || json_response.msg == "Not Enough Points") {
 								for (var i = 0; i < timeouts.length; i++) {
 									clearTimeout(timeouts[i]);
 								}
