@@ -84,30 +84,38 @@ function pagesloaded() {
 	} else if (settings.OddsPriorityBG) {
 		arr.sort(compareOdds);
 	}
-	var timeouts = [];
-	$.each(arr, function(e) {
-		if (arr[e].level < settings.MinLevelBG) { // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
-			return true;
-		}
-		if (arr[e].cost < settings.MinCost){
-			return true;
-		}
-		timeouts.push(setTimeout(function(){
-			console.log(arr[e]), $.post("https://www.steamgifts.com/ajax.php", {
-				xsrf_token: token,
-				"do": "entry_insert",
-				code: arr[e].code
-			}, function(response){
-				var json_response = jQuery.parseJSON(response);
-				if (json_response.points < 5) {
-					for (var i = 0; i < timeouts.length; i++) {
-						clearTimeout(timeouts[i]);
+	var currPoints=0;
+	$.get("https://www.steamgifts.com/", function(data) {
+		currPoints = parseInt($(data).find('a[href="/account"]').find("span.nav__points").text(), 10);
+		}).done(function(){
+			console.log('Current Points: ' + currPoints);
+			if(currPoints >= settings.PointsToPreserve){
+				var timeouts = [];
+				$.each(arr, function(e) {
+					if (arr[e].level < settings.MinLevelBG) { // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
+						return true;
 					}
-					timeouts = [];
-				}
-			})
-		}, e * settings.DelayBG * 1000 + Math.floor(Math.random()*2001)));
-    }), console.log(arr.length)
+					if (arr[e].cost < settings.MinCost){
+						return true;
+					}
+					timeouts.push(setTimeout(function(){
+						console.log(arr[e]), $.post("https://www.steamgifts.com/ajax.php", {
+							xsrf_token: token,
+							"do": "entry_insert",
+							code: arr[e].code
+						}, function(response){
+							var json_response = jQuery.parseJSON(response);
+							if (json_response.points < settings.PointsToPreserve || json_response.msg == "Not Enough Points") {
+								for (var i = 0; i < timeouts.length; i++) {
+									clearTimeout(timeouts[i]);
+								}
+								timeouts = [];
+							}
+						})
+					}, e * settings.DelayBG * 1000 + Math.floor(Math.random()*2001)));
+				}), console.log(arr.length)
+			}
+		})
 }
 
 /*This function checks for a won gift, then calls the scanpage function*/
@@ -173,6 +181,7 @@ function loadsettings() {
 		DelayBG: 10,
 		MinLevelBG: 0,
 		MinCost: 0,
+		PointsToPreserve: 0,
 		PagesToLoadBG: 3,
 		BackgroundAJ: true,
 		LevelPriorityBG: true,

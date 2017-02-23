@@ -27,6 +27,7 @@ function loadSettings() {
 		DelayBG: 10,
 		MinLevelBG: 0,
 		MinCost: 0,
+		PointsToPreserve: 0,
 		ShowChance: true
 		}, function(settings) {
 			fillSettingsDiv(settings);
@@ -61,6 +62,7 @@ function fillSettingsDiv(settings){
 	document.getElementById("delayBG").value = settings.DelayBG;
 	document.getElementById("minLevelBG").value = settings.MinLevelBG;
 	document.getElementById("minCost").value = settings.MinCost;
+	document.getElementById("pointsToPreserve").value = settings.PointsToPreserve;
 	if (settings.RepeatHoursBG == 0) { 
 		document.getElementById("hoursFieldBG").value = "0.5"; 
 	} else { 
@@ -100,6 +102,7 @@ function settingsAttachEventListeners(){
 			DelayBG: parseInt(document.getElementById("delayBG").value, 10),
 			MinLevelBG: parseInt(document.getElementById("minLevelBG").value, 10),
 			MinCost: parseInt(document.getElementById("minCost").value, 10),
+			PointsToPreserve: parseInt(document.getElementById("pointsToPreserve").value, 10),
 			ShowChance: document.getElementById("chkShowChance").checked
 		}, function(){
 			if (location.protocol == "chrome-extension:"){
