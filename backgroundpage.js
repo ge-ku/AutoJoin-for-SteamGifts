@@ -97,6 +97,8 @@ function pagesloaded() {
 					if(totalCost < pointDiff || totalCost == 0){
 						totalCost += arr[e].cost;
 						entCnt++;
+					}else{
+						return false;
 					}
 				});
 				arr = arr.splice(0, entCnt);
