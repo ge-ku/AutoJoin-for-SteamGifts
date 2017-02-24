@@ -190,115 +190,13 @@ function loadsettings() {
 		IgnorePinnedBG: false,
 		LastKnownLevel: 10, // set to 10 by default so it loads pages with max_level set to 10 (maximum) before extensions learns actual level
 		lastLaunchedVersion: thisVersion
-		}, function(data) {
-
-			//This section is temporary. I noticed that default value for delay between 
-			//requests was 2 seconds (even though you can't set it less to than 5 in settings).
-			//This will set this value to default (10) for those who had it set to 2.
-			if (data.DelayBG < 5) {
-				data.DelayBG = 10;
-				chrome.storage.sync.set({DelayBG: 10});
-			}
-			//Can be removed after some time when most users get this update.
-			
+		}, function(data) {	
 			settings = data;
 			settingsloaded();
 		}
 	);
 }
 
-//This function is to help testing migration to new settings format
-//It clears all current setting!
-//Will be removed later.
-function loadOldFormatSettings(){
-	chrome.storage.sync.clear(function(){
-		chrome.storage.sync.set({
-			BackgroundAJ:"fasle",
-			DelayBG:"10",
-			HideEntered:"false",
-			HideGroups:"false",
-			IgnoreGroups:"false",
-			IgnoreGroupsBG:"false",
-			IgnorePinned:"true",
-			IgnorePinnedBG:"false",
-			LastKnownLevel:"1",
-			LevelPriorityBG:"false",
-			MinLevelBG:"0",
-			MinCost:"0",
-			OddsPriorityBG:"true",
-			PageForBG:"all",
-			Pagestoload:"3",
-			PagestoloadBG:"2",
-			PlayAudio:"true",
-			RepeatHoursBG:2,
-			ShowChance:"true",
-			hideDlc:"false",
-			infiniteScrolling:"true",
-			lastLaunchedVersion:"20160226",
-			levelPriority:"false",
-			loadFive:"false",
-			nightTheme:"false",
-			repeatHours:"2",
-			repeatIfOnPage:"false",
-			showButtons:"true",
-			showPoints:"true"
-		});
-	});
-}
-function showSettings(){
-	chrome.storage.sync.get(null, function (data) { console.log(data) });
-}
-function checkVersionAndFormat(){
-	var thisVersion = 20170123;
-	chrome.storage.sync.get({
-		lastLaunchedVersion: thisVersion
-	}, function(version) {
-		if (version.lastLaunchedVersion < thisVersion){
-			//this version is old, we need to convert settings to new format:
-			var oldFormatSettings;
-			chrome.storage.sync.get(null, function(oldSettings){
-				oldFormatSettings = oldSettings;
-				chrome.storage.sync.clear(function(){
-					chrome.storage.sync.set({
-						InfiniteScrolling: (oldFormatSettings.infiniteScrolling == "true"),
-						ShowPoints: (oldFormatSettings.showPoints == "true"),
-						ShowButtons: (oldFormatSettings.showButtons == "true"),
-						LoadFive: (oldFormatSettings.loadFive == "true"),
-						HideDlc: (oldFormatSettings.hideDlc == 'true'),
-						RepeatIfOnPage: (oldFormatSettings.repeatIfOnPage == 'true'),
-						NightTheme: (oldFormatSettings.nightTheme == 'true'),
-						LevelPriority: (oldFormatSettings.levelPriority == 'true'),
-						LevelPriorityBG: (oldFormatSettings.LevelPriorityBG == 'true'),
-						OddsPriorityBG: (oldFormatSettings.OddsPriorityBG == 'true'),
-						BackgroundAJ: (oldFormatSettings.BackgroundAJ == 'true'),
-						HideEntered: (oldFormatSettings.HideEntered == 'true'),
-						IgnoreGroups: (oldFormatSettings.IgnoreGroups == 'true'),
-						IgnorePinned: (oldFormatSettings.IgnorePinned == 'true'),
-						IgnoreGroupsBG: (oldFormatSettings.IgnoreGroupsBG == 'true'),
-						IgnorePinnedBG: (oldFormatSettings.IgnorePinnedBG == 'true'),
-						HideGroups: (oldFormatSettings.HideGroups == 'true'),
-						PlayAudio: (oldFormatSettings.PlayAudio == 'true'),
-						RepeatHours: parseInt(oldFormatSettings.repeatHours),
-						RepeatHoursBG: parseInt(oldFormatSettings.RepeatHoursBG),
-						PagesToLoad: parseInt(oldFormatSettings.Pagestoload),
-						PagesToLoadBG: parseInt(oldFormatSettings.PagestoloadBG),
-						PageForBG: oldFormatSettings.PageForBG,
-						DelayBG: parseInt(oldFormatSettings.DelayBG),
-						MinLevelBG: parseInt(oldFormatSettings.MinLevelBG),
-						MinCost: parseInt(oldFormatSettings.MinCost),
-						ShowChance: (oldFormatSettings.ShowChance == 'true'),
-						lastLaunchedVersion: thisVersion,
-						LastKnownLevel: parseInt(oldFormatSettings.LastKnownLevel)
-					}, function(){
-						loadsettings();
-					});
-				});
-			});
-		} else {
-			loadsettings();
-		}
-	});
-}
 
 /*Function declarations over*/
 
@@ -306,7 +204,7 @@ function checkVersionAndFormat(){
 chrome.alarms.onAlarm.addListener(function(alarm) {
     console.log("Alarm fired.")
 	if (alarm.name == "routine") {
-		checkVersionAndFormat();
+		loadsettings();
 		chrome.alarms.create("routine", {
 			delayInMinutes: 30
 		});
@@ -325,7 +223,7 @@ var arr = [],
     timepassed = 0,
     timetopass = 20,
     justLaunched = true,
-    thisVersion = 20170202;
+    thisVersion = 20170225;
 
 /*Create first alarm as soon as possible*/
 chrome.alarms.create("routine", {
