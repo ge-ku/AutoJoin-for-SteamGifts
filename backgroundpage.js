@@ -53,7 +53,7 @@ Remember once scanpage is over, pagesloaded is called*/
 function scanpage(e) {
 	var timeLoaded = Math.round(Date.now() / 1000);
     var postsDiv = $(e).find(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent();
-    ((settings.IgnorePinnedBG == true || settings.WishlistPriorityForMainBG) ? postsDiv : $(e)).find(".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name").each(function() {
+    ((settings.IgnorePinnedBG == true || useWishlistPriorityForMainBG) ? postsDiv : $(e)).find(".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name").each(function() {
         var e = $(this).parent().parent().parent(),
             t = this.href.match(/giveaway\/(.+)\//);
         if (t.length > 0) {
@@ -78,7 +78,7 @@ function scanpage(e) {
 		totalWishlistGAcnt = arr.length;
 	}
 	pagestemp--;
-	if(0 == pagestemp || (currPoints < settings.PointsToPreserve && settings.WishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG && totalWishlistGAcnt != 0)){
+	if(0 == pagestemp || (currPoints < settings.PointsToPreserve && useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG && totalWishlistGAcnt != 0)){
 		pagestemp = 0;
 		pagesloaded();
 	}
@@ -87,7 +87,7 @@ function scanpage(e) {
 /*This function is called once all pages have been parsed
 this sends the requests to steamgifts*/
 function pagesloaded() {
-	if(settings.WishlistPriorityForMainBG){
+	if(useWishlistPriorityForMainBG){
 		wishlistArr = arr.slice(0, totalWishlistGAcnt);
 		if (settings.LevelPriorityBG) {
 			wishlistArr.sort(compareLevel);
@@ -102,7 +102,7 @@ function pagesloaded() {
 	} else if (settings.OddsPriorityBG) {
 		arr.sort(compareOdds);
 	}
-	if(settings.WishlistPriorityForMainBG){
+	if(useWishlistPriorityForMainBG){
 		arr = wishlistArr.concat(arr);
 	}
 	
@@ -122,7 +122,7 @@ function pagesloaded() {
 			}, function(response){
 				var json_response = jQuery.parseJSON(response);
 				if ((json_response.points < settings.PointsToPreserve && 
-					((settings.WishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG) ? 
+					((useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG) ? 
 						(totalWishlistGAcnt == 1 ? true : (e > totalWishlistGAcnt - 2)) : true)) 
 							|| json_response.msg == "Not Enough Points") {
 					for (var i = 0; i < timeouts.length; i++) {
@@ -140,7 +140,7 @@ function pagesloaded() {
 				}
 				
 				if(json_response.points < settings.PointsToPreserve 
-					&& settings.WishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG){
+					&& useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG){
 					if(totalWishlistGAcnt == 1){
 						clearTimeouts();
 					}else if (e > totalWishlistGAcnt - 2){
@@ -160,8 +160,13 @@ function settingsloaded() {
 	if (settings.IgnoreGroupsBG && settings.PageForBG == "all") {
 		settings.IgnoreGroupsBG = true;
 	}
+	if (settings.PageForBG == "all" && settings.WishlistPriorityForMainBG){
+		useWishlistPriorityForMainBG = true;
+	} else {
+		useWishlistPriorityForMainBG = false;
+	}
 	pages = settings.PagesToLoadBG;
-	if (pages < 2 && settings.WishlistPriorityForMainBG) pages = 2;
+	if (pages < 2 && useWishlistPriorityForMainBG) pages = 2;
 	timetopass = 10 * settings.RepeatHoursBG;
 	if (justLaunched || settings.RepeatHoursBG == 0) { // settings.RepeatHoursBG == 0 means it should autojoin every time
 		justLaunched = false;
@@ -189,7 +194,7 @@ function settingsloaded() {
 		link = "https://www.steamgifts.com/giveaways/search?type=" + settings.PageForBG + "&level_min=" + settings.MinLevelBG + "&level_max=" + settings.LastKnownLevel + "&page=";
 		wishLink = "https://www.steamgifts.com/giveaways/search?type=wishlist&level_min=" + settings.MinLevelBG + "&level_max=" + settings.LastKnownLevel + "&page=";
 		var linkToUse = "";
-		settings.WishlistPriorityForMainBG ? linkToUse = wishLink : linkToUse = link;
+		useWishlistPriorityForMainBG ? linkToUse = wishLink : linkToUse = link;
 		arr.length = 0;
 		$.get(linkToUse + 1, function(data) {
 			if ( $(data).filter(".popup--gift-received").length ) {
@@ -205,10 +210,10 @@ function settingsloaded() {
 			currPoints = parseInt($(data).find('a[href="/account"]').find("span.nav__points").text(), 10);
 			console.log('Current Points: ' + currPoints);
 			//var numOfGAsOnPage = parseInt($(data).find('.pagination__results').children().next().text(), 10);
-			if(currPoints >= settings.PointsToPreserve || (settings.WishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG)){
+			if(currPoints >= settings.PointsToPreserve || (useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG)){
 				scanpage(data); // scan this page that was already loaded to get info above
 				var i = 0;
-				if(settings.WishlistPriorityForMainBG){
+				if(useWishlistPriorityForMainBG){
 					linkToUse = link;
 					i = 1;
 				}
@@ -279,6 +284,7 @@ var arr = [],
     justLaunched = true,
     thisVersion = 20170225,
     totalWishlistGAcnt = 0,
+    useWishlistPriorityForMainBG = false,
     currPoints = 0;
 
 /*Create first alarm as soon as possible*/
