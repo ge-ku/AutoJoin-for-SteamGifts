@@ -53,7 +53,7 @@ Remember once scanpage is over, pagesloaded is called*/
 function scanpage(e) {
 	var timeLoaded = Math.round(Date.now() / 1000);
     var postsDiv = $(e).find(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent();
-    ((settings.IgnorePinnedBG == true || useWishlistPriorityForMainBG) ? postsDiv : $(e)).find(".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name").each(function() {
+    ((settings.IgnorePinnedBG == true || (useWishlistPriorityForMainBG && pagestemp == pages)) ? postsDiv : $(e)).find(".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name").each(function() {
         var e = $(this).parent().parent().parent(),
             t = this.href.match(/giveaway\/(.+)\//);
         if (t.length > 0) {
