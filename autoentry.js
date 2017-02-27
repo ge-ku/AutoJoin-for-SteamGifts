@@ -44,7 +44,6 @@ $(document).ready(function() {
 				DelayBG: 10,
 				MinLevelBG: 0,
 				MinCost: 0,
-				PointsToPreserve: 0,
 				ShowChance: true
 			}, function(data) {
 				settings = data;
@@ -53,46 +52,6 @@ $(document).ready(function() {
 		}
 	});
 });
-<<<<<<< HEAD
-function tempStart() { // this is temporary
-	chrome.storage.sync.get({
-		HideGroups: false,
-		IgnoreGroups: false,
-		IgnorePinned: true,
-		IgnoreGroupsBG: false,
-		IgnorePinnedBG: false,
-		HideEntered: false,
-		PageForBG: 'wishlist',
-		RepeatHoursBG: 2,
-		PagesToLoad: 3,
-		PagesToLoadBG: 2,
-		BackgroundAJ: true,
-		LevelPriorityBG: true,
-		OddsPriorityBG: false,
-		lastLaunchedVersion: thisVersion,
-		InfiniteScrolling: true,
-		ShowPoints: true,
-		ShowButtons: true,
-		LoadFive: false,
-		HideDlc: false,
-		RepeatIfOnPage: false,
-		RepeatHours: 2,
-		NightTheme: false,
-		LevelPriority: false,
-		PlayAudio: true,
-		DelayBG: 10,
-		MinLevelBG: 0,
-		MinCost: 0,
-		PointsToPreserve: 0,
-		ShowChance: true
-		}, function(data) {
-			settings = data;
-			onPageLoad();
-		}
-	);
-};
-=======
->>>>>>> refs/remotes/ge-ku/master
 
 function onPageLoad(){
 
