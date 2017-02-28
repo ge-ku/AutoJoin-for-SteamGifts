@@ -79,6 +79,12 @@
 	z-index: 8000;
 }
 
+#settingsDiv.fit {
+	top: 0;
+	bottom: 0;
+	margin-top: 0;
+}
+
 #settingsDiv label {
 	display: inline-block;
 	color: rgb(48, 57, 66);

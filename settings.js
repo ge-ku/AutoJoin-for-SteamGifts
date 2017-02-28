@@ -144,5 +144,14 @@ function settingsAttachEventListeners(){
 			settingsDivEl.classList.add("fadeOut");
 		});
 	});
+	
+	fitSettings();
+}
 
+
+/*This is for case when window.innerHeight is less than settings div height.*/
+function fitSettings(){
+	if (window.innerHeight < document.getElementById("settingsDiv").clientHeight) {
+		document.getElementById("settingsDiv").className += " fit";
+	}
 }
