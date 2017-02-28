@@ -44,7 +44,6 @@ $(document).ready(function() {
 				DelayBG: 10,
 				MinLevelBG: 0,
 				MinCost: 0,
-				PointsToPreserve: 0,
 				ShowChance: true
 			}, function(data) {
 				settings = data;

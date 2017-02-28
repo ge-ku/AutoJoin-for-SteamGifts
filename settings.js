@@ -28,6 +28,8 @@ function loadSettings() {
 		MinLevelBG: 0,
 		MinCost: 0,
 		PointsToPreserve: 0,
+		WishlistPriorityForMainBG: false,
+		IgnorePreserveWishlistOnMainBG: false,
 		ShowChance: true
 		}, function(settings) {
 			fillSettingsDiv(settings);
@@ -63,6 +65,8 @@ function fillSettingsDiv(settings){
 	document.getElementById("minLevelBG").value = settings.MinLevelBG;
 	document.getElementById("minCost").value = settings.MinCost;
 	document.getElementById("pointsToPreserve").value = settings.PointsToPreserve;
+	document.getElementById("chkWishlistPriorityForMainBG").checked = settings.WishlistPriorityForMainBG;
+	document.getElementById("chkIgnorePreserveWishlistOnMainBG").checked = settings.IgnorePreserveWishlistOnMainBG;
 	if (settings.RepeatHoursBG == 0) { 
 		document.getElementById("hoursFieldBG").value = "0.5"; 
 	} else { 
@@ -103,6 +107,8 @@ function settingsAttachEventListeners(){
 			MinLevelBG: parseInt(document.getElementById("minLevelBG").value, 10),
 			MinCost: parseInt(document.getElementById("minCost").value, 10),
 			PointsToPreserve: parseInt(document.getElementById("pointsToPreserve").value, 10),
+			WishlistPriorityForMainBG: document.getElementById("chkWishlistPriorityForMainBG").checked,
+			IgnorePreserveWishlistOnMainBG: document.getElementById("chkIgnorePreserveWishlistOnMainBG").checked,
 			ShowChance: document.getElementById("chkShowChance").checked
 		}, function(){
 			if (location.protocol == "chrome-extension:"){

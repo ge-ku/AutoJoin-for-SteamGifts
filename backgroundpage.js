@@ -53,7 +53,7 @@ Remember once scanpage is over, pagesloaded is called*/
 function scanpage(e) {
 	var timeLoaded = Math.round(Date.now() / 1000);
     var postsDiv = $(e).find(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent();
-    (settings.IgnorePinnedBG == true ? postsDiv : $(e)).find(".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name").each(function() {
+    ((settings.IgnorePinnedBG == true || (useWishlistPriorityForMainBG && pagestemp == pages)) ? postsDiv : $(e)).find(".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name").each(function() {
         var e = $(this).parent().parent().parent(),
             t = this.href.match(/giveaway\/(.+)\//);
         if (t.length > 0) {
@@ -73,104 +73,161 @@ function scanpage(e) {
                 arr.push(new Giveaway(GAcode, parseInt(GAlevel), GAsteamAppID, oddsOfWinning, parseInt(cost)));
             }
         }
-    }), pagestemp--, 0 == pagestemp && pagesloaded()
+    });
+	if(pagestemp == pages){
+		totalWishlistGAcnt = arr.length;
+	}
+	pagestemp--;
+	if(0 == pagestemp || (currPoints < settings.PointsToPreserve && useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG && totalWishlistGAcnt != 0)){
+		pagestemp = 0;
+		pagesloaded();
+	}
 }
 
 /*This function is called once all pages have been parsed
 this sends the requests to steamgifts*/
 function pagesloaded() {
+	if(useWishlistPriorityForMainBG){
+		wishlistArr = arr.slice(0, totalWishlistGAcnt);
+		if (settings.LevelPriorityBG) {
+			wishlistArr.sort(compareLevel);
+		} else if (settings.OddsPriorityBG) {
+			wishlistArr.sort(compareOdds);
+		}
+		arr = arr.slice(totalWishlistGAcnt);
+	}
+	
 	if (settings.LevelPriorityBG) {
 		arr.sort(compareLevel);
 	} else if (settings.OddsPriorityBG) {
 		arr.sort(compareOdds);
 	}
-	var currPoints=0;
-	$.get("https://www.steamgifts.com/", function(data) {
-		currPoints = parseInt($(data).find('a[href="/account"]').find("span.nav__points").text(), 10);
-		}).done(function(){
-			console.log('Current Points: ' + currPoints);
-			if(currPoints >= settings.PointsToPreserve){
-				var timeouts = [];
-				$.each(arr, function(e) {
-					if (arr[e].level < settings.MinLevelBG) { // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
-						return true;
+	if(useWishlistPriorityForMainBG){
+		arr = wishlistArr.concat(arr);
+	}
+	
+	var timeouts = [];
+	$.each(arr, function(e) {
+		if (arr[e].level < settings.MinLevelBG) { // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
+			return true;
+		}
+		if (arr[e].cost < settings.MinCost){
+			return true;
+		}
+		timeouts.push(setTimeout(function(){
+			console.log(arr[e]), $.post("https://www.steamgifts.com/ajax.php", {
+				xsrf_token: token,
+				"do": "entry_insert",
+				code: arr[e].code
+			}, function(response){
+				var json_response = jQuery.parseJSON(response);
+				if ((json_response.points < settings.PointsToPreserve && 
+					((useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG) ? 
+						(totalWishlistGAcnt == 1 ? true : (e > totalWishlistGAcnt - 2)) : true)) 
+							|| json_response.msg == "Not Enough Points") {
+					for (var i = 0; i < timeouts.length; i++) {
+						clearTimeout(timeouts[i]);
 					}
-					if (arr[e].cost < settings.MinCost){
-						return true;
+					timeouts = [];
+				}
+				
+				/* For easier understanding of the above if check.
+				var clearTimeouts = function(){
+					for (var i = 0; i < timeouts.length; i++) {
+						clearTimeout(timeouts[i]);
 					}
-					timeouts.push(setTimeout(function(){
-						console.log(arr[e]), $.post("https://www.steamgifts.com/ajax.php", {
-							xsrf_token: token,
-							"do": "entry_insert",
-							code: arr[e].code
-						}, function(response){
-							var json_response = jQuery.parseJSON(response);
-							if (json_response.points < settings.PointsToPreserve || json_response.msg == "Not Enough Points") {
-								for (var i = 0; i < timeouts.length; i++) {
-									clearTimeout(timeouts[i]);
-								}
-								timeouts = [];
-							}
-						})
-					}, e * settings.DelayBG * 1000 + Math.floor(Math.random()*2001)));
-				}), console.log(arr.length)
-			}
-		})
+					timeouts = [];
+				}
+				
+				if(json_response.points < settings.PointsToPreserve 
+					&& useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG){
+					if(totalWishlistGAcnt == 1){
+						clearTimeouts();
+					}else if (e > totalWishlistGAcnt - 2){
+						clearTimeouts();
+					}
+				} else if (json_response.msg == "Not Enough Points"){
+					clearTimeouts();
+				}*/
+			})
+		}, e * settings.DelayBG * 1000 + Math.floor(Math.random()*2001)));
+	});
 }
 
 /*This function checks for a won gift, then calls the scanpage function*/
 /*e is the whole html page*/
 function settingsloaded() {
-		if (settings.IgnoreGroupsBG && settings.PageForBG == "all") {
-			settings.IgnoreGroupsBG = true;
-		}
-		pages = settings.PagesToLoadBG;
-		timetopass = 10 * settings.RepeatHoursBG;
-		if (justLaunched || settings.RepeatHoursBG == 0) { // settings.RepeatHoursBG == 0 means it should autojoin every time
-			justLaunched = false;
-			timepassed = timetopass;
-		} else {
-			timepassed += 5;
-		}
+	if (settings.IgnoreGroupsBG && settings.PageForBG == "all") {
+		settings.IgnoreGroupsBG = true;
+	}
+	if (settings.PageForBG == "all" && settings.WishlistPriorityForMainBG){
+		useWishlistPriorityForMainBG = true;
+	} else {
+		useWishlistPriorityForMainBG = false;
+	}
+	pages = settings.PagesToLoadBG;
+	if (pages < 2 && useWishlistPriorityForMainBG) pages = 2;
+	timetopass = 10 * settings.RepeatHoursBG;
+	if (justLaunched || settings.RepeatHoursBG == 0) { // settings.RepeatHoursBG == 0 means it should autojoin every time
+		justLaunched = false;
+		timepassed = timetopass;
+	} else {
+		timepassed += 5;
+	}
 
-		/*If background autojoin is disabled or not enough time passed only check if won*/
-		if (settings.BackgroundAJ == false || timepassed < timetopass) {
-			$.get(link + 1, function(data){
-				if ( $(data).filter(".popup--gift-received").length ) {
-					notify();
-				}
-				//check level and save if changed
-				mylevel = $(data).find('a[href="/account"]').find("span").next().html().match(/(\d+)/)[1];
-				if (settings.LastKnownLevel != parseInt(mylevel)) {
-					chrome.storage.sync.set({LastKnownLevel: parseInt(mylevel, 10)});
-				}
-			});
-		}
-		/*Else check if won first (since pop-up disappears after first view), then start scanning pages*/
-		else {
-			timepassed = 0; //reset timepassed
-			link = "https://www.steamgifts.com/giveaways/search?type=" + settings.PageForBG + "&level_min=" + settings.MinLevelBG + "&level_max=" + settings.LastKnownLevel + "&page=";
-			arr.length = 0;
-			$.get(link + 1, function(data) {
-				if ( $(data).filter(".popup--gift-received").length ) {
-					notify();
-				}
-				if (pages > 5 || pages < 1) { pagestemp = 3 } else { pagestemp = pages } // in case someone has old setting with more than 5 pages to load or somehow set this value to <1 use 3 (default)
-				token = $(data).find("input[name=xsrf_token]").val();
-				mylevel = $(data).find('a[href="/account"]').find("span").next().html().match(/(\d+)/)[1];
-				//save new level if it changed
-				if (settings.LastKnownLevel != parseInt(mylevel)) {
-					chrome.storage.sync.set({LastKnownLevel: parseInt(mylevel)});
-				}
+	/*If background autojoin is disabled or not enough time passed only check if won*/
+	if (settings.BackgroundAJ == false || timepassed < timetopass) {
+		$.get(link + 1, function(data){
+			if ( $(data).filter(".popup--gift-received").length ) {
+				notify();
+			}
+			//check level and save if changed
+			mylevel = $(data).find('a[href="/account"]').find("span").next().html().match(/(\d+)/)[1];
+			if (settings.LastKnownLevel != parseInt(mylevel)) {
+				chrome.storage.sync.set({LastKnownLevel: parseInt(mylevel, 10)});
+			}
+		});
+	}
+	/*Else check if won first (since pop-up disappears after first view), then start scanning pages*/
+	else {
+		timepassed = 0; //reset timepassed
+		link = "https://www.steamgifts.com/giveaways/search?type=" + settings.PageForBG + "&level_min=" + settings.MinLevelBG + "&level_max=" + settings.LastKnownLevel + "&page=";
+		wishLink = "https://www.steamgifts.com/giveaways/search?type=wishlist&level_min=" + settings.MinLevelBG + "&level_max=" + settings.LastKnownLevel + "&page=";
+		var linkToUse = "";
+		useWishlistPriorityForMainBG ? linkToUse = wishLink : linkToUse = link;
+		arr.length = 0;
+		$.get(linkToUse + 1, function(data) {
+			if ( $(data).filter(".popup--gift-received").length ) {
+				notify();
+			}
+			if (pages > 5 || pages < 1) { pagestemp = 3 } else { pagestemp = pages } // in case someone has old setting with more than 5 pages to load or somehow set this value to <1 use 3 (default)
+			token = $(data).find("input[name=xsrf_token]").val();
+			mylevel = $(data).find('a[href="/account"]').find("span").next().html().match(/(\d+)/)[1];
+			//save new level if it changed
+			if (settings.LastKnownLevel != parseInt(mylevel)) {
+				chrome.storage.sync.set({LastKnownLevel: parseInt(mylevel)});
+			}
+			currPoints = parseInt($(data).find('a[href="/account"]').find("span.nav__points").text(), 10);
+			console.log('Current Points: ' + currPoints);
+			//var numOfGAsOnPage = parseInt($(data).find('.pagination__results').children().next().text(), 10);
+			if(currPoints >= settings.PointsToPreserve || (useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG)){
 				scanpage(data); // scan this page that was already loaded to get info above
-				for (var n = 2; n <= pages; n++) { // scan next pages
-					if (n > 3) break; // no more than 3 pages at a time since the ban wave
-					$.get(link + n, function(newPage) {
-						scanpage(newPage)
-					})
+				var i = 0;
+				if(useWishlistPriorityForMainBG){
+					linkToUse = link;
+					i = 1;
 				}
-			});
-		}
+				if(currPoints >= settings.PointsToPreserve){ 
+					for (var n = 2 - i; n <= pages - i; n++) { // scan next pages
+						if (n > 3 - i) break; // no more than 3 pages at a time since the ban wave
+						$.get(linkToUse + n, function(newPage) {
+							scanpage(newPage)
+						})
+					}
+				}
+			}
+		});
+	}
 }
 
 /*Load settings, then call settingsloaded()*/
@@ -182,6 +239,8 @@ function loadsettings() {
 		MinLevelBG: 0,
 		MinCost: 0,
 		PointsToPreserve: 0,
+		WishlistPriorityForMainBG: false,
+		IgnorePreserveWishlistOnMainBG: false,
 		PagesToLoadBG: 3,
 		BackgroundAJ: true,
 		LevelPriorityBG: true,
@@ -223,7 +282,10 @@ var arr = [],
     timepassed = 0,
     timetopass = 20,
     justLaunched = true,
-    thisVersion = 20170225;
+    thisVersion = 20170225,
+    totalWishlistGAcnt = 0,
+    useWishlistPriorityForMainBG = false,
+    currPoints = 0;
 
 /*Create first alarm as soon as possible*/
 chrome.alarms.create("routine", {
