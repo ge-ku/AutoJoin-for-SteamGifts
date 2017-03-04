@@ -1,9 +1,8 @@
-#settingsDiv{
+#settingsDiv, #settingsDiv.fit{
       visibility: visible;
       position: relative;
       left: auto;
-      margin-left: auto;
-      margin-top: auto;
+	  transform: translate(0,0);
 }
 
 body, #titlesList{
