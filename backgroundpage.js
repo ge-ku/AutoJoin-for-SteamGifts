@@ -4,7 +4,16 @@ This script page is the background script. autoentry.js is the autojoin button a
 modifications*/
 
 function Giveaway(code, level, appid, odds, cost, timeleft) {
-    this.code = code, this.level = level, this.steamlink = appid, this.odds = odds, this.cost = cost, this.timeleft = timeleft
+    this.code = code;
+	this.level = level;
+	this.steamlink = appid;
+	this.odds = odds;
+	this.cost = cost;
+	this.timeleft = timeleft;
+	this.showInfo = function(){
+		console.log ("\nGiveaway https://www.steamgifts.com/giveaway/" + this.code + "/ (" + this.cost + "P)" + " | Level: " + this.level + " | Time left: " + this.timeleft
+					+ "s\nSteam: http://store.steampowered.com/app/" + this.steamlink + " Odds of winning: " + this.odds);
+	}
 }
 
 function compareLevel(a, b) {
@@ -113,30 +122,36 @@ function pagesloaded() {
 			return true;
 		}
 		if (arr[e].cost < settings.MinCost){
-			console.log ("Giveaway skipped, cost: " + arr[e].cost + ", your settings.MinCost is " + settings.MinCost);
+			arr[e].showInfo();
+			console.log ("^Skipped, cost: " + arr[e].cost + ", your settings.MinCost is " + settings.MinCost);
 			return true;
 		}
 		if (arr[e].timeleft > settings.MaxTimeLeftBG && settings.MaxTimeLeftBG != 0) {
-			console.log ("Giveaway skipped, timeleft: " + arr[e].timeleft + ", your settings.MaxTimeLeftBG is " + settings.MaxTimeLeftBG);
+			arr[e].showInfo();
+			console.log ("^Skipped, timeleft: " + arr[e].timeleft + ", your settings.MaxTimeLeftBG is " + settings.MaxTimeLeftBG);
 			return true;
 		}
 		timeouts.push(setTimeout(function(){
-			console.log(arr[e]), $.post("https://www.steamgifts.com/ajax.php", {
+			$.post("https://www.steamgifts.com/ajax.php", {
 				xsrf_token: token,
 				"do": "entry_insert",
 				code: arr[e].code
 			}, function(response){
+				arr[e].showInfo();
 				var json_response = jQuery.parseJSON(response);
 				if ((json_response.points < settings.PointsToPreserve && 
 					((useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG) ? 
 						(totalWishlistGAcnt == 1 ? true : (e > totalWishlistGAcnt - 2)) : true)) 
 							|| json_response.msg == "Not Enough Points") {
+					console.log("^Not Enough Points or your PointsToPreserve limit reached, we're done for now");
 					for (var i = 0; i < timeouts.length; i++) {
 						clearTimeout(timeouts[i]);
 					}
 					timeouts = [];
 				}
-				
+				else {
+					console.log("^Entered");
+				}
 				/* For easier understanding of the above if check.
 				var clearTimeouts = function(){
 					for (var i = 0; i < timeouts.length; i++) {
@@ -156,7 +171,7 @@ function pagesloaded() {
 					clearTimeouts();
 				}*/
 			})
-		}, e * settings.DelayBG * 1000 + Math.floor(Math.random()*2001)));
+		}, (timeouts.length + 1) * settings.DelayBG * 1000 + Math.floor(Math.random()*2001)));
 	});
 }
 
