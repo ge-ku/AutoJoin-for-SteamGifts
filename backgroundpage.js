@@ -3,8 +3,8 @@ https://developers.google.com/closure/compiler/
 This script page is the background script. autoentry.js is the autojoin button and other page
 modifications*/
 
-function Giveaway(code, level, appid, odds, cost) {
-    this.code = code, this.level = level, this.steamlink = appid, this.odds = odds, this.cost = cost
+function Giveaway(code, level, appid, odds, cost, timeleft) {
+    this.code = code, this.level = level, this.steamlink = appid, this.odds = odds, this.cost = cost, this.timeleft = timeleft
 }
 
 function compareLevel(a, b) {
@@ -51,7 +51,7 @@ function notify() {
 All giveaways that must be entered are pushed in an array called "arr"
 Remember once scanpage is over, pagesloaded is called*/
 function scanpage(e) {
-	var timeLoaded = Math.round(Date.now() / 1000);
+	var timePageLoaded = Math.round(Date.now() / 1000);
     var postsDiv = $(e).find(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent();
     ((settings.IgnorePinnedBG == true || (useWishlistPriorityForMainBG && pagestemp == pages)) ? postsDiv : $(e)).find(".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name").each(function() {
         var e = $(this).parent().parent().parent(),
@@ -69,8 +69,9 @@ function scanpage(e) {
                     else var GAsteamAppID = i[1]
                 }
             	var cost = $(e).find(".giveaway__heading__thin").last().html().match(/\d+/)[0];
-				var oddsOfWinning = calculateWinChance(e, timeLoaded);
-                arr.push(new Giveaway(GAcode, parseInt(GAlevel), GAsteamAppID, oddsOfWinning, parseInt(cost)));
+				var oddsOfWinning = calculateWinChance(e, timePageLoaded);
+				var timeleft = parseInt( $(e).find('.fa.fa-clock-o').next('span').attr('data-timestamp') ) - timePageLoaded;
+                arr.push(new Giveaway(GAcode, parseInt(GAlevel), GAsteamAppID, oddsOfWinning, parseInt(cost), timeleft));
             }
         }
     });
@@ -112,6 +113,9 @@ function pagesloaded() {
 			return true;
 		}
 		if (arr[e].cost < settings.MinCost){
+			return true;
+		}
+		if (arr[e].timeleft < settings.MaxTimeLeftBG && settings.MaxTimeLeftBG != 0) {
 			return true;
 		}
 		timeouts.push(setTimeout(function(){
@@ -236,6 +240,7 @@ function loadsettings() {
 		PageForBG: 'wishlist',
 		RepeatHoursBG: 2,
 		DelayBG: 10,
+		MaxTimeLeftBG: 0, //in seconds
 		MinLevelBG: 0,
 		MinCost: 0,
 		PointsToPreserve: 0,
