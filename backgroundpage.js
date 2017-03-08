@@ -113,9 +113,11 @@ function pagesloaded() {
 			return true;
 		}
 		if (arr[e].cost < settings.MinCost){
+			console.log ("Giveaway skipped, cost: " + arr[e].cost + ", your settings.MinCost is " + settings.MinCost);
 			return true;
 		}
-		if (arr[e].timeleft < settings.MaxTimeLeftBG && settings.MaxTimeLeftBG != 0) {
+		if (arr[e].timeleft > settings.MaxTimeLeftBG && settings.MaxTimeLeftBG != 0) {
+			console.log ("Giveaway skipped, timeleft: " + arr[e].timeleft + ", your settings.MaxTimeLeftBG is " + settings.MaxTimeLeftBG);
 			return true;
 		}
 		timeouts.push(setTimeout(function(){
