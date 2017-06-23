@@ -47,7 +47,7 @@ function notify() {
         };
         chrome.notifications.create("won_notification", e, function() {
 			chrome.storage.sync.get({PlayAudio: 'true'}, function (data) {
-				if (data.PlayAudio == 'true'){
+				if (data.PlayAudio == true){
 					var e = new Audio("audio.mp3");
 					e.play()
 				}
@@ -106,7 +106,7 @@ function pagesloaded() {
 		}
 		arr = arr.slice(totalWishlistGAcnt);
 	}
-	
+
 	if (settings.LevelPriorityBG) {
 		arr.sort(compareLevel);
 	} else if (settings.OddsPriorityBG) {
@@ -115,7 +115,7 @@ function pagesloaded() {
 	if(useWishlistPriorityForMainBG){
 		arr = wishlistArr.concat(arr);
 	}
-	
+
 	var timeouts = [];
 	$.each(arr, function(e) {
 		if (arr[e].level < settings.MinLevelBG) { // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
@@ -139,9 +139,9 @@ function pagesloaded() {
 			}, function(response){
 				arr[e].showInfo();
 				var json_response = jQuery.parseJSON(response);
-				if ((json_response.points < settings.PointsToPreserve && 
-					((useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG) ? 
-						(totalWishlistGAcnt == 1 ? true : (e > totalWishlistGAcnt - 2)) : true)) 
+				if ((json_response.points < settings.PointsToPreserve &&
+					((useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG) ?
+						(totalWishlistGAcnt == 1 ? true : (e > totalWishlistGAcnt - 2)) : true))
 							|| json_response.msg == "Not Enough Points") {
 					console.log("^Not Enough Points or your PointsToPreserve limit reached, we're done for now");
 					for (var i = 0; i < timeouts.length; i++) {
@@ -159,8 +159,8 @@ function pagesloaded() {
 					}
 					timeouts = [];
 				}
-				
-				if(json_response.points < settings.PointsToPreserve 
+
+				if(json_response.points < settings.PointsToPreserve
 					&& useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG){
 					if(totalWishlistGAcnt == 1){
 						clearTimeouts();
@@ -238,7 +238,7 @@ function settingsloaded() {
 					linkToUse = link;
 					i = 1;
 				}
-				if(currPoints >= settings.PointsToPreserve){ 
+				if(currPoints >= settings.PointsToPreserve){
 					for (var n = 2 - i; n <= pages - i; n++) { // scan next pages
 						if (n > 3 - i) break; // no more than 3 pages at a time since the ban wave
 						$.get(linkToUse + n, function(newPage) {
@@ -271,7 +271,7 @@ function loadsettings() {
 		IgnorePinnedBG: false,
 		LastKnownLevel: 10, // set to 10 by default so it loads pages with max_level set to 10 (maximum) before extensions learns actual level
 		lastLaunchedVersion: thisVersion
-		}, function(data) {	
+		}, function(data) {
 			settings = data;
 			settingsloaded();
 		}
