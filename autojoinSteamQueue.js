@@ -1,8 +1,9 @@
 // Most of it was made by xPaw: https://gist.github.com/xPaw/73f8ae2031b4e528abf7
 
-document.querySelector("a.tab")
-  .insertAdjacentHTML('afterend', '<a class="tab" onclick="GenerateQueue(0)"><span>AutoJoin Queue</a></span>');
-var DiscoveryQueueModal, GenerateQueue = function(queueNumber) {
+if (Date.now() < 1499299200000) { // I will update extension after the sale and remove this injection but.. in case I die you're not stuck with useless button :)
+
+  // We have to inject it like this to access global functions and variables
+  var scriptToInject = `var DiscoveryQueueModal, GenerateQueue = function(queueNumber) {
   DiscoveryQueueModal = ShowBlockingWaitDialog('Exploring queue...', 'Generating new discovery queue #' + ++queueNumber);
 
   jQuery.post('http://store.steampowered.com/explore/generatenewdiscoveryqueue', {
@@ -58,4 +59,11 @@ var DiscoveryQueueModal, GenerateQueue = function(queueNumber) {
       GenerateQueue(queueNumber - 1);
     });
   });
-};
+};`;
+
+  var script = document.createElement('script');
+  script.innerHTML = scriptToInject;
+  document.body.appendChild(script);
+  document.querySelector('.supernav_container')
+    .insertAdjacentHTML('beforeend', '<a class="menuitem supernav" style="cursor: pointer; color: #FFD700" title="This button will be removed after the sale. Visit AutoJoin Steam group for more details." onclick="GenerateQueue(0)">AutoJoin Queue</a>');
+}
