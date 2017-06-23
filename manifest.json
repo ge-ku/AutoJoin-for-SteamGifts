@@ -10,6 +10,9 @@
    }, {
       "js": [ "jquery.min.js", "night.js" ],
       "matches": [ "*://steamgifts.com/giveaways/created/*", "*://www.steamgifts.com/giveaways/created/*", "*://steamgifts.com/giveaways/entered/*", "*://www.steamgifts.com/giveaways/entered/*", "*://steamgifts.com/giveaways/won/*", "*://www.steamgifts.com/giveaways/won/*", "*://steamgifts.com/trades/*", "*://www.steamgifts.com/trades/*", "*://steamgifts.com/sales/*", "*://www.steamgifts.com/sales/*", "*://steamgifts.com/discussions/*", "*://www.steamgifts.com/discussions/*", "*://steamgifts.com/discussion/*", "*://www.steamgifts.com/discussion/*", "*://steamgifts.com/about/*", "*://www.steamgifts.com/about/*", "*://steamgifts.com/support/*", "*://www.steamgifts.com/support/*", "*://steamgifts.com/messages/*", "*://www.steamgifts.com/messages/*", "*://steamgifts.com/account/*", "*://www.steamgifts.com/account/*", "*://steamgifts.com/trade/*", "*://www.steamgifts.com/trade/*", "*://steamgifts.com/users/*", "*://www.steamgifts.com/users/*", "*://steamgifts.com/user/*", "*://www.steamgifts.com/user/*", "*://steamgifts.com/giveaway/*", "*://www.steamgifts.com/giveaway/*", "*://steamgifts.com/legal/*", "*://www.steamgifts.com/legal/*" ]
+   }, {
+      "js": [ "autojoinSteamQueue.js" ],
+      "matches": [ "*://store.steampowered.com/*" ]
    } ],
    "icons": {
       "128": "autologo.png",
@@ -21,8 +24,8 @@
    "short_name": "AutoJoin",
    "description": "Automatically enters giveaways from Steamgifts.com and site enhancements",
    "permissions": [ "alarms", "notifications", "storage", "tabs", "*://www.steamgifts.com/*", "*://store.steampowered.com/*" ],
-   "version": "1.2.6.2",
-   "web_accessible_resources": [ 
+   "version": "1.2.7",
+   "web_accessible_resources": [
        "settings.html",
        "night.css"
     ],
