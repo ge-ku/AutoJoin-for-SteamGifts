@@ -14,7 +14,7 @@ mkdir temp;
 
 echo "Creating AutoJoin_${VERSION}.zip with icons, mp3 file, manifest and jquery...";
 
-zip "AutoJoin_${VERSION}.zip" autologo.png autologo16.png autologo48.png autologosteam.png audio.mp3 jquery.min.js manifest.json;
+zip "AutoJoin_${VERSION}.zip" autologo.png autologo16.png autologo48.png autologosteam.png audio.mp3 jquery.min.js manifest.json chromeOptions.css general.css night.css settings.html ;
 
 echo "Minifying js files (besides jquery) using Closure Compiler...";
 for jsfile in *.js; do
