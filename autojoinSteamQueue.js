@@ -1,5 +1,11 @@
 // Most of it was made by xPaw: https://gist.github.com/xPaw/73f8ae2031b4e528abf7
 
+// Add following lines into manifest.json under content_scripts section (and tweak or remove date below):
+// {
+//    "js": [ "autojoinSteamQueue.js" ],
+//    "matches": [ "*://store.steampowered.com/*" ]
+// }
+
 if (Date.now() < 1499299200000) { // I will update extension after the sale and remove this injection but.. in case I die you're not stuck with useless button :)
 
   // We have to inject it like this to access global functions and variables
