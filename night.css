@@ -1,10 +1,15 @@
 div.page__outer-wrap {
-    -webkit-filter: invert(100%);
     filter: invert(100%);
 }
 
-div.page__outer-wrap .global__image-inner-wrap, div.page__outer-wrap img {
-    -webkit-filter: invert(100%);
+div.page__outer-wrap .giveaway_image_thumbnail, 
+div.page__outer-wrap .giveaway_image_avatar,
+.comments .global__image-inner-wrap,
+.comment .global__image-inner-wrap,
+.table_image_thumbnail,
+.table_image_avatar,
+.comment__summary img
+{
     filter: invert(100%);
 }
 
