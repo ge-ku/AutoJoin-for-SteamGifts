@@ -38,22 +38,25 @@ function calculateWinChance(giveaway, timeLoaded) {
 }
 
 function notify() {
-    chrome.notifications.clear("won_notification", function() {
-        var e = {
-            type: "basic",
-            title: "AutoJoin",
-            message: "You won! Click here to open steamgifts.com",
-            iconUrl: "autologosteam.png"
-        };
-        chrome.notifications.create("won_notification", e, function() {
-			chrome.storage.sync.get({PlayAudio: 'true'}, function (data) {
-				if (data.PlayAudio == true){
-					var e = new Audio("audio.mp3");
-					e.play()
-				}
+	$.get("https://www.steamgifts.com/giveaways/won", function(name) {
+		name = $(name).find(".table__column__heading")[0].innerText;
+		chrome.notifications.clear("won_notification", function() {
+			var e = {
+				type: "basic",
+				title: "AutoJoin",
+				message: "You won " + name + "! Click here to open steamgifts.com",
+				iconUrl: "autologosteam.png"
+			};
+			chrome.notifications.create("won_notification", e, function() {
+				chrome.storage.sync.get({PlayAudio: 'true'}, function (data) {
+					if (data.PlayAudio == true){
+						var e = new Audio("audio.mp3");
+						e.play();
+					}
+				});
 			});
-        })
-    })
+		});
+	});
 }
 
 /*This function scans the pages and calls the function pagesloaded() once it finished
