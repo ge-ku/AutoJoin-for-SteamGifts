@@ -534,7 +534,7 @@ function checkDLCbyImage(giveaway, encc, frontpage){
 	// Steam API can stop responding if you send many requests in a short period of time
 	// DLC list can be retrieved from https://steamdb.info/apps/ 
 	// Flaw: Such list must be updated regulary. Maybe have a local db with every app id (not only DLCs), use Steam API if app id is unknown.
-	var t = $(giveaway).find(".global__image-outer-wrap--game-medium").find(".global__image-inner-wrap")
+	var t = $(giveaway).find(".giveaway_image_thumbnail");
 	var appid = $(t).css("background-image");
 	if (appid == null){
 		console.log('error in image');
