@@ -41,6 +41,7 @@ $(document).ready(function() {
 				NightTheme: false,
 				LevelPriority: false,
 				PlayAudio: true,
+				AudioVolume: 1,
 				DelayBG: 10,
 				MinLevelBG: 0,
 				MinCost: 0,

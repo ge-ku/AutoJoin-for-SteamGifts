@@ -48,10 +48,11 @@ function notify() {
 				iconUrl: "autologosteam.png"
 			};
 			chrome.notifications.create("won_notification", e, function() {
-				chrome.storage.sync.get({PlayAudio: 'true'}, function (data) {
+				chrome.storage.sync.get({PlayAudio: 'true', AudioVolume: 1}, function (data) {
 					if (data.PlayAudio == true){
-						var e = new Audio("audio.mp3");
-						e.play();
+						var audio = new Audio("audio.mp3");
+						audio.volume = data.AudioVolume;
+						audio.play();
 					}
 				});
 			});

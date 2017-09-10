@@ -24,6 +24,7 @@ function loadSettings() {
 		NightTheme: false,
 		LevelPriority: false,
 		PlayAudio: true,
+		AudioVolume: 1,
 		DelayBG: 10,
 		MinLevelBG: 0,
 		MinCost: 0,
@@ -56,6 +57,7 @@ function fillSettingsDiv(settings){
 	document.getElementById("chkLevelPriorityBG").checked = settings.LevelPriorityBG;
 	document.getElementById("chkOddsPriorityBG").checked = settings.OddsPriorityBG;
 	document.getElementById("chkPlayAudio").checked = settings.PlayAudio;
+	document.getElementById("audioVolume").value = settings.AudioVolume;
 	document.getElementById("chkShowChance").checked = settings.ShowChance;
 	document.getElementById("hoursField").value = settings.RepeatHours;
 	document.getElementById("pagestoload").value = settings.PagesToLoad;
@@ -98,6 +100,7 @@ function settingsAttachEventListeners(){
 			IgnorePinnedBG: document.getElementById("chkIgnorePinnedBG").checked,
 			HideGroups: document.getElementById("chkHideGroups").checked,
 			PlayAudio: document.getElementById("chkPlayAudio").checked,
+			AudioVolume: document.getElementById("audioVolume").value,
 			RepeatHours: document.getElementById("hoursField").value,
 			RepeatHoursBG: parseInt(document.getElementById("hoursFieldBG").value, 10),
 			PagesToLoad: parseInt(document.getElementById("pagestoload").value, 10),
@@ -144,10 +147,19 @@ function settingsAttachEventListeners(){
 			settingsDivEl.classList.add("fadeOut");
 		});
 	});
+
+	var volumeSlider = document.getElementById('audioVolume');
+	volumeSlider.addEventListener('click', setAudioVolume);
 	
 	fitSettings();
 }
 
+function setAudioVolume(){
+	//play audio when changing volume
+	var audio = new Audio(chrome.extension.getURL('/audio.mp3'));
+	audio.volume = document.getElementById('audioVolume').value;
+	audio.play();
+}
 
 /*This is for case when window.innerHeight is less than settings div height.*/
 function fitSettings(){

@@ -203,6 +203,16 @@
 	text-decoration: underline;
 }
 
+#settingsDiv #volumeControl {
+	padding-left: 2em;
+}
+
+#settingsDiv #audioVolume {
+	width: 10em;
+	height: 10px;
+	padding: 0;
+}
+
 #settingsShade {
 	z-index: 7999;
 	visibility: hidden;
