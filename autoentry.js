@@ -127,7 +127,7 @@ function onPageLoad(){
 		}
 		if (loadingNextPage == false){
 			loadingNextPage = true;
-			$("<div>").load(pageLink+pageNumber+thirdPart + " :not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap", function() {
+			$("<div>").load(location.origin + pageLink+pageNumber+thirdPart + " :not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap", function() {
 				$(this).find('.giveaway__row-inner-wrap').each(function(){
 					if (settings.HideGroups){
 						if ($(this).find('.giveaway__column--group').length != 0){

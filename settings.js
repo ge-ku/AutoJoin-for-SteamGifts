@@ -114,7 +114,7 @@ function settingsAttachEventListeners(){
 			IgnorePreserveWishlistOnMainBG: document.getElementById("chkIgnorePreserveWishlistOnMainBG").checked,
 			ShowChance: document.getElementById("chkShowChance").checked
 		}, function(){
-			if (location.protocol == "chrome-extension:"){
+			if (document.location.protocol != 'http:' && document.location.protocol != 'https:'){
 				saveButtonEl.innerText = "Settings Saved!";
 				saveButtonEl.disabled = true;
 				setTimeout(function(){ 
