@@ -176,11 +176,11 @@
 
 #settingsDiv #linksContainer {
 	display: flex;
-	padding: 0 75px 0 75px;
+	padding: 0 30px;
 }
 
 #settingsDiv #linksContainer div {
-	width: 150px;
+	width: 130px;
 	text-align: center;
 }
 
