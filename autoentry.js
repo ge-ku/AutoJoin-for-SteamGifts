@@ -85,12 +85,14 @@ function onPageLoad(){
 			$("#settingsDiv").removeClass("fadeOut").addClass("fadeIn");
 		} else {
 			settingsInjected = true;
-			$.get(chrome.extension.getURL('/settings.html'), function(settingsDiv){
-				$('body').append($(settingsDiv).filter('#bodyWrapper'));
-				loadSettings();
-				$("#settingsShade").removeClass("fadeOut").addClass("fadeIn");
-				$("#settingsDiv").removeClass("fadeOut").addClass("fadeIn");
-			});
+			fetch(chrome.extension.getURL('/settings.html'))
+				.then((resp) => resp.text())
+				.then((settingsDiv) => {
+					$('body').append($(settingsDiv).filter('#bodyWrapper'));
+					loadSettings();
+					$("#settingsShade").removeClass("fadeOut").addClass("fadeIn");
+					$("#settingsDiv").removeClass("fadeOut").addClass("fadeIn");
+				});
 		}
 	});
 	
@@ -205,34 +207,35 @@ function onPageLoad(){
 					}
 				}
 
-				$.post("/ajax.php",{
-						xsrf_token : token,
-						do : "entry_insert",
-						code : this.href.split('/')[4]
-				},
-				function(response){
-					var json_response = jQuery.parseJSON(response);
-					if (json_response.type == "success"){
-						current.toggleClass('is-faded');
-						$('.nav__points').text(json_response.points);
-						entered++;
-						current.find('.btnSingle').attr('walkState', 'leave').prop("disabled", false).val('Leave');
-						updateButtons();
-					}
-					if (json_response.points < 5) {
-						for (var i = 0; i < timeouts.length; i++) {
-							clearTimeout(timeouts[i]);
+				var formData = new FormData();
+				formData.append('xsrf_token', token);
+				formData.append('do', 'entry_insert');
+				formData.append('code', this.href.split('/')[4]);					
+				fetch(location.origin + '/ajax.php', { method: 'post', credentials: 'include', body: formData })
+					.then((resp) => resp.json())
+					.then((json_response) => {
+						if (json_response.type == "success"){
+							current.toggleClass('is-faded');
+							$('.nav__points').text(json_response.points);
+							entered++;
+							current.find('.btnSingle').attr('walkState', 'leave').prop("disabled", false).val('Leave');
+							updateButtons();
 						}
-						timeouts = [];
-					}
-					if(entered < 1){
-						$('#info').text('No giveaways entered.');
-					}else if(entered == 1){
-						$('#info').text('Entered 1 giveaway.');
-					}else{
-						$('#info').text('Entered ' + entered + ' giveaways.');
-					}
-				});
+						if (json_response.points < 5) {
+							for (var i = 0; i < timeouts.length; i++) {
+								clearTimeout(timeouts[i]);
+							}
+							timeouts = [];
+						}
+						if(entered < 1){
+							$('#info').text('No giveaways entered.');
+						}else if(entered == 1){
+							$('#info').text('Entered 1 giveaway.');
+						}else{
+							$('#info').text('Entered ' + entered + ' giveaways.');
+						}
+					});
+
 			}, this), iteration * 3000));
 		});
 		$('#btnAutoJoin').val('Good luck!');
@@ -415,19 +418,18 @@ function onPageLoad(){
 		var gameid = thisPost.attr('data-game-id');
 		console.log("hiding " + gameid);
 		$(this).attr('class', 'giveaway__icon giveaway__hide trigger-popup fa fa-refresh fa-spin');
-		$.post("/ajax.php",{
-				xsrf_token : token,
-				game_id : gameid,
-				do : "hide_giveaways_by_game_id"
-			},
-			function(response){
+		var formData = new FormData();
+		formData.append('xsrf_token', token);
+		formData.append('game_id', gameid);
+		formData.append('do', 'hide_giveaways_by_game_id');
+		fetch(location.origin + '/ajax.php', { method: 'post', credentials: 'include', body: formData })
+			.then((resp) => {
 				$("[data-game-id='"+gameid+"']").each(function(val){
 					$(this).fadeOut("slow", function() {
 						$(this).hide();
 					});	
 				});
-			}
-		);
+			})
 	});
 
 	$(document).on({
@@ -436,51 +438,48 @@ function onPageLoad(){
 			var thisWrap = $(this).parent();
 			thisButton.prop("disabled", true);
 			var uniqueCode = $(this).parent().find('.giveaway__heading__name').attr('href').substr(10,5);
+			var formData = new FormData();
+			formData.append('xsrf_token', token);
+			formData.append('code', uniqueCode);
 			if($(this).attr('walkState') == "join"){
-				$.post("/ajax.php",{
-					xsrf_token : token,
-					do : "entry_insert",
-					code : uniqueCode
-				},
-				function(response){
-					var json_response = jQuery.parseJSON(response);
-					if (json_response.type == "success"){
-						thisWrap.toggleClass('is-faded');
-						if (settings.HideEntered){
-							thisWrap.fadeOut(300, function() { $(this).parent().remove(); });
+				formData.append('do', 'entry_insert');
+				fetch(location.origin + '/ajax.php', { method: 'post', credentials: 'include', body: formData })
+					.then((resp) => resp.json())
+					.then((json_response) => {
+						if (json_response.type == "success"){
+							thisWrap.toggleClass('is-faded');
+							if (settings.HideEntered){
+								thisWrap.fadeOut(300, function() { $(this).parent().remove(); });
+								$('.nav__points').text(json_response.points);
+								updateButtons();
+							}else{
+								$('.nav__points').text(json_response.points);
+								thisButton.attr('walkState', 'leave');
+								thisButton.prop("disabled", false);
+								thisButton.val('Leave');
+								updateButtons();
+							}
+						}else{
+							thisWrap.toggleClass('is-faded');
+							thisButton.val('Error: '+json_response.msg);
+						}
+					})
+			}else{
+				formData.append('do', 'entry_delete');
+				fetch(location.origin + '/ajax.php', { method: 'post', credentials: 'include', body: formData })
+					.then((resp) => resp.json())
+					.then((json_response) => {
+						if (json_response.type == "success"){
+							thisWrap.toggleClass('is-faded');
 							$('.nav__points').text(json_response.points);
+							thisButton.attr('walkState', 'join');
+							thisButton.prop("disabled", false);
+							thisButton.val('Join');
 							updateButtons();
 						}else{
-							$('.nav__points').text(json_response.points);
-							thisButton.attr('walkState', 'leave');
-							thisButton.prop("disabled", false);
-							thisButton.val('Leave');
-							updateButtons();
+							thisButton.val('Error: '+json_response.msg);
 						}
-					}else{
-						thisWrap.toggleClass('is-faded');
-						thisButton.val('Error: '+json_response.msg);
-					}
-				});
-			}else{
-				$.post("/ajax.php",{
-					xsrf_token : token,
-					do : "entry_delete",
-					code : uniqueCode
-				},
-				function(response){
-					var json_response = jQuery.parseJSON(response);
-					if (json_response.type == "success"){
-						thisWrap.toggleClass('is-faded');
-						$('.nav__points').text(json_response.points);
-						thisButton.attr('walkState', 'join');
-						thisButton.prop("disabled", false);
-						thisButton.val('Join');
-						updateButtons();
-					}else{
-						thisButton.val('Error: '+json_response.msg);
-					}
-				});
+					});
 			}
 		}
 	}, ".btnSingle");
