@@ -44,7 +44,7 @@ function notify() {
 			var e = {
 				type: "basic",
 				title: "AutoJoin",
-				message: "You won " + name + "! Click here to open steamgifts.com",
+				message: "You won " + name + "! Click here to open Steamgifts.com",
 				iconUrl: "autologosteam.png"
 			};
 			chrome.notifications.create("won_notification", e, function() {
@@ -259,7 +259,7 @@ function settingsloaded() {
 function loadsettings() {
 	chrome.storage.sync.get({
 		PageForBG: 'wishlist',
-		RepeatHoursBG: 2,
+		RepeatHoursBG: 5,
 		DelayBG: 10,
 		MaxTimeLeftBG: 0, //in seconds
 		MinLevelBG: 0,
@@ -267,12 +267,12 @@ function loadsettings() {
 		PointsToPreserve: 0,
 		WishlistPriorityForMainBG: false,
 		IgnorePreserveWishlistOnMainBG: false,
-		PagesToLoadBG: 3,
-		BackgroundAJ: true,
+		PagesToLoadBG: 2,
+		BackgroundAJ: false,
 		LevelPriorityBG: true,
 		OddsPriorityBG: false,
 		IgnoreGroupsBG: false,
-		IgnorePinnedBG: false,
+		IgnorePinnedBG: true,
 		LastKnownLevel: 10, // set to 10 by default so it loads pages with max_level set to 10 (maximum) before extensions learns actual level
 		lastLaunchedVersion: thisVersion
 		}, function(data) {
@@ -306,9 +306,9 @@ var arr = [],
     mylevel = 0,
     varcount = 0,
     timepassed = 0,
-    timetopass = 20,
+    timetopass = 100,
     justLaunched = true,
-    thisVersion = 20170225,
+    thisVersion = 20170929,
     totalWishlistGAcnt = 0,
     useWishlistPriorityForMainBG = false,
     currPoints = 0;
@@ -319,18 +319,44 @@ chrome.alarms.create("routine", {
 });
 
 /*Creating a new tab if notification is clicked*/
-chrome.notifications.onClicked.addListener(function() {
+chrome.notifications.onClicked.addListener(function(notificationId) {
+	if (notificationId == "1.5.0 announcement") {
+		url = "http://steamcommunity.com/groups/autojoin#announcements/detail/1485483400577229657";
+	} else {
+		url = "https://www.steamgifts.com/giveaways/won";
+	}
 	chrome.windows.getCurrent(function(currentWindow) {
 		if (currentWindow != null) {
 			return chrome.tabs.create({
-				url: "https://www.steamgifts.com/giveaways/won"
+				url: url
 			});
 		} else {
 			return chrome.windows.create({
-				url: "https://www.steamgifts.com/giveaways/won",
+				url: url,
 				type: "normal",
 				focused: true
 			});
 		}
 	})
+});
+
+chrome.runtime.onInstalled.addListener(function(updateInfo) {
+	if (updateInfo.previousVersion < '1.5.0') {
+		console.log('Changing settings to prevent mass ban of extension users...');
+		chrome.storage.sync.set({
+			BackgroundAJ: false,
+			IgnorePinnedBG: true,
+			RepeatIfOnPage: false,
+			RepeatHoursBG: 5,
+			RepeatHours: 5			
+		}, function(){
+			var e = {
+				type: "basic",
+				title: "Steamgifts Guidelines Update",
+				message: "Your settings were changed. Click here to read more...",
+				iconUrl: "autologosteam.png"
+			};
+			chrome.notifications.create("1.5.0 announcement", e);
+		});
+	}
 });

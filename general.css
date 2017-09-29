@@ -156,7 +156,7 @@
 #settingsDiv #btnSetSave:active,
 #settingsDiv #btnSetCancel:active
 {
-	-webkit-transition: border-color 200ms;
+	transition: border-color 200ms;
 	border-color: rgb(77, 144, 254);
 	outline: none;
 }
@@ -242,4 +242,26 @@
 	0% {opacity: 1; visibility: visible;}
 	99% {opacity: 0; visibility: visible;}
 	100% {opacity: 0; visibility: hidden;}
+}
+
+#buttonsAJ:hover #suspensionNotice {
+	animation: pulse 3s infinite;
+}
+
+#suspensionNotice {
+	color: red;
+	margin-top: 1em;
+	font-weight: 600;
+}
+
+@keyframes pulse {
+	0% {
+		color: red;
+	  }
+	  50% {
+		  color: #9A9AFF;
+	  }
+	  100% {
+		  color: red;
+	  }
 }

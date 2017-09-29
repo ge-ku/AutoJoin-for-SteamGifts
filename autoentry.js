@@ -1,56 +1,45 @@
 var settingsInjected = false;
 var settings;
-var thisVersion = 20170225;
+var thisVersion = 20170929;
 
 $(document).ready(function() {
 	chrome.storage.sync.get({
 		lastLaunchedVersion: thisVersion
 	}, function(version) {
-		if (version.lastLaunchedVersion < 20170123){
-			chrome.storage.sync.clear(function(){ //this version is too old, reset settings
-				chrome.storage.sync.set({
-					lastLaunchedVersion: thisVersion
-				}, function(){
-                    console.log("old version launched, settings cleared");
-					location.reload();
-                });
-			});
-		} else {
-			chrome.storage.sync.get({
-				HideGroups: false,
-				IgnoreGroups: false,
-				IgnorePinned: true,
-				IgnoreGroupsBG: false,
-				IgnorePinnedBG: false,
-				HideEntered: false,
-				PageForBG: 'wishlist',
-				RepeatHoursBG: 2,
-				PagesToLoad: 3,
-				PagesToLoadBG: 2,
-				BackgroundAJ: true,
-				LevelPriorityBG: true,
-				OddsPriorityBG: false,
-				lastLaunchedVersion: thisVersion,
-				InfiniteScrolling: true,
-				ShowPoints: true,
-				ShowButtons: true,
-				LoadFive: false,
-				HideDlc: false,
-				RepeatIfOnPage: false,
-				RepeatHours: 2,
-				NightTheme: false,
-				LevelPriority: false,
-				PlayAudio: true,
-				AudioVolume: 1,
-				DelayBG: 10,
-				MinLevelBG: 0,
-				MinCost: 0,
-				ShowChance: true
-			}, function(data) {
-				settings = data;
-				onPageLoad();
-			});
-		}
+		chrome.storage.sync.get({
+			HideGroups: false,
+			IgnoreGroups: false,
+			IgnorePinned: true,
+			IgnoreGroupsBG: false,
+			IgnorePinnedBG: true,
+			HideEntered: false,
+			PageForBG: 'wishlist',
+			RepeatHoursBG: 5,
+			PagesToLoad: 3,
+			PagesToLoadBG: 2,
+			BackgroundAJ: false,
+			LevelPriorityBG: true,
+			OddsPriorityBG: false,
+			lastLaunchedVersion: thisVersion,
+			InfiniteScrolling: true,
+			ShowPoints: true,
+			ShowButtons: true,
+			LoadFive: false,
+			HideDlc: false,
+			RepeatIfOnPage: false,
+			RepeatHours: 5,
+			NightTheme: false,
+			LevelPriority: false,
+			PlayAudio: true,
+			AudioVolume: 1,
+			DelayBG: 10,
+			MinLevelBG: 0,
+			MinCost: 0,
+			ShowChance: true
+		}, function(data) {
+			settings = data;
+			onPageLoad();
+		});
 	});
 });
 
@@ -77,6 +66,8 @@ function onPageLoad(){
 				}	
 				fireAutoJoin();
 		});
+	$('<div id="suspensionNotice"><a target="_blank" href="http://steamcommunity.com/groups/autojoin#announcements/detail/1485483400577229657"><p>By using AutoJoin button and AutoJoin in background you risk getting a suspension.</p><p>Click to read more...</p></a></div>')
+		.appendTo('#buttonsAJ');
 	/*First time cog button is pressed inject part of settings.html and show it
 	  If settings already injected just show them*/
 	$('#btnSettings').click(function(){
