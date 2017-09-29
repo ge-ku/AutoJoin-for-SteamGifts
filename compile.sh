@@ -38,7 +38,7 @@ echo "Adding extra lines into manifest file needed for Firefox...";
 cp "AutoJoin_Chrome_${VERSION}.zip" "AutoJoin_Firefox_${VERSION}.zip";
 zip "AutoJoin_Chrome_${VERSION}.zip" manifest.json;
 cp manifest.json temp/manifest.json;
-firefox_specific_bits='\   \"applications\": {\n\      \"gecko\": {\n\         \"id\": \"autojoin@kuzmenko.io\",\n\         \"strict_min_version\": \"48.0\"\n\      }\n\   },';
+firefox_specific_bits='\   \"applications\": {\n\      \"gecko\": {\n\         \"id\": \"jid1-VSlWBGe0y6Q0Iw@jetpack\",\n\         \"strict_min_version\": \"48.0\"\n\      }\n\   },';
 sed -i "/\"manifest_version\": 2/i $firefox_specific_bits" temp/manifest.json;
 zip -j "AutoJoin_Firefox_${VERSION}.zip" temp/manifest.json;
 
