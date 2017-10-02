@@ -7,6 +7,7 @@ $(document).ready(function() {
 		lastLaunchedVersion: thisVersion
 	}, function(version) {
 		chrome.storage.sync.get({
+			AutoJoinButton: false,
 			HideGroups: false,
 			IgnoreGroups: false,
 			IgnorePinned: true,
@@ -56,18 +57,33 @@ function onPageLoad(){
 
 	/* Add AutoJoin and cog button*/
 	$('<div id="info"></div>').prependTo('.featured__summary');
-	$('<div id="buttonsAJ"><button id="btnSettings"><i class="fa fa-cog fa-4x fa-inverse"></i></button></div>').prependTo('.featured__summary');
-	$('<input type="button" value="AutoJoin" id="btnAutoJoin">')
-		.prependTo('#buttonsAJ')
-		.click(function(){
-				$('#btnAutoJoin').prop("disabled", true);
-				if (settings.LoadFive && pagesLoaded < 5){
-					$('#btnAutoJoin').val("Loading Pages..");
-				}	
-				fireAutoJoin();
-		});
-	$('<div id="suspensionNotice"><a target="_blank" href="http://steamcommunity.com/groups/autojoin#announcements/detail/1485483400577229657"><p>By using AutoJoin button and AutoJoin in background you risk getting a suspension.</p><p>Click to read more...</p></a></div>')
-		.appendTo('#buttonsAJ');
+
+	if (settings.AutoJoinButton) {
+		$('<div id="buttonsAJ"><button id="btnSettings" class="AutoJoinButtonEnabled"><i class="fa fa-cog fa-4x fa-inverse"></i></button></div>').prependTo('.featured__summary');
+		$('<input type="button" value="AutoJoin" id="btnAutoJoin">')
+			.prependTo('#buttonsAJ')
+			.click(function(){
+					$('#btnAutoJoin').prop("disabled", true);
+					if (settings.LoadFive && pagesLoaded < 5){
+						$('#btnAutoJoin').val("Loading Pages..");
+					}	
+					fireAutoJoin();
+			});
+		$('<div id="suspensionNotice"><a target="_blank" href="http://steamcommunity.com/groups/autojoin#announcements/detail/1485483400577229657"><p>By using AutoJoin button and AutoJoin in background you risk getting a suspension.</p><p>Click to read more...</p></a></div>')
+			.appendTo('#buttonsAJ');
+	} else {
+		let navbar = document.querySelector('.nav__left-container');
+		let buttonContainer = document.createElement('div');
+		buttonContainer.className = 'nav__button-container';
+		let button = document.createElement('a');
+		button.className = 'nav__button';
+		button.id = 'btnSettings';
+		button.textContent = 'AutoJoin Settings';
+		buttonContainer.appendChild(button);
+		navbar.appendChild(buttonContainer); 
+	}
+
+	
 	/*First time cog button is pressed inject part of settings.html and show it
 	  If settings already injected just show them*/
 	$('#btnSettings').click(function(){

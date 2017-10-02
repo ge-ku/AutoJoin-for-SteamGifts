@@ -15,63 +15,70 @@
                     <ul>
                         <li>
                             <label> 
-                                    <input id="chkInfiniteScroll" type="checkbox"/>Enable Infinite Scrolling (also hides everything below giveaways)
-                                </label>
+                                <input id="chkInfiniteScroll" type="checkbox"/>Enable Infinite Scrolling (also hides everything below giveaways)
+                            </label>
                         </li>
                         <li>
                             <label> 
-                                    <input id="chkShowPoints" type="checkbox"/>Show points and level in top-left corner if scrolled down
-                                </label>
+                                <input id="chkShowPoints" type="checkbox"/>Show points and level in top-left corner if scrolled down
+                            </label>
                         </li>
                         <li>
                             <label> 
-                                    <input id="chkShowButtons" type="checkbox"/>Show buttons to join/leave and warnings besides each giveaway
-                                </label>
+                                <input id="chkShowButtons" type="checkbox"/>Show buttons to join/leave and warnings besides each giveaway
+                            </label>
                         </li>
                         <li>
                             <label>
-                                    <input id="chkShowChance" type="checkbox" />Show approximate odds of winning
-                                </label>
+                                <input id="chkShowChance" type="checkbox" />Show approximate odds of winning
+                            </label>
                         </li>
                         <li>
                             <label> 
-                                    <input id="chkLoadFive" type="checkbox"/>Load 
-                                    <input type="number" size="2" id="pagestoload" min="1" max="5" value="3"> pages before trying to Auto-join (1-5)
-                                </label>
+                                <input id="chkHideEntered" type="checkbox"/>Hide joined giveaways
+                            </label>
                         </li>
                         <li>
                             <label> 
-                                    <input id="chkHideDlc" type="checkbox"/>Hide all DLC giveaways
-                                </label>
+                                <input id="chkHideDlc" type="checkbox"/>Hide DLC giveaways
+                            </label>
                         </li>
                         <li>
                             <label> 
-                                    <input id="chkRepeatIfOnPage" type="checkbox"/>AutoJoin every 
-                                    <input type="number" size="2" id="hoursField" min="1" max="24" value="2"> hours if page is opened (1-24)
-                                </label>
-                        </li>
-                        <li>
-                            <label> 
-                                    <input id="chkNightTheme" type="checkbox"/>Enable Night theme
-                                </label>
-                        </li>
-                        <li>
-                            <label> 
-                                    <input id="chkHideEntered" type="checkbox"/>Hide joined giveaways
-                                </label>
-                        </li>
-                        <li>
-                            <label> 
-                                    <input id="chkIgnoreGroups" type="checkbox"/>Ignore group giveaways for AutoJoin
-                                </label> &nbsp;&nbsp;
-                            <label> 
-                                    <input id="chkHideGroups" type="checkbox"/>Completely hide them
-                                </label>
+                                <input id="chkNightTheme" type="checkbox"/>Enable Night theme
+                            </label>
                         </li>
                         <li>
                             <label>
-                                    <input id="chkIgnorePinned" type="checkbox">Ignore featured giveaways for AutoJoin
-                                </label>
+                                <input id="chkAutoJoinButton" type="checkbox"/>Show AutoJoin button
+                            </label>
+                            <i class="fa fa-exclamation-triangle suspensionWarningIcon"></i>
+                            <span class="suspensionWarning">This setting is against the rules and will lead to your suspension</span>
+                        </li>
+                        <li class="dependsOnAutoJoinButton">
+                            <label> 
+                                <input id="chkLoadFive" type="checkbox"/>Load 
+                                <input type="number" size="2" id="pagestoload" min="1" max="5" value="3"> pages before trying to Auto-join (1-5)
+                            </label>
+                        </li>
+                        <li class="dependsOnAutoJoinButton">
+                            <label> 
+                                <input id="chkRepeatIfOnPage" type="checkbox"/>AutoJoin every 
+                                <input type="number" size="2" id="hoursField" min="1" max="24" value="2"> hours if page is opened (1-24)
+                            </label>
+                        </li>
+                        <li class="dependsOnAutoJoinButton">
+                            <label> 
+                                <input id="chkIgnoreGroups" type="checkbox"/>Ignore group giveaways for AutoJoin
+                            </label> &nbsp;&nbsp;
+                            <label> 
+                                <input id="chkHideGroups" type="checkbox"/>Completely hide them
+                            </label>
+                        </li>
+                        <li class="dependsOnAutoJoinButton">
+                            <label>
+                                <input id="chkIgnorePinned" type="checkbox">Ignore featured giveaways for AutoJoin
+                            </label>
                         </li>
                     </ul>
                     <br />
@@ -79,74 +86,78 @@
                     <ul>
                         <li>
                             <label>
-                                    <input id="chkEnableBG" type="checkbox"/>Enable AutoJoin in background on 
-                                    <select style="width: 150px;" id="pageforBG"> 
-                                        <option value="all">        Main page (All) </option>
-                                        <option value="wishlist">   Wishlist        </option>
-                                        <option value="group">      Group           </option>
-                                        <option value="new">        New             </option>
-                                        <option value="recommended">Recommended     </option>
-                                    </select>
-                                </label>
+                                <input id="chkPlayAudio" type="checkbox"/>Play sound when won
+                            </label>
+                            <label id="volumeControl">Volume:</label>
+                            <input type="range" id="audioVolume" min=0 max=1 step=0.01 value="1">
                         </li>
                         <li>
+                            <label>
+                                <input id="chkEnableBG" type="checkbox"/>Enable AutoJoin in background on 
+                                <select style="width: 150px;" id="pageforBG"> 
+                                    <option value="all">        Main page (All) </option>
+                                    <option value="wishlist">   Wishlist        </option>
+                                    <option value="group">      Group           </option>
+                                    <option value="new">        New             </option>
+                                    <option value="recommended">Recommended     </option>
+                                </select>
+                            </label>
+                            <i class="fa fa-exclamation-triangle suspensionWarningIcon"></i><br/>
+                            <span class="suspensionWarning">This setting is against the rules and will lead to your suspension</span>
+                        </li>
+                        <li class="dependsOnBackgroundAutoJoin">
                             Priority:&nbsp;
                             <label><input id="chkNoPriorityBG" name="BGpriority" type="radio" checked="checked"/>No priority</label>&nbsp;&nbsp;
                             <label><input id="chkLevelPriorityBG" name="BGpriority" type="radio" />Higher level giveaways</label>&nbsp;&nbsp;
                             <label><input id="chkOddsPriorityBG" name="BGpriority" type="radio" />Higher odds of winning</label>
-							<label><input id="chkWishlistPriorityForMainBG" name="BGpriority" type="checkbox"/>Enter wishlist giveaways first for Main page (All) (will load a minimum of 2 pages)</label>
                         </li>
-						<li>
+                        <li class="dependsOnBackgroundAutoJoin">
+                            <label><input id="chkWishlistPriorityForMainBG" name="BGpriority" type="checkbox"/>Enter wishlist giveaways first for Main page (All) (will load a minimum of 2 pages)</label>
+                        </li>
+						<li class="dependsOnBackgroundAutoJoin">
                             <label>
-                                    <input id="chkIgnorePreserveWishlistOnMainBG" type="checkbox"/>Ignore preserve points for wishlist on Main page (All)
-                                </label>
+                                <input id="chkIgnorePreserveWishlistOnMainBG" type="checkbox"/>Ignore preserve points for wishlist on Main page (All)
+                            </label>
                         </li>
-                        <li>
+                        <li class="dependsOnBackgroundAutoJoin">
                             <label>
-                                    <input id="chkIgnoreGroupsBG" type="checkbox"/>Ignore groups giveaways for Main page (All)
-                                </label>
+                                <input id="chkIgnoreGroupsBG" type="checkbox"/>Ignore groups giveaways for Main page (All)
+                            </label>
                         </li>
-                        <li>
+                        <li class="dependsOnBackgroundAutoJoin">
                             <label>
-                                    <input id="chkIgnorePinnedBG" type="checkbox"/>Ignore featured giveaways (All)
-                                </label>
+                                <input id="chkIgnorePinnedBG" type="checkbox"/>Ignore featured giveaways (All)
+                            </label>
                         </li>
-                        <li>
-                            <label>
-                                    <input id="chkPlayAudio" type="checkbox"/>Play sound when won
-                                </label>
-                                <label id="volumeControl">Volume:</label>
-                                <input type="range" id="audioVolume" min=0 max=1 step=0.01 value="1">
-                        </li>
-                        <li>
+                        <li class="dependsOnBackgroundAutoJoin">
                             <label>Try to AutoJoin in background every 
-                                    <input type="number" size="2" id="hoursFieldBG" min="0" max="24" value="2"> hours (1-24)
-                                </label>
+                                <input type="number" size="2" id="hoursFieldBG" min="0" max="24" value="2"> hours (1-24)
+                            </label>
                         </li>
-                        <li>
+                        <li class="dependsOnBackgroundAutoJoin">
                             <label>Load 
-                                    <input type="number" size="2" id="pagestoloadBG" min="1" max="3" value="2"> pages before trying to join giveaways (1-3)
-                                </label>
+                                <input type="number" size="2" id="pagestoloadBG" min="1" max="3" value="2"> pages before trying to join giveaways (1-3)
+                            </label>
                         </li>
-                        <li>
+                        <li class="dependsOnBackgroundAutoJoin">
                             <label>Delay between requests: 
-                                    <input type="number" size="2" id="delayBG" min="5" max="60" value="10"> seconds
-                                </label>
+                                <input type="number" size="2" id="delayBG" min="5" max="60" value="10"> seconds
+                            </label>
                         </li>
-                        <li>
+                        <li class="dependsOnBackgroundAutoJoin">
                             <label>Minimum giveaway level to enter: 
-                                    <input type="number" size="2" id="minLevelBG" min="0" max="10" value="0"> (set it to 0 to enter all giveaways)
-                                </label>
+                                <input type="number" size="2" id="minLevelBG" min="0" max="10" value="0"> (set it to 0 to enter all giveaways)
+                            </label>
                         </li>
-                        <li>
+                        <li class="dependsOnBackgroundAutoJoin">
                             <label>Minimum giveaway cost in points to enter: 
-                                    <input type="number" size="3" id="minCost" min="0" max="200" value="0"> (set it to 0 to enter all giveaways)
-                                </label>
+                                <input type="number" size="3" id="minCost" min="0" max="200" value="0"> (set it to 0 to enter all giveaways)
+                            </label>
                         </li>
-						<li>
+						<li class="dependsOnBackgroundAutoJoin">
                             <label>Preserve
-                                    <input type="number" size="3" id="pointsToPreserve" min="0" max="300" value="0"> points (this is for background autojoin and can decrease efficiency depending on autojoin check hours and the minimum number)
-                                </label>
+                                <input type="number" size="3" id="pointsToPreserve" min="0" max="300" value="0"> points (this is for background autojoin and can decrease efficiency depending on autojoin check hours and the minimum number)
+                            </label>
                         </li>
                     </ul>
                 </ul>

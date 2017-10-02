@@ -1,6 +1,7 @@
 //Call this function when #settingsDiv is present on the page.
 function loadSettings() {
 	chrome.storage.sync.get({
+		AutoJoinButton: false,
 		HideGroups: false,
 		IgnoreGroups: false,
 		IgnorePinned: true,
@@ -39,6 +40,7 @@ function loadSettings() {
 }
 
 function fillSettingsDiv(settings){
+	document.getElementById("chkAutoJoinButton").checked = settings.AutoJoinButton;
 	document.getElementById("chkInfiniteScroll").checked = settings.InfiniteScrolling;
 	document.getElementById("chkShowPoints").checked = settings.ShowPoints;
 	document.getElementById("chkShowButtons").checked = settings.ShowButtons;
@@ -82,6 +84,7 @@ function settingsAttachEventListeners(){
 	var saveButtonEl = document.getElementById("btnSetSave");
 	saveButtonEl.addEventListener("click", function(){
 		chrome.storage.sync.set({
+			AutoJoinButton: document.getElementById("chkAutoJoinButton").checked,
 			InfiniteScrolling: document.getElementById("chkInfiniteScroll").checked,
 			ShowPoints: document.getElementById("chkShowPoints").checked,
 			ShowButtons: document.getElementById("chkShowButtons").checked,
@@ -151,7 +154,7 @@ function settingsAttachEventListeners(){
 	var volumeSlider = document.getElementById('audioVolume');
 	volumeSlider.addEventListener('click', setAudioVolume);
 	
-	fitSettings();
+	processDependentSettings();
 }
 
 function setAudioVolume(){
@@ -166,4 +169,40 @@ function fitSettings(){
 	if (window.innerHeight < document.getElementById("settingsDiv").clientHeight) {
 		document.getElementById("settingsDiv").className += " fit";
 	}
+}
+
+/*Show/Hide some settings that don't make sense on their own.*/
+function processDependentSettings() {
+	var AutoJoinButton = document.getElementById("chkAutoJoinButton");
+	var EnableBG = document.getElementById("chkEnableBG");
+	evalDependent();
+
+	function evalDependent() {
+		var DependOnAutoJoinButton = document.querySelectorAll('.dependsOnAutoJoinButton');
+		var DependOnBackgroundAutoJoin = document.querySelectorAll('.dependsOnBackgroundAutoJoin');
+
+		if (AutoJoinButton.checked) {
+			DependOnAutoJoinButton.forEach(function(li){
+				li.style.display = "block";
+			});
+		} else {
+			DependOnAutoJoinButton.forEach(function(li){
+				li.style.display = "none";
+			});
+		}
+
+		if (EnableBG.checked) {
+			DependOnBackgroundAutoJoin.forEach(function(li){
+				li.style.display = "block";
+			});
+		} else {
+			DependOnBackgroundAutoJoin.forEach(function(li){
+				li.style.display = "none";
+			});
+		}
+
+		fitSettings();
+	}
+	AutoJoinButton.addEventListener("change", evalDependent);
+	EnableBG.addEventListener("change", evalDependent);
 }
