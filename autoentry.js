@@ -8,6 +8,7 @@ $(document).ready(function() {
 	}, function(version) {
 		chrome.storage.sync.get({
 			AutoJoinButton: false,
+			AutoDescription: true,
 			HideGroups: false,
 			IgnoreGroups: false,
 			IgnorePinned: true,
@@ -472,6 +473,11 @@ function onPageLoad(){
 			formData.append('xsrf_token', token);
 			formData.append('code', uniqueCode);
 			if($(this).attr('walkState') == "join"){
+				if (settings.AutoDescription) {
+					if (thisWrap.find('.description').hasClass('descriptionLoad')) {
+						thisWrap.find('.description').click();
+					}
+				}
 				formData.append('do', 'entry_insert');
 				fetch(location.origin + '/ajax.php', { method: 'post', credentials: 'include', body: formData })
 					.then((resp) => resp.json())

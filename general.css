@@ -289,3 +289,10 @@ li:hover .suspensionWarning {
 .descriptionContent.visible {
 	display: block;
 }
+
+.footer__outer-wrap.pinned {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+}

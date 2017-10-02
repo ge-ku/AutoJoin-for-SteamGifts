@@ -2,6 +2,7 @@
 function loadSettings() {
 	chrome.storage.sync.get({
 		AutoJoinButton: false,
+		AutoDescription: true,
 		HideGroups: false,
 		IgnoreGroups: false,
 		IgnorePinned: true,
@@ -41,6 +42,7 @@ function loadSettings() {
 
 function fillSettingsDiv(settings){
 	document.getElementById("chkAutoJoinButton").checked = settings.AutoJoinButton;
+	document.getElementById("chkAutoDescription").checked = settings.AutoDescription;
 	document.getElementById("chkInfiniteScroll").checked = settings.InfiniteScrolling;
 	document.getElementById("chkShowPoints").checked = settings.ShowPoints;
 	document.getElementById("chkShowButtons").checked = settings.ShowButtons;
@@ -85,6 +87,7 @@ function settingsAttachEventListeners(){
 	saveButtonEl.addEventListener("click", function(){
 		chrome.storage.sync.set({
 			AutoJoinButton: document.getElementById("chkAutoJoinButton").checked,
+			AutoDescription: document.getElementById("chkAutoDescription").checked,
 			InfiniteScrolling: document.getElementById("chkInfiniteScroll").checked,
 			ShowPoints: document.getElementById("chkShowPoints").checked,
 			ShowButtons: document.getElementById("chkShowButtons").checked,
