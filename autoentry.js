@@ -171,6 +171,9 @@ function onPageLoad(){
 					if (settings.ShowChance){
 						$(this).find('.giveaway__columns').prepend("<div style=\"cursor:help\" title=\"approx. odds of winning\"><i class=\"fa fa-trophy\"></i> " + calculateWinChance(this, timeLoaded) + "%</div>");
 					}
+					// (if settings.ShowDescription){
+						$(this).find('.giveaway__links').append('<div class="description descriptionLoad"><a><i class="fa fa-file-text descriptionIcon"/> <span>Show description</span></a></div>')
+					//}
 				});
 				$("#posts").last().append($(this).html());
 				pageNumber++;
@@ -411,6 +414,9 @@ function onPageLoad(){
 		if (settings.ShowChance){
 			$(this).find('.giveaway__columns').prepend("<div style=\"cursor:help\" title=\"approx. odds of winning\"><i class=\"fa fa-trophy\"></i> " + calculateWinChance(this, timeOfFirstPage) + "%</div>");
 		}
+		// (if settings.ShowDescription){
+			$(this).find('.giveaway__links').append('<div class="description descriptionLoad"><a><i class="fa fa-file-text descriptionIcon"/> <span>Show description</span></a></div>')
+		//}
 	});
 	if ($('.pinned-giveaways__inner-wrap').children().length == 0){
 		$('.pinned-giveaways__inner-wrap').parent().remove();
@@ -420,7 +426,7 @@ function onPageLoad(){
 		loadPage();
 	}*/
 	
-	$("#posts").on("click",".giveaway__hide", function(){
+	$("#posts").parent().on("click",".giveaway__hide", function(){
 		var thisPost = $(this).parent().parent().parent().parent();
 		var gameid = thisPost.attr('data-game-id');
 		console.log("hiding " + gameid);
@@ -438,6 +444,23 @@ function onPageLoad(){
 				});
 			})
 	});
+
+	$("#posts").parent().on("click", ".description", function(){
+		var thisPost = $(this).parent().parent().parent().parent();
+		if ($(this).hasClass('descriptionLoad')) {
+			loadDescription(thisPost[0]);
+		} else {
+			var $descriptionContent = $(thisPost).find('.descriptionContent');
+			console.log($descriptionContent);
+			if ($descriptionContent.hasClass('visible')) {
+				$descriptionContent.removeClass('visible');
+				$(this).find('span').text('Show description');
+			} else {
+				$descriptionContent.addClass('visible');
+				$(this).find('span').text('Hide description');
+			}
+		}
+	})
 
 	$(document).on({
 		click: function () {
@@ -533,6 +556,31 @@ function calculateWinChance(giveaway, timeLoaded) {
 	var chance = (1 / (numberOfEntries + 1 + predictionOfEntries)) * 100 * numberOfCopies;
 	if (chance > 100) { chance = 100 }
 	return chance.toFixed(3);
+}
+
+function loadDescription(giveaway) {
+	giveaway.querySelector('.description span').textContent = 'Hide description';
+	giveawayURL = giveaway.querySelector('.giveaway__heading__name').href;
+	giveaway.querySelector('.descriptionLoad').className = 'description';
+	var giveawayDescriptionWrapper = document.createElement('div');
+	giveawayDescriptionWrapper.className = 'descriptionContent visible';
+	giveaway.appendChild(giveawayDescriptionWrapper);
+
+	var descriptionIcon = giveaway.querySelector('.descriptionIcon');
+	descriptionIcon.className = 'fa fa-refresh fa-spin descriptionIcon';
+	
+	fetch(giveawayURL, { credentials: 'include' })
+		.then(resp => resp.text())
+		.then(giveawayContent => {
+			var parser = new DOMParser();
+			var giveawayDOM = parser.parseFromString(giveawayContent, 'text/html');
+			var giveawayDescription = giveawayDOM.querySelector('.page__description .markdown');
+			if (giveawayDescription == null) {
+				giveawayDescription = document.createTextNode('No description.');
+			}
+			giveawayDescriptionWrapper.appendChild(giveawayDescription);
+			descriptionIcon.className = 'fa fa-file-text descriptionIcon';
+		})
 }
 
 function checkDLCbyImage(giveaway, encc, frontpage){

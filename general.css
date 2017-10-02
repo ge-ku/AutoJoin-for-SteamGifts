@@ -279,3 +279,13 @@ li:hover .suspensionWarning {
 	display: none;
 	color: #800000;
 }
+
+.description {
+	cursor: pointer;
+}
+.descriptionContent {
+	display: none;
+}
+.descriptionContent.visible {
+	display: block;
+}

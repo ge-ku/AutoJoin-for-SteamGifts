@@ -8,7 +8,8 @@ div.page__outer-wrap .giveaway_image_avatar,
 .comment .global__image-inner-wrap,
 .table_image_thumbnail,
 .table_image_avatar,
-.comment__summary img
+.comment__summary img,
+.markdown img
 {
     filter: invert(100%);
 }
