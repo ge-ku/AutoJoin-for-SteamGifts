@@ -296,3 +296,30 @@ li:hover .suspensionWarning {
     right: 0;
     left: 0;
 }
+
+#navbarPin {
+	height: 100%;
+	width: 19px;
+	padding-left: 10px;
+    align-items: center;
+}
+
+#navbarPin:hover {
+	cursor: pointer;
+}
+
+header.pinned {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 888;
+}
+
+#bufferEl.pinned {
+	height: 39px;
+}
+
+nav {
+	padding-left: 10px !important;
+}
