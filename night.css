@@ -14,15 +14,13 @@ div.page__outer-wrap .giveaway_image_avatar,
     filter: invert(100%);
 }
 
-div.footer__outer-wrap {
-    background-color: #141414;
-}
-
 .pointsFloating{
 	z-index: 2;
 	color: #BBBBBB !important;
 }
 
-body{
+body,
+#ajFooter #ajFooterArrowWrap,
+#ajFooter div.footer__outer-wrap {
 	background-color: #141414;
 }

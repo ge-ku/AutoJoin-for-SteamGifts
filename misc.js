@@ -20,11 +20,9 @@ navbarPin.id = 'navbarPin';
 navbarPin.title = 'Pin navigation bar';
 navbarPin.appendChild(navbarPinIcon);
 navbar.prepend(navbarPin);
-// navbar.prepend(navbarPin);
 navbarPin.addEventListener('click', function(){
 	chrome.storage.local.set({pinnedNavbar: !navbarPinned}, evalPinnedNavbar);
 });
-//navbar.appendChild(navbarPin);
 var bufferEl = document.createElement('div');
 bufferEl.id = 'bufferEl';
 document.querySelector('body').prepend(bufferEl);
@@ -47,3 +45,35 @@ function evalPinnedNavbar(){
 	});
 }
 evalPinnedNavbar();
+
+/*Pin footer*/
+var ajFooter = document.createElement('div');
+ajFooter.id = 'ajFooter';
+var ajFooterArrowWrap = document.createElement('div');
+ajFooterArrowWrap.id = 'ajFooterArrowWrap';
+var ajFooterArrow = document.createElement('div');
+ajFooterArrow.id= 'ajFooterArrow';
+ajFooterArrow.textContent = '▲';
+ajFooterArrowWrap.appendChild(ajFooterArrow);
+ajFooter.appendChild(ajFooterArrowWrap);
+
+var sgFooter = document.querySelector('.footer__outer-wrap');
+sgFooter.parentElement.insertBefore(ajFooter, sgFooter);
+ajFooter.appendChild(sgFooter);
+
+var footerPinned = false;
+ajFooterArrowWrap.addEventListener('click', function(){
+	chrome.storage.local.set({pinnedFooter: !footerPinned}, evalPinnedFooter);
+});
+
+function evalPinnedFooter(){
+	chrome.storage.local.get({pinnedFooter: true}, function(data){
+		footerPinned = data.pinnedFooter;
+		if (footerPinned) {
+			ajFooter.className = 'pinned';
+		} else {
+			ajFooter.className = '';
+		}
+	});
+}
+evalPinnedFooter();
