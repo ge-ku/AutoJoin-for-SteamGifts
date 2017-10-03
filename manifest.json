@@ -22,7 +22,7 @@
    "short_name": "AutoJoin",
    "description": "Automatically enters giveaways from Steamgifts.com and site enhancements",
    "permissions": [ "alarms", "notifications", "storage", "tabs", "*://www.steamgifts.com/*", "*://store.steampowered.com/*" ],
-   "version": "1.6.1",
+   "version": "1.6.2",
    "web_accessible_resources": [
        "settings.html",
        "night.css",
