@@ -48,25 +48,48 @@ $(document).ready(function() {
 function onPageLoad(){
 
 	/* Add AutoJoin and cog button*/
-	$('<div id="info"></div>').prependTo('.featured__summary');
+	var info = document.createElement('div');
+	info.id = 'info';
+	document.querySelector('.featured__summary').prepend(info);
 	if (settings.AutoJoinButton) {
-		$('<div id="buttonsAJ"><button id="btnSettings" class="AutoJoinButtonEnabled"><i class="fa fa-cog fa-4x fa-inverse"></i></button></div>').prependTo('.featured__summary');
-		$('<input type="button" value="AutoJoin" id="btnAutoJoin">')
-			.prependTo('#buttonsAJ')
-			.click(function(){
-					$('#btnAutoJoin').prop("disabled", true);
-					if (settings.LoadFive && pagesLoaded < 5){
-						$('#btnAutoJoin').val("Loading Pages..");
-					}	
-					fireAutoJoin();
-			});
-		$('<div id="suspensionNotice"><a target="_blank" href="http://steamcommunity.com/groups/autojoin#announcements/detail/1485483400577229657"><p>By using AutoJoin button and AutoJoin in background you risk getting a suspension.</p><p>Click to read more...</p></a></div>')
-			.appendTo('#buttonsAJ');
+		let buttonsAJ = document.createElement('div');
+		buttonsAJ.id = 'buttonsAJ';
+		let btnSettings = document.createElement('button');
+		btnSettings.id = 'btnSettings';
+		btnSettings.className = 'AutoJoinButtonEnabled';
+		let cog = document.createElement('i');
+		cog.className = 'fa fa-cog fa-4x fa-inverse';
+		btnSettings.appendChild(cog);
+
+		let btnAutoJoin = document.createElement('input');
+		btnAutoJoin.id = 'btnAutoJoin';
+		btnAutoJoin.type = 'button';
+		btnAutoJoin.value = 'AutoJoin';
+		btnAutoJoin.addEventListener('click', function(){
+			btnAutoJoin.disabled = true;
+			if (settings.LoadFive && pagesLoaded < 5){
+				btnAutoJoin.value = 'Loading Pages..';
+			}
+			fireAutoJoin();
+		});
+
+		let suspensionNotice = document.createElement('div');
+		suspensionNotice.id = 'suspensionNotice';
+		let linkToAnnouncement = document.createElement('a');
+		linkToAnnouncement.href = 'http://steamcommunity.com/groups/autojoin#announcements/detail/1485483400577229657';
+		linkToAnnouncement.target = '_blank';
+		linkToAnnouncement.innerHTML = '<p>By using AutoJoin button and AutoJoin in background you risk getting a suspension.</p><p>Click to read more...</p>';
+		suspensionNotice.appendChild(linkToAnnouncement);
+
+		buttonsAJ.appendChild(btnAutoJoin);
+		buttonsAJ.appendChild(btnSettings);
+		buttonsAJ.appendChild(suspensionNotice);
+		document.querySelector('.featured__summary').prepend(buttonsAJ);
 	} else {
-		var navbar = document.querySelector('.nav__left-container');
-		var buttonContainer = document.createElement('div');
+		let navbar = document.querySelector('.nav__left-container');
+		let buttonContainer = document.createElement('div');
 		buttonContainer.className = 'nav__button-container';
-		var button = document.createElement('a');
+		let button = document.createElement('a');
 		button.className = 'nav__button';
 		button.id = 'btnSettings';
 		button.textContent = 'AutoJoin Settings';
@@ -75,27 +98,30 @@ function onPageLoad(){
 	}
 
 	
-	/*First time cog button is pressed inject part of settings.html and show it
+	/*First time cog/settings button is pressed inject part of settings.html and show it
 	  If settings already injected just show them*/
-	$('#btnSettings').click(function(){
+	document.getElementById('btnSettings').addEventListener('click', function(){
 		if (settingsInjected) {
-			$("#settingsShade").removeClass("fadeOut").addClass("fadeIn");
-			$("#settingsDiv").removeClass("fadeOut").addClass("fadeIn");
+			document.getElementById('settingsShade').classList.replace('fadeOut', 'fadeIn');
+			document.getElementById('settingsDiv').classList.replace('fadeOut', 'fadeIn');
 		} else {
 			settingsInjected = true;
 			fetch(chrome.extension.getURL('/settings.html'))
 				.then((resp) => resp.text())
-				.then((settingsDiv) => {
-					$('body').append($(settingsDiv).filter('#bodyWrapper'));
+				.then((settingsHTML) => {
+					let parser = new DOMParser();
+					let settingsDOM = parser.parseFromString(settingsHTML, 'text/html');
+					let settingsDiv = settingsDOM.getElementById('bodyWrapper');
+					document.querySelector('body').appendChild(settingsDiv);
 					loadSettings();
-					$("#settingsShade").removeClass("fadeOut").addClass("fadeIn");
-					$("#settingsDiv").removeClass("fadeOut").addClass("fadeIn");
+					document.getElementById('settingsShade').classList.add('fadeIn');
+					document.getElementById('settingsDiv').classList.add('fadeIn');
 				});
 		}
 	});
 	
-	var myLevel = $('a[href="/account"]').find('span').next().html().match(/(\d+)/)[1];
-	var token = $("input[name=xsrf_token]").val();
+	var myLevel = Number.parseInt(document.querySelector('a[href="/account"] span:last-child').title);
+	var token = document.querySelector('input[name="xsrf_token"]').value;
 	var pagesLoaded = 1;
 
 	$(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent().attr('id', 'posts'); //give div with giveaways id "posts"
