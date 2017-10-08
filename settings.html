@@ -85,6 +85,11 @@
                                 <input id="chkIgnorePinned" type="checkbox">Ignore featured giveaways for AutoJoin
                             </label>
                         </li>
+                        <li class="dependsOnAutoJoinButton">
+                            <label>Minimum giveaway cost in points to enter: 
+                                <input type="number" size="3" id="minCost" min="0" max="200" value="0"> (set it to 0 to enter all giveaways)
+                            </label>
+                        </li>
                     </ul>
                     <br />
                     <li class="titleListItem">AutoJoin in background (even when steamgifts.com in not opened)</li>
@@ -156,7 +161,7 @@
                         </li>
                         <li class="dependsOnBackgroundAutoJoin">
                             <label>Minimum giveaway cost in points to enter: 
-                                <input type="number" size="3" id="minCost" min="0" max="200" value="0"> (set it to 0 to enter all giveaways)
+                                <input type="number" size="3" id="minCostBG" min="0" max="200" value="0"> (set it to 0 to enter all giveaways)
                             </label>
                         </li>
 						<li class="dependsOnBackgroundAutoJoin">
