@@ -30,6 +30,7 @@ function loadSettings() {
 		DelayBG: 10,
 		MinLevelBG: 0,
 		MinCost: 0,
+		MinCostBG: 0,
 		PointsToPreserve: 0,
 		WishlistPriorityForMainBG: false,
 		IgnorePreserveWishlistOnMainBG: false,
@@ -70,6 +71,7 @@ function fillSettingsDiv(settings){
 	document.getElementById("delayBG").value = settings.DelayBG;
 	document.getElementById("minLevelBG").value = settings.MinLevelBG;
 	document.getElementById("minCost").value = settings.MinCost;
+	document.getElementById("minCostBG").value = settings.MinCostBG;
 	document.getElementById("pointsToPreserve").value = settings.PointsToPreserve;
 	document.getElementById("chkWishlistPriorityForMainBG").checked = settings.WishlistPriorityForMainBG;
 	document.getElementById("chkIgnorePreserveWishlistOnMainBG").checked = settings.IgnorePreserveWishlistOnMainBG;
@@ -115,6 +117,7 @@ function settingsAttachEventListeners(){
 			DelayBG: parseInt(document.getElementById("delayBG").value, 10),
 			MinLevelBG: parseInt(document.getElementById("minLevelBG").value, 10),
 			MinCost: parseInt(document.getElementById("minCost").value, 10),
+			MinCostBG: parseInt(document.getElementById("minCostBG").value, 10),
 			PointsToPreserve: parseInt(document.getElementById("pointsToPreserve").value, 10),
 			WishlistPriorityForMainBG: document.getElementById("chkWishlistPriorityForMainBG").checked,
 			IgnorePreserveWishlistOnMainBG: document.getElementById("chkIgnorePreserveWishlistOnMainBG").checked,

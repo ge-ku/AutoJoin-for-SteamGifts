@@ -125,9 +125,9 @@ function pagesloaded() {
 		if (arr[e].level < settings.MinLevelBG) { // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
 			return true;
 		}
-		if (arr[e].cost < settings.MinCost){
+		if (arr[e].cost < settings.MinCostBG){
 			arr[e].showInfo();
-			console.log ("^Skipped, cost: " + arr[e].cost + ", your settings.MinCost is " + settings.MinCost);
+			console.log ("^Skipped, cost: " + arr[e].cost + ", your settings.MinCostBG is " + settings.MinCostBG);
 			return true;
 		}
 		if (arr[e].timeleft > settings.MaxTimeLeftBG && settings.MaxTimeLeftBG != 0) {

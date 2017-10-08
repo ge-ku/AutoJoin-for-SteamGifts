@@ -37,6 +37,7 @@ $(document).ready(function() {
 			DelayBG: 10,
 			MinLevelBG: 0,
 			MinCost: 0,
+			MinCostBG: 0,
 			ShowChance: true
 		}, function(data) {
 			settings = data;
@@ -232,6 +233,11 @@ function onPageLoad(){
 					if ($(current).find('.giveaway__column--group').length != 0){
 						return;
 					}
+				}
+				var cost = parseInt($(current).find(".giveaway__heading__thin").last().html().match(/\d+/)[0], 10);
+				if (cost < settings.MinCost){
+					console.log ("^Skipped, cost: " + cost + ", your settings.MinCost is " + settings.MinCost);
+					return;
 				}
 
 				var formData = new FormData();
@@ -653,3 +659,19 @@ function checkDLCbyImage(giveaway, encc, frontpage){
 	}
 	xhr.send();
 }
+
+chrome.runtime.onInstalled.addListener(function(updateInfo) {
+	if (updateInfo.previousVersion <= '1.6.2') {
+		console.log('Changing settings of minCost to minCostBG');
+		chrome.storage.sync.get({
+			MinCost: 0
+		}, function(minCost) {
+			chrome.storage.sync.set({
+				MinCost: 0,
+				MinCostBG: minCost			
+			}, function(){
+				console.log('Migrated successfully minCost option from previous version');
+			});
+		});
+	}
+});
