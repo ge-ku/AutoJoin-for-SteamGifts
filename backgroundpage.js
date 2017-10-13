@@ -359,4 +359,17 @@ chrome.runtime.onInstalled.addListener(function(updateInfo) {
 			chrome.notifications.create("1.5.0 announcement", e);
 		});
 	}
+	if (updateInfo.previousVersion <= '1.6.2') {
+		console.log('Changing settings of minCost to minCostBG');
+		chrome.storage.sync.get({
+			MinCost: 0
+		}, function(minCost) {
+			chrome.storage.sync.set({
+				MinCost: 0,
+				MinCostBG: minCost			
+			}, function(){
+				console.log('Migrated successfully minCost option from previous version');
+			});
+		});
+	}
 });
