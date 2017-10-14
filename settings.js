@@ -69,6 +69,7 @@ function fillSettingsDiv(settings){
 	document.getElementById("pagestoloadBG").value = settings.PagesToLoadBG;
 	document.getElementById("pageforBG").value = settings.PageForBG;
 	document.getElementById("delayBG").value = settings.DelayBG;
+	document.getElementById("delay").value = settings.Delay;
 	document.getElementById("minLevelBG").value = settings.MinLevelBG;
 	document.getElementById("minCost").value = settings.MinCost;
 	document.getElementById("minCostBG").value = settings.MinCostBG;
@@ -115,6 +116,7 @@ function settingsAttachEventListeners(){
 			PagesToLoadBG: parseInt(document.getElementById("pagestoloadBG").value, 10),
 			PageForBG: document.getElementById("pageforBG").value,
 			DelayBG: parseInt(document.getElementById("delayBG").value, 10),
+			Delay: parseInt(document.getElementById("delay").value, 10),
 			MinLevelBG: parseInt(document.getElementById("minLevelBG").value, 10),
 			MinCost: parseInt(document.getElementById("minCost").value, 10),
 			MinCostBG: parseInt(document.getElementById("minCostBG").value, 10),

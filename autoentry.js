@@ -35,6 +35,7 @@ $(document).ready(function() {
 			PlayAudio: true,
 			AudioVolume: 1,
 			DelayBG: 10,
+			Delay: 10,
 			MinLevelBG: 0,
 			MinCost: 0,
 			MinCostBG: 0,
@@ -225,21 +226,20 @@ function onPageLoad(){
 			selectItems = "#posts " + selectItems;
 		}
 
-		$(selectItems).each(function(iteration){
-			timeouts.push(setTimeout($.proxy(function(){
-				var current = $(this).parent().parent().parent();
-				
-				if (settings.IgnoreGroups){
-					if ($(current).find('.giveaway__column--group').length != 0){
-						return;
-					}
-				}
-				var cost = parseInt($(current).find(".giveaway__heading__thin").last().html().match(/\d+/)[0], 10);
-				if (cost < settings.MinCost){
-					console.log ("^Skipped, cost: " + cost + ", your settings.MinCost is " + settings.MinCost);
+		$(selectItems).each(function(iteration) {
+			var current = $(this).parent().parent().parent();
+
+			if (settings.IgnoreGroups) {
+				if ($(current).find('.giveaway__column--group').length != 0) {
 					return;
 				}
-
+			}
+			var cost = parseInt($(current).find(".giveaway__heading__thin").last().html().match(/\d+/)[0], 10);
+			if (cost < settings.MinCost) {
+				console.log("^Skipped, cost: " + cost + ", your settings.MinCost is " + settings.MinCost);
+				return;
+			}
+			timeouts.push(setTimeout($.proxy(function () {
 				var formData = new FormData();
 				formData.append('xsrf_token', token);
 				formData.append('do', 'entry_insert');
@@ -269,7 +269,7 @@ function onPageLoad(){
 						}
 					});
 
-			}, this), iteration * 3000));
+			}, this), timeouts.length * settings.Delay * 1000 + Math.floor(Math.random()*1000)));
 		});
 		$('#btnAutoJoin').val('Good luck!');
 	}
