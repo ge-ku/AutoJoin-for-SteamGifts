@@ -27,6 +27,7 @@ function loadSettings() {
 		LevelPriority: false,
 		PlayAudio: true,
 		AudioVolume: 1,
+		Delay: 10,
 		DelayBG: 10,
 		MinLevelBG: 0,
 		MinCost: 0,
