@@ -261,10 +261,9 @@ function loadsettings() {
 		PageForBG: 'wishlist',
 		RepeatHoursBG: 5,
 		DelayBG: 10,
-		Delay: 10,
 		MaxTimeLeftBG: 0, //in seconds
 		MinLevelBG: 0,
-		MinCost: 0,
+		MinCostBG: 0,
 		PointsToPreserve: 0,
 		WishlistPriorityForMainBG: false,
 		IgnorePreserveWishlistOnMainBG: false,
@@ -371,14 +370,6 @@ chrome.runtime.onInstalled.addListener(function(updateInfo) {
 			}, function(){
 				console.log('Migrated successfully minCost option from previous version');
 			});
-		});
-	}
-	if (updateInfo.previousVersion <= '1.6.3') {
-		console.log('Setting delay default value');
-		chrome.storage.sync.set({
-			Delay: 10	
-		}, function(){
-			console.log('Delay default values was set successfully');
 		});
 	}
 });
