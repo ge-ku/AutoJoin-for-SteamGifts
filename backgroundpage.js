@@ -11,8 +11,8 @@ function Giveaway(code, level, appid, odds, cost, timeleft) {
 	this.cost = cost;
 	this.timeleft = timeleft;
 	this.showInfo = function(){
-		console.log ("\nGiveaway https://www.steamgifts.com/giveaway/" + this.code + "/ (" + this.cost + "P)" + " | Level: " + this.level + " | Time left: " + this.timeleft
-					+ "s\nSteam: http://store.steampowered.com/app/" + this.steamlink + " Odds of winning: " + this.odds);
+		console.log ("\nGiveaway https://www.steamgifts.com/giveaway/" + this.code + "/ (" + this.cost + "P) | Level: " + this.level + " | Time left: " + this.timeleft +
+					"s\nSteam: http://store.steampowered.com/app/" + this.steamlink + " Odds of winning: " + this.odds);
 	}
 }
 
@@ -66,22 +66,23 @@ Remember once scanpage is over, pagesloaded is called*/
 function scanpage(e) {
 	var timePageLoaded = Math.round(Date.now() / 1000);
     var postsDiv = $(e).find(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent();
-    ((settings.IgnorePinnedBG == true || (useWishlistPriorityForMainBG && pagestemp == pages)) ? postsDiv : $(e)).find(".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name").each(function() {
-        var e = $(this).parent().parent().parent(),
-            t = this.href.match(/giveaway\/(.+)\//);
+    ((settings.IgnorePinnedBG === true || (useWishlistPriorityForMainBG && pagestemp === pages)) ? postsDiv : $(e)).find(".giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name").each(function() {
+        e = $(this).parent().parent().parent();
+        var t = this.href.match(/giveaway\/(.+)\//);
         if (t.length > 0) {
             var GAcode = t[1];
-            if (!(settings.IgnoreGroupsBG && 0 != $(this).find(".giveaway__column--group").length || $(e).find(".giveaway__column--contributor-level--negative").length > 0)) {
-                if ($(e).find(".giveaway__column--contributor-level--positive").length > 0) var GAlevel = $(e).find(".giveaway__column--contributor-level--positive").html().match(/(\d+)/)[1];
-                else var GAlevel = 0;
-                var s = $(e).find(".global__image-outer-wrap--game-medium").find(".global__image-inner-wrap").css("background-image");
-                if (null == s) var GAsteamAppID = "0";
-                else {
-                    var i = s.match(/.+apps\/(\d+)\/cap.+/);
-                    if (null == i) var GAsteamAppID = "0";
-                    else var GAsteamAppID = i[1]
+            if (!(settings.IgnoreGroupsBG && $(this).find(".giveaway__column--group").length || $(e).find(".giveaway__column--contributor-level--negative").length)) {
+				var GAlevel = 0
+                if ($(e).find(".giveaway__column--contributor-level--positive").length) {
+					GAlevel = $(e).find(".giveaway__column--contributor-level--positive").html().match(/(\d+)/)[1];
+				}
+				var s = $(e).find(".global__image-outer-wrap--game-medium").find(".global__image-inner-wrap").css("background-image");
+				let c = s.match(/.+apps\/(\d+)\/cap.+/);
+				let GAsteamAppID = "0";
+                if (s && c) {
+                    GAsteamAppID = c[1];
                 }
-            	var cost = $(e).find(".giveaway__heading__thin").last().html().match(/\d+/)[0];
+				var cost = $(e).find(".giveaway__heading__thin").last().html().match(/\d+/)[0];
 				var oddsOfWinning = calculateWinChance(e, timePageLoaded);
 				var timeleft = parseInt( $(e).find('.fa.fa-clock-o').next('span').attr('data-timestamp') ) - timePageLoaded;
                 arr.push(new Giveaway(GAcode, parseInt(GAlevel), GAsteamAppID, oddsOfWinning, parseInt(cost), timeleft));
@@ -92,7 +93,7 @@ function scanpage(e) {
 		totalWishlistGAcnt = arr.length;
 	}
 	pagestemp--;
-	if(0 == pagestemp || (currPoints < settings.PointsToPreserve && useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG && totalWishlistGAcnt != 0)){
+	if(pagestemp == 0 || (currPoints < settings.PointsToPreserve && useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG && totalWishlistGAcnt != 0)){
 		pagestemp = 0;
 		pagesloaded();
 	}
@@ -102,7 +103,7 @@ function scanpage(e) {
 this sends the requests to steamgifts*/
 function pagesloaded() {
 	if(useWishlistPriorityForMainBG){
-		wishlistArr = arr.slice(0, totalWishlistGAcnt);
+		var wishlistArr = arr.slice(0, totalWishlistGAcnt);
 		if (settings.LevelPriorityBG) {
 			wishlistArr.sort(compareLevel);
 		} else if (settings.OddsPriorityBG) {
@@ -142,11 +143,11 @@ function pagesloaded() {
 				code: arr[e].code
 			}, function(response){
 				arr[e].showInfo();
-				var json_response = jQuery.parseJSON(response);
+				var json_response = JSON.parse(response);
 				if ((json_response.points < settings.PointsToPreserve &&
-					((useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG) ?
-						(totalWishlistGAcnt == 1 ? true : (e > totalWishlistGAcnt - 2)) : true))
-							|| json_response.msg == "Not Enough Points") {
+					((useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG)
+						? (totalWishlistGAcnt === 1 ? true : (e > totalWishlistGAcnt - 2)) : true)) ||
+							json_response.msg == "Not Enough Points") {
 					console.log("^Not Enough Points or your PointsToPreserve limit reached, we're done for now");
 					for (var i = 0; i < timeouts.length; i++) {
 						clearTimeout(timeouts[i]);
@@ -182,18 +183,18 @@ function pagesloaded() {
 /*This function checks for a won gift, then calls the scanpage function*/
 /*e is the whole html page*/
 function settingsloaded() {
-	if (settings.IgnoreGroupsBG && settings.PageForBG == "all") {
+	if (settings.IgnoreGroupsBG && settings.PageForBG === "all") {
 		settings.IgnoreGroupsBG = true;
 	}
-	if (settings.PageForBG == "all" && settings.WishlistPriorityForMainBG){
+	if (settings.PageForBG === "all" && settings.WishlistPriorityForMainBG){
 		useWishlistPriorityForMainBG = true;
 	} else {
 		useWishlistPriorityForMainBG = false;
 	}
 	pages = settings.PagesToLoadBG;
-	if (pages < 2 && useWishlistPriorityForMainBG) pages = 2;
+	if (pages < 2 && useWishlistPriorityForMainBG) {pages = 2;}
 	timetopass = 10 * settings.RepeatHoursBG;
-	if (justLaunched || settings.RepeatHoursBG == 0) { // settings.RepeatHoursBG == 0 means it should autojoin every time
+	if (justLaunched || settings.RepeatHoursBG === 0) { // settings.RepeatHoursBG == 0 means it should autojoin every time
 		justLaunched = false;
 		timepassed = timetopass;
 	} else {
@@ -217,7 +218,7 @@ function settingsloaded() {
 	else {
 		timepassed = 0; //reset timepassed
 		link = "https://www.steamgifts.com/giveaways/search?type=" + settings.PageForBG + "&level_min=" + settings.MinLevelBG + "&level_max=" + settings.LastKnownLevel + "&page=";
-		wishLink = "https://www.steamgifts.com/giveaways/search?type=wishlist&level_min=" + settings.MinLevelBG + "&level_max=" + settings.LastKnownLevel + "&page=";
+		var wishLink = "https://www.steamgifts.com/giveaways/search?type=wishlist&level_min=" + settings.MinLevelBG + "&level_max=" + settings.LastKnownLevel + "&page=";
 		var linkToUse = "";
 		useWishlistPriorityForMainBG ? linkToUse = wishLink : linkToUse = link;
 		arr.length = 0;
@@ -244,7 +245,7 @@ function settingsloaded() {
 				}
 				if(currPoints >= settings.PointsToPreserve){
 					for (var n = 2 - i; n <= pages - i; n++) { // scan next pages
-						if (n > 3 - i) break; // no more than 3 pages at a time since the ban wave
+						if (n > 3 - i) {break;} // no more than 3 pages at a time since the ban wave
 						$.get(linkToUse + n, function(newPage) {
 							scanpage(newPage)
 						})
@@ -288,7 +289,7 @@ function loadsettings() {
 /*It all begins with the loadsettings call*/
 chrome.alarms.onAlarm.addListener(function(alarm) {
     console.log("Alarm fired.")
-	if (alarm.name == "routine") {
+	if (alarm.name === "routine") {
 		loadsettings();
 		chrome.alarms.create("routine", {
 			delayInMinutes: 30
@@ -315,18 +316,14 @@ var arr = [],
 
 /*Create first alarm as soon as possible*/
 chrome.alarms.create("routine", {
-    delayInMinutes: .1
+    delayInMinutes: 0.1
 });
 
 /*Creating a new tab if notification is clicked*/
 chrome.notifications.onClicked.addListener(function(notificationId) {
-	if (notificationId == "1.5.0 announcement") {
-		url = "http://steamcommunity.com/groups/autojoin#announcements/detail/1485483400577229657";
-	} else {
-		url = "https://www.steamgifts.com/giveaways/won";
-	}
+	var url = (notificationId === "1.5.0 announcement") ? "http://steamcommunity.com/groups/autojoin#announcements/detail/1485483400577229657" : "https://www.steamgifts.com/giveaways/won";
 	chrome.windows.getCurrent(function(currentWindow) {
-		if (currentWindow != null) {
+		if (currentWindow) {
 			return chrome.tabs.create({
 				url: url
 			});
