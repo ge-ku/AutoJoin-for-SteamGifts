@@ -5,7 +5,7 @@ var thisVersion = 20170929;
 $(document).ready(function() {
 	chrome.storage.sync.get({
 		lastLaunchedVersion: thisVersion
-	}, function(version) {
+	}, function() {
 		chrome.storage.sync.get({
 			AutoJoinButton: false,
 			AutoDescription: true,
@@ -226,7 +226,7 @@ function onPageLoad(){
 			selectItems = "#posts " + selectItems;
 		}
 
-		$(selectItems).each(function(iteration) {
+		$(selectItems).each(function() {
 			var current = $(this).parent().parent().parent();
 
 			if (settings.IgnoreGroups) {
@@ -345,7 +345,6 @@ function onPageLoad(){
 		var pageNumber = splitPageLink[1];
 		var thirdPart = "";
 		if (!$.isNumeric(pageNumber)){
-			var temp = pageNumber;
 			thirdPart = pageNumber.substr(pageNumber.indexOf('&'));
 			pageNumber = pageNumber.substr(0,pageNumber.indexOf('&'));
 		}
@@ -459,8 +458,8 @@ function onPageLoad(){
 		formData.append('game_id', gameid);
 		formData.append('do', 'hide_giveaways_by_game_id');
 		fetch(location.origin + '/ajax.php', { method: 'post', credentials: 'include', body: formData })
-			.then((resp) => {
-				$("[data-game-id='"+gameid+"']").each(function(val){
+			.then(() => {
+				$("[data-game-id='"+gameid+"']").each(function(){
 					$(this).fadeOut("slow", function() {
 						$(this).hide();
 					});	
@@ -474,7 +473,6 @@ function onPageLoad(){
 			loadDescription(thisPost[0]);
 		} else {
 			var $descriptionContent = $(thisPost).find('.descriptionContent');
-			console.log($descriptionContent);
 			if ($descriptionContent.hasClass('visible')) {
 				$descriptionContent.removeClass('visible');
 				$(this).find('span').text('Show description');
@@ -588,7 +586,7 @@ function calculateWinChance(giveaway, timeLoaded) {
 
 function loadDescription(giveaway) {
 	giveaway.querySelector('.description span').textContent = 'Hide description';
-	giveawayURL = giveaway.querySelector('.giveaway__heading__name').href;
+	let giveawayURL = giveaway.querySelector('.giveaway__heading__name').href;
 	giveaway.querySelector('.descriptionLoad').className = 'description';
 	var giveawayDescriptionWrapper = document.createElement('div');
 	giveawayDescriptionWrapper.className = 'descriptionContent visible';
@@ -629,7 +627,6 @@ function checkDLCbyImage(giveaway, encc, frontpage){
 	}
 	appid = appmatch[1];
 	var xhr = new XMLHttpRequest();
-    var result = false;
 	if (encc){
 		xhr.open("GET", "https://store.steampowered.com/api/appdetails?appids=" + appid + "&cc=en", true);
 	}else{
