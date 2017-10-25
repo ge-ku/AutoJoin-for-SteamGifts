@@ -144,6 +144,7 @@ $(document).ready(function() {
 });
 
 function onPageLoad(){
+	
 	/* Add AutoJoin and cog button*/
 	var info = document.createElement('div');
 	info.id = 'info';
@@ -237,8 +238,6 @@ function onPageLoad(){
 		pagesLoaded = 9999;
 		onlyOnePage = true;
 	}
-
-	fetch('https://steamgifts.com/').then(p=>p.text()).then(p=>{console.log(parsePage(p))});
 	
 	function loadPage(){
 		var timeLoaded = Math.round(Date.now() / 1000); //when the page was loaded (in seconds)
