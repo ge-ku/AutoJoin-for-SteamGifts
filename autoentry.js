@@ -1,8 +1,9 @@
 var giveaways = [];
 var settingsInjected = false;
 var settings;
+var token;
 var thisVersion = 20170929;
-var currentPoints = 0;
+var currentPoints = 200; // this will contain current amount of poitns
 
 class Giveaway {
 	constructor(code, appid, name, cost, timeleft, level, numberOfCopies, numberOfEntries, status) {
@@ -14,7 +15,7 @@ class Giveaway {
 		this.level = level;
 		this.numberOfCopies = numberOfCopies;
 		this.numberOfEntries = numberOfEntries;
-		this.status = status; // Entered, Ready, NoPoints, NoLevel
+		this.status = status; // { Entered, NoPoints, NoLevel }
 	}
 
 	async join() {
@@ -31,7 +32,7 @@ class Giveaway {
 					this.status = "Error";
 					this.errorMsg = json_response.msg;
 				}
-				updateButtons();
+				//updateButtons();
 			});
 	}
 
@@ -49,7 +50,7 @@ class Giveaway {
 					this.status = "Error";
 					this.errorMsg = json_response.msg;
 				}
-				updateButtons();
+				//updateButtons();
 			});
 	}
 }
@@ -70,33 +71,30 @@ function parsePage(pageHTML) {
 		let copiesAndCostElements = giveawayDOM.querySelectorAll('.giveaway__heading__thin');
 		let cost, numberOfCopies;
 		if (copiesAndCostElements.length > 1) {
-			numberOfCopies = copiesAndCostElements[0].textContent.replace(',', '').match(/\d+/)[0];
-			cost = copiesAndCostElements[1].textContent.match(/\d+/)[0];
+			numberOfCopies = Number.parseInt(copiesAndCostElements[0].textContent.replace(',', '').match(/\d+/)[0]);
+			cost = Number.parseInt(copiesAndCostElements[1].textContent.match(/\d+/)[0]);
 		} else {
 			numberOfCopies = 1;
-			cost = copiesAndCostElements[0].textContent.match(/\d+/)[0];
+			cost = Number.parseInt(copiesAndCostElements[0].textContent.match(/\d+/)[0]);
 		}
-		let levelMatch = giveawayDOM.querySelector('.giveaway__column--contributor-level').textContent
-					.match(/Level (\d)/);
-		let level = (levelMatch == null) ? 0 : levelMatch[1];
+		let levelMatch = giveawayDOM.querySelector('.giveaway__column--contributor-level');
+		let level = (levelMatch) ? Number.parseInt(levelMatch.textContent.match(/Level (\d)/)[1]) : 0;
 		let numberOfEntries = Number.parseInt(giveawayDOM.querySelector('.fa-tag + span').textContent);
 		let timeleft = giveawayDOM.querySelector('.fa-clock-o + span').dataset.timestamp * 1000 - timePageLoaded;
-		let status = 'Ready';
+		let status = { NoPoints: false, NoLevel: false, Entered: false };
 		if (currentPoints < cost) {
-			status = 'NoPoints';
+			status.NoPoints = true;
 		}
-		if (giveawayDOM.querySelector('.giveaway__column--contributor-level')
-			.hasClass('giveaway__column--contributor-level--negative')) {
-				status = 'NoLevel';
-			}
-		if (giveawayDOM.querySelector('.giveaway__row-inner-wrap').hasClass('is-faded')) {
-			status = 'Entered';
+		if (levelMatch && levelMatch.classList.contains('giveaway__column--contributor-level--negative')) {
+			status.NoLevel = true;
+		}
+		if (giveawayDOM.querySelector('.giveaway__row-inner-wrap').classList.contains('is-faded')) {
+			status.Entered = true; //doesn't work for some reason
 		}
 		let giveaway = new Giveaway(code, appid, name, cost, timeleft, level,
 									numberOfCopies, numberOfEntries, status);
 		giveaways.push(giveaway);
 	});
-
 	return giveaways;
 }
 
@@ -146,7 +144,6 @@ $(document).ready(function() {
 });
 
 function onPageLoad(){
-
 	/* Add AutoJoin and cog button*/
 	var info = document.createElement('div');
 	info.id = 'info';
@@ -221,7 +218,7 @@ function onPageLoad(){
 	});
 
 	var myLevel = Number.parseInt(document.querySelector('a[href="/account"] span:last-child').title);
-	var token = document.querySelector('input[name="xsrf_token"]').value;
+	token = document.querySelector('input[name="xsrf_token"]').value;
 	var pagesLoaded = 1;
 	$(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent().attr('id', 'posts'); //give div with giveaways id "posts"
 
@@ -240,6 +237,8 @@ function onPageLoad(){
 		pagesLoaded = 9999;
 		onlyOnePage = true;
 	}
+
+	fetch('https://steamgifts.com/').then(p=>p.text()).then(p=>{console.log(parsePage(p))});
 	
 	function loadPage(){
 		var timeLoaded = Math.round(Date.now() / 1000); //when the page was loaded (in seconds)
