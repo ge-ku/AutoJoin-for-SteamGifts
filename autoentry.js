@@ -1,6 +1,104 @@
+var giveaways = [];
 var settingsInjected = false;
 var settings;
 var thisVersion = 20170929;
+var currentPoints = 0;
+
+class Giveaway {
+	constructor(code, appid, name, cost, timeleft, level, numberOfCopies, numberOfEntries, status) {
+		this.code = code;
+		this.appid = appid;
+		this.name = name;
+		this.cost = cost;
+		this.timeleft = timeleft;
+		this.level = level;
+		this.numberOfCopies = numberOfCopies;
+		this.numberOfEntries = numberOfEntries;
+		this.status = status; // Entered, Ready, NoPoints, NoLevel
+	}
+
+	async join() {
+		var formData = new FormData();
+		formData.append('xsrf_token', token);
+		formData.append('do', 'entry_insert');
+		formData.append('code', this.code);					
+		return fetch('https://www.steamgifts.com/ajax.php', { method: 'post', credentials: 'include', body: formData })
+			.then(resp => resp.json())
+			.then(json_response => {
+				if (json_response.type == "success"){
+					this.status = "Entered";					
+				} else {
+					this.status = "Error";
+					this.errorMsg = json_response.msg;
+				}
+				updateButtons();
+			});
+	}
+
+	async leave() {
+		var formData = new FormData();
+		formData.append('xsrf_token', token);
+		formData.append('do', 'entry_delete');
+		formData.append('code', this.code);					
+		return fetch('https://www.steamgifts.com/ajax.php', { method: 'post', credentials: 'include', body: formData })
+			.then(resp => resp.json())
+			.then(json_response => {
+				if (json_response.type == "success"){
+					this.status = "Ready";					
+				} else {
+					this.status = "Error";
+					this.errorMsg = json_response.msg;
+				}
+				updateButtons();
+			});
+	}
+}
+
+function parsePage(pageHTML) {
+	let timePageLoaded = Date.now();
+	let parser = new DOMParser();
+	let pageDOM = parser.parseFromString(pageHTML, "text/html"); // contains DOM of a whole page
+	let pageGiveawaysDiv = pageDOM.querySelector('.page__heading + div');
+	let giveawaysDOM = pageGiveawaysDiv.querySelectorAll('.giveaway__row-outer-wrap');
+	let giveaways = [];
+
+	giveawaysDOM.forEach(function(giveawayDOM){
+		let giveaway__heading__name = giveawayDOM.querySelector('.giveaway__heading__name');
+		let code = giveaway__heading__name.href.match(/giveaway\/(.+)\//)[1];
+		let name = giveaway__heading__name.textContent;
+		let appid = giveawayDOM.querySelector('.fa.fa-steam').parentNode.href.match(/\/(\d+)\//)[1];
+		let copiesAndCostElements = giveawayDOM.querySelectorAll('.giveaway__heading__thin');
+		let cost, numberOfCopies;
+		if (copiesAndCostElements.length > 1) {
+			numberOfCopies = copiesAndCostElements[0].textContent.replace(',', '').match(/\d+/)[0];
+			cost = copiesAndCostElements[1].textContent.match(/\d+/)[0];
+		} else {
+			numberOfCopies = 1;
+			cost = copiesAndCostElements[0].textContent.match(/\d+/)[0];
+		}
+		let levelMatch = giveawayDOM.querySelector('.giveaway__column--contributor-level').textContent
+					.match(/Level (\d)/);
+		let level = (levelMatch == null) ? 0 : levelMatch[1];
+		let numberOfEntries = Number.parseInt(giveawayDOM.querySelector('.fa-tag + span').textContent);
+		let timeleft = giveawayDOM.querySelector('.fa-clock-o + span').dataset.timestamp * 1000 - timePageLoaded;
+		let status = 'Ready';
+		if (currentPoints < cost) {
+			status = 'NoPoints';
+		}
+		if (giveawayDOM.querySelector('.giveaway__column--contributor-level')
+			.hasClass('giveaway__column--contributor-level--negative')) {
+				status = 'NoLevel';
+			}
+		if (giveawayDOM.querySelector('.giveaway__row-inner-wrap').hasClass('is-faded')) {
+			status = 'Entered';
+		}
+		let giveaway = new Giveaway(code, appid, name, cost, timeleft, level,
+									numberOfCopies, numberOfEntries, status);
+		giveaways.push(giveaway);
+	});
+
+	return giveaways;
+}
 
 $(document).ready(function() {
 	chrome.storage.sync.get({
@@ -121,11 +219,10 @@ function onPageLoad(){
 				});
 		}
 	});
-	
+
 	var myLevel = Number.parseInt(document.querySelector('a[href="/account"] span:last-child').title);
 	var token = document.querySelector('input[name="xsrf_token"]').value;
 	var pagesLoaded = 1;
-
 	$(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent().attr('id', 'posts'); //give div with giveaways id "posts"
 
 	if (settings.ShowPoints){
@@ -273,71 +370,6 @@ function onPageLoad(){
 		});
 		$('#btnAutoJoin').val('Good luck!');
 	}
-	
-	/*
-	function fireAutoJoinPriority(){
-		if (settings.LoadFive && pagesLoaded < settings.PagesToLoad){
-			loadPage();
-			setTimeout(function() {
-				fireAutoJoinPriority();
-			}, 50);
-			return;
-		}	
-		var entered = 0;
-		var timeouts = [];
-		for (var i = myLevel; !(i < 0); i--){
-			$('.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name').each(function(iteration){
-				timeouts.push(setTimeout($.proxy(function(){
-					var current = $(this).parent().parent().parent();
-					if (settings.IgnoreGroups){
-						if ($(current).find('.giveaway__column--group').length != 0){
-							return;
-						}
-					}
-					if (i != 0){
-						if ($(current).find('.giveaway__column--contributor-level--positive').length > 0) {
-							var thisLevel = $(current).find('.giveaway__column--contributor-level--positive').html().match(/(\d+)/)[1];
-							if (thisLevel != i){
-								return true;
-							}
-						} else {
-							return true;
-						}
-					}
-					$.post("/ajax.php",{
-						xsrf_token : token,
-						do : "entry_insert",
-						code : this.href.split('/')[4]
-					},
-					function(response){
-						var json_response = jQuery.parseJSON(response);
-						if (json_response.type == "success"){
-							current.toggleClass('is-faded');
-							$('.nav__points').text(json_response.points);
-							entered++;
-							current.find('.btnSingle').attr('walkState', 'leave').prop("disabled", false).val('Leave');
-							updateButtons();
-							console.log(json_response.points);
-							if (json_response.points < 5) {
-								for (var i = 0; i < timeouts.length; i++) {
-									clearTimeout(timeouts[i]);
-								}
-								timeouts = [];
-							}
-						}
-						if(entered < 1){
-							$('#info').text('No giveaways entered.');
-						}else if(entered == 1){
-							$('#info').text('Entered 1 giveaway.');
-						}else{
-							$('#info').text('Entered '+entered+' giveaways.');
-						}
-					});
-				}, this), iteration * 1500));
-			});
-		}
-		$('#btnAutoJoin').val('Good luck!');
-	}*/
 	
 	if (splitPageLinkCheck.length > 0){
 		var splitPageLink = splitPageLinkCheck.attr('href').split('page=');
