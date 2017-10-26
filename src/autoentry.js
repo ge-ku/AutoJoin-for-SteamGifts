@@ -212,7 +212,7 @@ function onPageLoad(){
 				fireAutoJoin();
 			}, 50);
 			return;
-		}	
+		}
 		var entered = 0;
 		var timeouts = [];
 

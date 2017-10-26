@@ -1,21 +1,21 @@
 {
    "background": {
       "persistent": true,
-      "scripts": [ "jquery.min.js", "backgroundpage.js" ]
+      "scripts": [ "libs/jquery.min.js", "src/backgroundpage.js" ]
    },
    "content_scripts": [ {
-      "css": [ "general.css" ],
-      "js": [ "jquery.min.js", "autoentry.js", "misc.js", "settings.js" ],
+      "css": [ "css/general.css" ],
+      "js": [ "libs/jquery.min.js", "src/autoentry.js", "src/misc.js", "src/settings.js" ],
       "matches": [ "*://www.steamgifts.com/", "*://www.steamgifts.com/giveaways/search?*", "*://steamgifts.com/", "*://steamgifts.com/giveaways/search?*" ]
    }, {
-      "css": [ "general.css" ],
-      "js": [ "misc.js" ],
+      "css": [ "css/general.css" ],
+      "js": [ "src/misc.js" ],
       "matches": [ "*://steamgifts.com/giveaways/created/*", "*://www.steamgifts.com/giveaways/created/*", "*://steamgifts.com/giveaways/entered/*", "*://www.steamgifts.com/giveaways/entered/*", "*://steamgifts.com/giveaways/won/*", "*://www.steamgifts.com/giveaways/won/*", "*://steamgifts.com/trades/*", "*://www.steamgifts.com/trades/*", "*://steamgifts.com/sales/*", "*://www.steamgifts.com/sales/*", "*://steamgifts.com/discussions/*", "*://www.steamgifts.com/discussions/*", "*://steamgifts.com/discussion/*", "*://www.steamgifts.com/discussion/*", "*://steamgifts.com/about/*", "*://www.steamgifts.com/about/*", "*://steamgifts.com/support/*", "*://www.steamgifts.com/support/*", "*://steamgifts.com/messages/*", "*://www.steamgifts.com/messages/*", "*://steamgifts.com/account/*", "*://www.steamgifts.com/account/*", "*://steamgifts.com/trade/*", "*://www.steamgifts.com/trade/*", "*://steamgifts.com/users/*", "*://www.steamgifts.com/users/*", "*://steamgifts.com/user/*", "*://www.steamgifts.com/user/*", "*://steamgifts.com/giveaway/*", "*://www.steamgifts.com/giveaway/*", "*://steamgifts.com/legal/*", "*://www.steamgifts.com/legal/*" ]
    } ],
    "icons": {
-      "128": "autologo.png",
-      "16": "autologo16.png",
-      "48": "autologo48.png"
+      "128": "resources/autologo.png",
+      "16": "resources/autologo16.png",
+      "48": "resources/autologo48.png"
    },
    "manifest_version": 2,
    "name": "AutoJoin for SteamGifts",
@@ -25,8 +25,8 @@
    "version": "1.6.3.3",
    "web_accessible_resources": [
        "settings.html",
-       "night.css",
-       "audio.mp3"
+       "resources/night.css",
+       "resources/audio.mp3"
     ],
     "options_ui": {
       "page": "settings.html",
