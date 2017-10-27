@@ -1,3 +1,3 @@
-document.addEventListener("DOMContentLoaded", function () {
-    loadSettings();
+document.addEventListener('DOMContentLoaded', () => {
+  loadSettings();
 });

@@ -1,0 +1,21 @@
+{
+    "extends": "airbnb-base",
+    "env": {
+        "browser": true
+    },
+    "globals": {
+        "$": false,
+        "chrome": false,
+        "loadSettings": true
+    },
+    "rules":{
+        "no-plusplus": "off",
+        "no-use-before-define": "off",
+        "no-unused-vars": "warn",
+        "prefer-const": "warn",
+        "max-len": "warn",
+        "consistent-return": "off",
+        "prefer-destructuring": "off",
+        "func-names": "off"
+    }
+}
