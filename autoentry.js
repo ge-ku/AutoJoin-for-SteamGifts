@@ -184,48 +184,46 @@ function modifyPageDOM(pageDOM, timeLoaded) {
   });
 }
 
-$(document).ready(() => {
+chrome.storage.sync.get({
+  lastLaunchedVersion: thisVersion,
+}, () => {
   chrome.storage.sync.get({
+    AutoJoinButton: false,
+    AutoDescription: true,
+    HideGroups: false,
+    IgnoreGroups: false,
+    IgnorePinned: true,
+    IgnoreGroupsBG: false,
+    IgnorePinnedBG: true,
+    HideEntered: false,
+    PageForBG: 'wishlist',
+    RepeatHoursBG: 5,
+    PagesToLoad: 3,
+    PagesToLoadBG: 2,
+    BackgroundAJ: false,
+    LevelPriorityBG: true,
+    OddsPriorityBG: false,
     lastLaunchedVersion: thisVersion,
-  }, () => {
-    chrome.storage.sync.get({
-      AutoJoinButton: false,
-      AutoDescription: true,
-      HideGroups: false,
-      IgnoreGroups: false,
-      IgnorePinned: true,
-      IgnoreGroupsBG: false,
-      IgnorePinnedBG: true,
-      HideEntered: false,
-      PageForBG: 'wishlist',
-      RepeatHoursBG: 5,
-      PagesToLoad: 3,
-      PagesToLoadBG: 2,
-      BackgroundAJ: false,
-      LevelPriorityBG: true,
-      OddsPriorityBG: false,
-      lastLaunchedVersion: thisVersion,
-      InfiniteScrolling: true,
-      ShowPoints: true,
-      ShowButtons: true,
-      LoadFive: false,
-      HideDlc: false,
-      RepeatIfOnPage: false,
-      RepeatHours: 5,
-      NightTheme: false,
-      LevelPriority: false,
-      PlayAudio: true,
-      AudioVolume: 1,
-      DelayBG: 10,
-      Delay: 10,
-      MinLevelBG: 0,
-      MinCost: 0,
-      MinCostBG: 0,
-      ShowChance: true,
-    }, (data) => {
-      settings = data;
-      onPageLoad();
-    });
+    InfiniteScrolling: true,
+    ShowPoints: true,
+    ShowButtons: true,
+    LoadFive: false,
+    HideDlc: false,
+    RepeatIfOnPage: false,
+    RepeatHours: 5,
+    NightTheme: false,
+    LevelPriority: false,
+    PlayAudio: true,
+    AudioVolume: 1,
+    DelayBG: 10,
+    Delay: 10,
+    MinLevelBG: 0,
+    MinCost: 0,
+    MinCostBG: 0,
+    ShowChance: true,
+  }, (data) => {
+    settings = data;
+    onPageLoad();
   });
 });
 
@@ -306,7 +304,7 @@ function onPageLoad() {
     }
   });
 
-  $(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent().attr('id', 'posts'); // give div with giveaways id "posts"
+  document.querySelector(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parentNode.id = 'posts'; // give div with giveaways id "posts"
 
   let accountInfo;
   if (settings.ShowPoints) {
@@ -317,7 +315,9 @@ function onPageLoad() {
       .hide();
   }
 
-  if (settings.InfiniteScrolling) { $('.widget-container .widget-container--margin-top').remove(); }
+  if (settings.InfiniteScrolling) {
+    document.querySelector('.widget-container .widget-container--margin-top').remove();
+  }
   const splitPageLinkCheck = $('.pagination__navigation').find('a:contains("Next")');
   let onlyOnePage = false;
   if (splitPageLinkCheck.length === 0) {
@@ -336,7 +336,7 @@ function onPageLoad() {
       loadingNextPage = true;
 
       $('<div>').load(`${window.location.origin + pageLink + pageNumber + thirdPart} :not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap`, function () {
-        modifyPageDOM(this, Math.round(Date.now() / 1000));
+        modifyPageDOM(this, timeLoaded);
         $('#posts').last().append($(this).html());
         pageNumber++;
         pagesLoaded++;
