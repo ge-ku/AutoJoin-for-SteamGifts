@@ -13,9 +13,11 @@
         "no-use-before-define": "off",
         "no-unused-vars": "warn",
         "prefer-const": "warn",
-        "max-len": "warn",
+        "max-len": "off",
         "consistent-return": "off",
         "prefer-destructuring": "off",
-        "func-names": "off"
+        "func-names": "off",
+        "no-console": "off",
+        "no-param-reassign": ["error", { "props": false }]
     }
 }

@@ -67,7 +67,7 @@ function parsePage(pageHTML) {
   const pageDOM = parser.parseFromString(pageHTML, 'text/html'); // contains DOM of a whole page
   const pageGiveawaysDiv = pageDOM.querySelector('.page__heading + div');
   const giveawaysDOM = pageGiveawaysDiv.querySelectorAll('.giveaway__row-outer-wrap');
-  let pageGiveaways = [];
+  const pageGiveaways = [];
 
   giveawaysDOM.forEach((giveawayDOM) => {
     const giveawayHeadingName = giveawayDOM.querySelector('.giveaway__heading__name');
@@ -226,7 +226,6 @@ function onPageLoad() {
     }
   });
 
-  const myLevel = Number.parseInt(document.querySelector('a[href="/account"] span:last-child').title, 10);
   token = document.querySelector('input[name="xsrf_token"]').value;
   let pagesLoaded = 1;
   $(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent().attr('id', 'posts'); // give div with giveaways id "posts"

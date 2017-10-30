@@ -26,9 +26,9 @@ function compareOdds(a, b) {
 }
 
 function calculateWinChance(giveaway, timeLoaded) {
-  let timeLeft = parseInt($(giveaway).find('.fa.fa-clock-o').next('span').attr('data-timestamp'), 10) - timeLoaded; // time left in seconds
-  let timePassed = timeLoaded - parseInt($(giveaway).find('.giveaway__username').prev('span').attr('data-timestamp'), 10); // time passed in seconds
-  let numberOfEntries = parseInt($(giveaway).find('.fa-tag').next('span').text()
+  const timeLeft = parseInt($(giveaway).find('.fa.fa-clock-o').next('span').attr('data-timestamp'), 10) - timeLoaded; // time left in seconds
+  const timePassed = timeLoaded - parseInt($(giveaway).find('.giveaway__username').prev('span').attr('data-timestamp'), 10); // time passed in seconds
+  const numberOfEntries = parseInt($(giveaway).find('.fa-tag').next('span').text()
     .replace(',', ''), 10);
   let numberOfCopies = 1;
   if ($(giveaway).find('.giveaway__heading__thin:first').text().replace(',', '')
@@ -36,8 +36,10 @@ function calculateWinChance(giveaway, timeLoaded) {
     numberOfCopies = parseInt($(giveaway).find('.giveaway__heading__thin:first').text().replace(',', '')
       .match(/\d+/)[0], 10);
   }
-  let predictionOfEntries = (numberOfEntries / timePassed) * timeLeft; // calculate rate of entries and multiply on time left, probably not very accurate as we assume linear rate
-  let chance = (1 / (numberOfEntries + 1 + predictionOfEntries)) * 100 * numberOfCopies;
+  // calculate rate of entries and multiply on time left,
+  // probably not very accurate as we assume linear rate
+  const predictionOfEntries = (numberOfEntries / timePassed) * timeLeft;
+  const chance = (1 / (numberOfEntries + 1 + predictionOfEntries)) * 100 * numberOfCopies;
   return chance;
 }
 
@@ -68,31 +70,38 @@ function notify() {
    All giveaways that must be entered are pushed in an array called "arr"
    Remember once scanpage is over, pagesloaded is called */
 function scanpage(e) {
-  let timePageLoaded = Math.round(Date.now() / 1000);
-  let postsDiv = $(e).find(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent();
+  const timePageLoaded = Math.round(Date.now() / 1000);
+  const postsDiv = $(e).find(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent();
   ((settings.IgnorePinnedBG === true || (useWishlistPriorityForMainBG && pagestemp === pages)) ? postsDiv : $(e)).find('.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name').each(function () {
-    let ga = $(this).parent().parent().parent();
-    let t = this.href.match(/giveaway\/(.+)\//);
+    const ga = $(this).parent().parent().parent();
+    const t = this.href.match(/giveaway\/(.+)\//);
     if (t.length > 0) {
-      let GAcode = t[1];
+      const GAcode = t[1];
       if (!((settings.IgnoreGroupsBG && $(this).find('.giveaway__column--group').length) || $(ga).find('.giveaway__column--contributor-level--negative').length)) {
         let GAlevel = 0;
         if ($(ga).find('.giveaway__column--contributor-level--positive').length) {
           GAlevel = $(ga).find('.giveaway__column--contributor-level--positive').html().match(/(\d+)/)[1];
         }
-        let s = $(ga).find('.global__image-outer-wrap--game-medium').find('.global__image-inner-wrap').css('background-image');
-        let c = s.match(/.+apps\/(\d+)\/cap.+/);
+        const s = $(ga).find('.global__image-outer-wrap--game-medium').find('.global__image-inner-wrap').css('background-image');
+        const c = s.match(/.+apps\/(\d+)\/cap.+/);
         let GAsteamAppID = '0';
         if (s && c) {
           GAsteamAppID = c[1];
         }
-        let cost = $(ga).find('.giveaway__heading__thin')
+        const cost = $(ga).find('.giveaway__heading__thin')
           .last()
           .html()
           .match(/\d+/)[0];
-        let oddsOfWinning = calculateWinChance(ga, timePageLoaded);
-        let timeleft = parseInt($(ga).find('.fa.fa-clock-o').next('span').attr('data-timestamp'), 10) - timePageLoaded;
-        arr.push(new Giveaway(GAcode, parseInt(GAlevel, 10), GAsteamAppID, oddsOfWinning, parseInt(cost, 10), timeleft));
+        const oddsOfWinning = calculateWinChance(ga, timePageLoaded);
+        const timeleft = parseInt($(ga).find('.fa.fa-clock-o').next('span').attr('data-timestamp'), 10) - timePageLoaded;
+        arr.push(new Giveaway(
+          GAcode,
+          parseInt(GAlevel, 10),
+          GAsteamAppID,
+          oddsOfWinning,
+          parseInt(cost, 10),
+          timeleft,
+        ));
       }
     }
   });
@@ -100,7 +109,11 @@ function scanpage(e) {
     totalWishlistGAcnt = arr.length;
   }
   pagestemp--;
-  if (pagestemp === 0 || (currPoints < settings.PointsToPreserve && useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG && totalWishlistGAcnt !== 0)) {
+  if (pagestemp === 0 ||
+    (currPoints < settings.PointsToPreserve
+      && useWishlistPriorityForMainBG
+      && settings.IgnorePreserveWishlistOnMainBG
+      && totalWishlistGAcnt !== 0)) {
     pagestemp = 0;
     pagesloaded();
   }
@@ -139,7 +152,8 @@ function pagesloaded() {
       console.log(`^Skipped, cost: ${arr[e].cost}, your settings.MinCostBG is ${settings.MinCostBG}`);
       return true;
     }
-    if (arr[e].timeleft > settings.MaxTimeLeftBG && settings.MaxTimeLeftBG !== 0) {
+    if (arr[e].timeleft > settings.MaxTimeLeftBG &&
+      settings.MaxTimeLeftBG !== 0) {
       arr[e].showInfo();
       console.log(`^Skipped, timeleft: ${arr[e].timeleft}, your settings.MaxTimeLeftBG is ${settings.MaxTimeLeftBG}`);
       return true;
@@ -151,11 +165,20 @@ function pagesloaded() {
         code: arr[e].code,
       }, (response) => {
         arr[e].showInfo();
-        let jsonResponse = JSON.parse(response);
-        if ((jsonResponse.points < settings.PointsToPreserve &&
-          ((useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG)
-            ? (totalWishlistGAcnt === 1 ? true : (e > totalWishlistGAcnt - 2)) : true)) ||
-          jsonResponse.msg === 'Not Enough Points') {
+        const jsonResponse = JSON.parse(response);
+
+        let clearTimeouts = false;
+        if (jsonResponse.msg === 'Not Enough Points') {
+          clearTimeouts = true;
+        } else if (jsonResponse.points < settings.PointsToPreserve &&
+                   useWishlistPriorityForMainBG &&
+                   settings.IgnorePreserveWishlistOnMainBG) {
+          if (totalWishlistGAcnt === 1 || e > totalWishlistGAcnt - 2) {
+            clearTimeouts = true;
+          }
+        }
+
+        if (clearTimeouts) {
           console.log('^Not Enough Points or your PointsToPreserve limit reached, we\'re done for now');
           for (let i = 0; i < timeouts.length; i++) {
             clearTimeout(timeouts[i]);
@@ -164,6 +187,7 @@ function pagesloaded() {
         } else {
           console.log('^Entered');
         }
+
         /* For easier understanding of the above if check.
         var clearTimeouts = function(){
           for (var i = 0; i < timeouts.length; i++) {
@@ -227,8 +251,8 @@ function settingsloaded() {
   } else {
   /* Else check if won first (since pop-up disappears after first view), then start scanning pages */
     timepassed = 0; // reset timepassed
-    let link = `https://www.steamgifts.com/giveaways/search?type=${settings.PageForBG}&level_min=${settings.MinLevelBG}&level_max=${settings.LastKnownLevel}&page=`;
-    let wishLink = `https://www.steamgifts.com/giveaways/search?type=wishlist&level_min=${settings.MinLevelBG}&level_max=${settings.LastKnownLevel}&page=`;
+    const link = `https://www.steamgifts.com/giveaways/search?type=${settings.PageForBG}&level_min=${settings.MinLevelBG}&level_max=${settings.LastKnownLevel}&page=`;
+    const wishLink = `https://www.steamgifts.com/giveaways/search?type=wishlist&level_min=${settings.MinLevelBG}&level_max=${settings.LastKnownLevel}&page=`;
     let linkToUse = '';
     if (useWishlistPriorityForMainBG) linkToUse = wishLink;
     else linkToUse = link;
@@ -321,7 +345,6 @@ let pages = 1;
 let pagestemp = pages;
 let token = '';
 let mylevel = 0;
-let varcount = 0;
 let timepassed = 0;
 let timetopass = 100;
 let justLaunched = true;

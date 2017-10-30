@@ -6,10 +6,11 @@
 //    "matches": [ "*://store.steampowered.com/*" ]
 // }
 
-if (Date.now() < 1499299200000) { // I will update extension after the sale and remove this injection but.. in case I die you're not stuck with useless button :)
+if (Date.now() < 1499299200000) {
+  // I will update extension after the sale and remove this injection but.. in case I die you're not stuck with useless button :)
 
   // We have to inject it like this to access global functions and variables
-  var scriptToInject = `var DiscoveryQueueModal, GenerateQueue = function(queueNumber) {
+  const scriptToInject = `var DiscoveryQueueModal, GenerateQueue = function(queueNumber) {
   DiscoveryQueueModal = ShowBlockingWaitDialog('Exploring queue...', 'Generating new discovery queue #' + ++queueNumber);
 
   jQuery.post('http://store.steampowered.com/explore/generatenewdiscoveryqueue', {
@@ -67,7 +68,7 @@ if (Date.now() < 1499299200000) { // I will update extension after the sale and 
   });
 };`;
 
-  var script = document.createElement('script');
+  const script = document.createElement('script');
   script.innerHTML = scriptToInject;
   document.body.appendChild(script);
   document.querySelector('.supernav_container')
