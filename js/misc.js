@@ -1,6 +1,6 @@
 chrome.storage.sync.get({ NightTheme: false }, (data) => {
   if (data.NightTheme === true) {
-    const path = chrome.extension.getURL('/night.css');
+    const path = chrome.extension.getURL('/css/night.css');
     const nighttheme = document.createElement('link');
     nighttheme.rel = 'stylesheet';
     nighttheme.type = 'text/css';

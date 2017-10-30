@@ -290,7 +290,7 @@ function onPageLoad() {
       document.getElementById('settingsDiv').classList.replace('fadeOut', 'fadeIn');
     } else {
       settingsInjected = true;
-      fetch(chrome.extension.getURL('/settings.html'))
+      fetch(chrome.extension.getURL('/html/settings.html'))
         .then(resp => resp.text())
         .then((settingsHTML) => {
           const parser = new DOMParser();

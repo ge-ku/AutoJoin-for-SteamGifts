@@ -11,14 +11,17 @@ echo -e "AutoJoin version in manifest.json: $VERSION.\nThis script will minify j
 
 echo "Creating temp folder that will hold minified scripts and manifest.json, it'll be deleted in the end...";
 mkdir temp;
+mkdir temp/js;
 
 echo "Creating AutoJoin_[BROWSER]_${VERSION}.zip with icons, mp3 file, manifest and jquery...";
 
-zip "AutoJoin_Chrome_${VERSION}.zip" autologo.png autologo16.png autologo48.png autologosteam.png audio.mp3 jquery.min.js chromeOptions.css general.css night.css settings.html ;
+zip "temp/AutoJoin_Chrome_${VERSION}.zip" css/* media/* html/* js/jquery.min.js;
+cp js/* temp/js;
+cd temp;
 
 echo "Minifying js files (besides jquery) using Closure Compiler...";
-for jsfile in *.js; do
-	if [ ! "$jsfile" = "jquery.min.js" ] ; then
+for jsfile in js/*.js; do
+	if [ ! "$jsfile" = "js/jquery.min.js" ] ; then
 		echo "--minifying $jsfile...";
 		curl -s \
 		  -d compilation_level=SIMPLE_OPTIMIZATIONS \
@@ -27,12 +30,14 @@ for jsfile in *.js; do
 		  -d charset=utf-8 \
 		  --data-urlencode "js_code@$jsfile" \
 		  closure-compiler.appspot.com/compile \
-		  -o "temp/$jsfile"
+		  -o "$jsfile"
 	fi
 done
 
 echo "Adding minified js files into AutoJoin_${VERSION}.zip...";
-zip -j "AutoJoin_Chrome_${VERSION}.zip" temp/*.js;
+zip "AutoJoin_Chrome_${VERSION}.zip" js/*;
+mv "AutoJoin_Chrome_${VERSION}.zip" ../;
+cd ..;
 
 echo "Adding extra lines into manifest file needed for Firefox...";
 cp "AutoJoin_Chrome_${VERSION}.zip" "AutoJoin_Firefox_${VERSION}.zip";

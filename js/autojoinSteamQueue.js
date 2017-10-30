@@ -2,7 +2,7 @@
 
 // Add following lines into manifest.json under content_scripts section (and tweak or remove date below):
 // {
-//    "js": [ "autojoinSteamQueue.js" ],
+//    "js": [ "js/autojoinSteamQueue.js" ],
 //    "matches": [ "*://store.steampowered.com/*" ]
 // }
 
