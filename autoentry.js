@@ -108,11 +108,11 @@ function parsePage(pageHTML) {
 }
 
 function modifyPageDOM(pageDOM, timeLoaded) {
-  pageDOM.querySelectorAll('.giveaway__row-outer-wrap').forEach(function (giveaway) {
+  pageDOM.querySelectorAll('.giveaway__row-outer-wrap').forEach((giveaway) => {
     const giveawayInnerWrap = giveaway.querySelector('.giveaway__row-inner-wrap');
     if (settings.HideGroups) {
-      if ($(this).find('.giveaway__column--group').length !== 0) {
-        $(this).parent().remove();
+      if (giveaway.querySelector('.giveaway__column--group')) {
+        giveaway.remove();
         return;
       }
     }
