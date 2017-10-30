@@ -107,6 +107,83 @@ function parsePage(pageHTML) {
   return pageGiveaways;
 }
 
+function modifyPageDOM(pageDOM, timeLoaded) {
+  pageDOM.querySelectorAll('.giveaway__row-outer-wrap').forEach(function (giveaway) {
+    const giveawayInnerWrap = giveaway.querySelector('.giveaway__row-inner-wrap');
+    if (settings.HideGroups) {
+      if ($(this).find('.giveaway__column--group').length !== 0) {
+        $(this).parent().remove();
+        return;
+      }
+    }
+    if (giveawayInnerWrap.classList.contains('is-faded')) {
+      if (settings.HideEntered) {
+        giveaway.remove();
+        return;
+      } else if (settings.ShowButtons) {
+        const leaveBtn = document.createElement('input');
+        leaveBtn.type = 'button';
+        leaveBtn.value = 'Leave';
+        leaveBtn.className = 'btnSingle';
+        leaveBtn.setAttribute('walkState', 'leave');
+        giveawayInnerWrap.appendChild(leaveBtn);
+      }
+    } else if (settings.ShowButtons) {
+      const joinBtn = document.createElement('input');
+      joinBtn.type = 'button';
+      joinBtn.className = 'btnSingle';
+      if (giveawayInnerWrap.querySelector('.giveaway__column--contributor-level--negative')) {
+        joinBtn.value = 'Need a higher level';
+        joinBtn.walkState = 'no-level';
+        joinBtn.disabled = true;
+      } else {
+        const pointsAndNumberOfCopies = giveaway.querySelectorAll('.giveaway__heading__thin');
+        const pointsNeededRaw = pointsAndNumberOfCopies[pointsAndNumberOfCopies.length - 1].textContent.match(/(\d+)P/);
+        const pointsNeeded = pointsNeededRaw[pointsNeededRaw.length - 1];
+        if (parseInt(pointsNeeded, 10) > parseInt(document.querySelector('.nav__points').textContent, 10)) {
+          joinBtn.value = 'Not enough points';
+          joinBtn.setAttribute('walkState', 'no-points');
+          joinBtn.disabled = true;
+        } else {
+          joinBtn.value = 'Join';
+          joinBtn.setAttribute('walkState', 'join');
+        }
+      }
+      giveawayInnerWrap.appendChild(joinBtn);
+    }
+    giveaway.querySelector('.giveaway__hide').dataset.popup = '';
+    if (settings.HideDlc) {
+      checkDLCbyImage(giveaway, false, true);
+    }
+    if (settings.ShowChance) {
+      const oddsDiv = document.createElement('div');
+      oddsDiv.style.cursor = 'help';
+      oddsDiv.title = 'approx. odds of winning';
+      const oddsIcon = document.createElement('i');
+      oddsIcon.className = 'fa fa-trophy';
+      const oddsText = document.createTextNode(` ${calculateWinChance(giveaway, timeLoaded)}%`);
+      oddsDiv.appendChild(oddsIcon);
+      oddsDiv.appendChild(oddsText);
+      giveaway.querySelector('.giveaway__columns').insertBefore(oddsDiv, giveaway.querySelector('.giveaway__columns').firstChild);
+    }
+    const descriptionDiv = document.createElement('div');
+    descriptionDiv.className = 'description descriptionLoad';
+    const descriptionA = document.createElement('a');
+    const descriptionIcon = document.createElement('i');
+    descriptionIcon.className = 'fa fa-file-text descriptionIcon';
+    const descriptionText = document.createElement('span');
+    descriptionText.textContent = 'Show description';
+    descriptionA.appendChild(descriptionIcon);
+    descriptionA.appendChild(document.createTextNode(' '));
+    descriptionA.appendChild(descriptionText);
+    descriptionDiv.appendChild(descriptionA);
+    giveaway.querySelector('.giveaway__links').appendChild(descriptionDiv);
+    if (document.querySelector('.pinned-giveaways__inner-wrap').children.length === 0) {
+      document.querySelector('.pinned-giveaways__inner-wrap').remove();
+    }
+  });
+}
+
 $(document).ready(() => {
   chrome.storage.sync.get({
     lastLaunchedVersion: thisVersion,
@@ -153,6 +230,9 @@ $(document).ready(() => {
 });
 
 function onPageLoad() {
+  token = document.querySelector('input[name="xsrf_token"]').value;
+  let pagesLoaded = 1;
+  // parsePage(document.querySelector('html')); // parse this page first
   /* Add AutoJoin and cog button */
   const info = document.createElement('div');
   info.id = 'info';
@@ -226,8 +306,6 @@ function onPageLoad() {
     }
   });
 
-  token = document.querySelector('input[name="xsrf_token"]').value;
-  let pagesLoaded = 1;
   $(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parent().attr('id', 'posts'); // give div with giveaways id "posts"
 
   let accountInfo;
@@ -256,46 +334,9 @@ function onPageLoad() {
     }
     if (loadingNextPage === false) {
       loadingNextPage = true;
+
       $('<div>').load(`${window.location.origin + pageLink + pageNumber + thirdPart} :not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap`, function () {
-        $(this).find('.giveaway__row-inner-wrap').each(function () {
-          if (settings.HideGroups) {
-            if ($(this).find('.giveaway__column--group').length !== 0) {
-              $(this).parent().remove();
-              return;
-            }
-          }
-          if ($(this).attr('class') === 'giveaway__row-inner-wrap is-faded') {
-            if (settings.HideEntered) {
-              $(this).parent().remove();
-              return;
-            } else if (settings.ShowButtons) {
-              $('<input type="button" value="Leave" class="btnSingle" walkState="leave">').appendTo(this);
-            }
-          } else if ($(this).find('.giveaway__column--contributor-level--negative').length && settings.ShowButtons) {
-            $('<input type="button" value="Need a higher level" class="btnSingle" walkState="no-level" disabled>').appendTo(this);
-          } else {
-            const pointsNeededRaw = $(this).parent()
-              .find('.giveaway__heading__thin')
-              .text()
-              .match(/(\d+)P/);
-            const pointsNeeded = pointsNeededRaw[pointsNeededRaw.length - 1];
-            if (parseInt(pointsNeeded, 10) > parseInt($('.nav__points').first().text(), 10) && settings.ShowButtons) {
-              $('<input type="button" value="Not enough points" class="btnSingle" walkState="no-points" disabled>').appendTo(this);
-            } else if (settings.ShowButtons) {
-              $('<input type="button" value="Join" class="btnSingle" walkState="join">').appendTo(this);
-            }
-          }
-          $(this).find('.giveaway__hide').each(function () {
-            $(this).removeAttr('data-popup');
-          });
-          if (settings.HideDlc) {
-            checkDLCbyImage($(this), false, false);
-          }
-          if (settings.ShowChance) {
-            $(this).find('.giveaway__columns').prepend(`<div style="cursor:help" title="approx. odds of winning"><i class="fa fa-trophy"></i> ${calculateWinChance(this, timeLoaded)}%</div>`);
-          }
-          $(this).find('.giveaway__links').append('<div class="description descriptionLoad"><a><i class="fa fa-file-text descriptionIcon"/> <span>Show description</span></a></div>');
-        });
+        modifyPageDOM(this, Math.round(Date.now() / 1000));
         $('#posts').last().append($(this).html());
         pageNumber++;
         pagesLoaded++;
@@ -444,54 +485,7 @@ function onPageLoad() {
   }
 
   const timeOfFirstPage = Math.round(Date.now() / 1000);
-  $('.giveaway__row-inner-wrap').each(function () {
-    if (settings.HideGroups) {
-      if ($(this).find('.giveaway__column--group').length !== 0) {
-        $(this).parent().remove();
-        return;
-      }
-    }
-    if ($(this).attr('class') === 'giveaway__row-inner-wrap is-faded') {
-      if (settings.HideEntered) {
-        $(this).parent().remove();
-        return;
-      } else if (settings.ShowButtons) {
-        $('<input type="button" value="Leave" class="btnSingle" walkState="leave">').appendTo(this);
-      }
-    } else if (settings.ShowButtons) {
-      if ($(this).find('.giveaway__column--contributor-level--negative').length) {
-        $('<input type="button" value="Need a higher level" class="btnSingle" walkState="no-level" disabled>').appendTo(this);
-      } else {
-        const pointsNeededRaw = $(this).parent()
-          .find('.giveaway__heading__thin')
-          .text()
-          .match(/(\d+)P/);
-        const pointsNeeded = pointsNeededRaw[pointsNeededRaw.length - 1];
-        if (parseInt(pointsNeeded, 10) > parseInt($('.nav__points').first().text(), 10)) {
-          $('<input type="button" value="Not enough points" class="btnSingle" walkState="no-points" disabled>').appendTo(this);
-        } else {
-          $('<input type="button" value="Join" class="btnSingle" walkState="join">').appendTo(this);
-        }
-      }
-    }
-    $(this).find('.giveaway__hide').each(function () {
-      $(this).removeAttr('data-popup');
-    });
-    if (settings.HideDlc) {
-      checkDLCbyImage($(this), false, true);
-    }
-    if (settings.ShowChance) {
-      $(this).find('.giveaway__columns').prepend(`<div style="cursor:help" title="approx. odds of winning"><i class="fa fa-trophy"></i> ${calculateWinChance(this, timeOfFirstPage)}%</div>`);
-    }
-    $(this).find('.giveaway__links').append('<div class="description descriptionLoad"><a><i class="fa fa-file-text descriptionIcon"/> <span>Show description</span></a></div>');
-  });
-  if ($('.pinned-giveaways__inner-wrap').children().length === 0) {
-    $('.pinned-giveaways__inner-wrap').parent().remove();
-  }
-
-  /* if(($(window).scrollTop() + $(window).height() > $(document).height() - 600) && settings.InfiniteScrolling) {
-    loadPage();
-  } */
+  modifyPageDOM(document.querySelector('body'), timeOfFirstPage);
 
   $('#posts').parent().on('click', '.giveaway__hide', function () {
     const thisPost = $(this).parent()
