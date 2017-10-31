@@ -463,21 +463,20 @@ function onPageLoad() {
 
   function updateButtons() {
     if (settings.ShowButtons) {
-      $('.btnSingle:not([walkState="no-level"])').each(function () {
-        if ($(this).parent().attr('class') !== 'giveaway__row-inner-wrap is-faded') {
-          const pointsNeededRaw = $(this).parent()
-            .find('.giveaway__heading__thin')
-            .text()
-            .match(/(\d+)P/);
-          const pointsNeeded = pointsNeededRaw[pointsNeededRaw.length - 1];
-          if (parseInt(pointsNeeded, 10) > parseInt($('.nav__points').first().text(), 10)) {
-            $(this).prop('disabled', true);
-            $(this).attr('walkState', 'no-points');
-            $(this).attr('value', 'Not enough points');
+      document.querySelectorAll('.btnSingle:not([walkState="no-level"])').forEach((el) => {
+        if (el.parentElement.classList.contains('is-faded')) {
+          const pointsNeededRaw = el.parentElement
+            .querySelector('.giveaway__heading__thin')
+            .textContent.match(/(\d+)P/);
+          const pointsNeeded = parseInt(pointsNeededRaw[pointsNeededRaw.length - 1], 10);
+          if (pointsNeeded > parseInt(document.querySelector('.nav__points').textContent, 10)) {
+            el.disabled = true;
+            el.value = 'Not enough points';
+            el.setAttribute('walkState', 'no-points');
           } else {
-            $(this).prop('disabled', false);
-            $(this).attr('walkState', 'join');
-            $(this).attr('value', 'Join');
+            el.disabled = false;
+            el.value = 'Join';
+            el.setAttribute('walkState', 'join');
           }
         }
       });
