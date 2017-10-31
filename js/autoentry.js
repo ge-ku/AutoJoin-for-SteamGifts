@@ -617,18 +617,16 @@ function onPageLoad() {
 }
 
 function calculateWinChance(giveaway, timeLoaded) {
-  const timeLeft = parseInt($(giveaway).find('.fa.fa-clock-o').next('span').attr('data-timestamp'), 10) - timeLoaded; // time left in seconds
-  const timePassed = timeLoaded - parseInt($(giveaway).find('.giveaway__username').prev('span').attr('data-timestamp'), 10); // time passed in seconds
-  const numberOfEntries = parseInt($(giveaway).find('.fa-tag')
-    .next('span')
-    .text()
-    .replace(',', ''), 10);
+  const timeLeft = parseInt(giveaway.querySelector('.fa.fa-clock-o + span').dataset.timestamp, 10); // time left in seconds
+  const timePassed = timeLoaded - parseInt(giveaway.querySelector('.giveaway__username').parentElement.querySelector('span').dataset.timestamp, 10); // time passed in seconds
+  const numberOfEntries = parseInt(giveaway.querySelector('.fa-tag + span')
+    .textContent.replace(',', ''), 10);
   let numberOfCopies = 1;
-  if ($(giveaway).find('.giveaway__heading__thin:first').text()
-    .replace(',', '')
+  if (giveaway.querySelector('.giveaway__heading__thin')
+    .textContent.replace(',', '')
     .match(/\(\d+ Copies\)/)) { // if more than one copy there's a text field "(N Copies)"
-    numberOfCopies = parseInt($(giveaway).find('.giveaway__heading__thin:first')
-      .text().replace(',', '')
+    numberOfCopies = parseInt(giveaway.querySelector('.giveaway__heading__thin')
+      .textContent.replace(',', '')
       .match(/\d+/)[0], 10);
   }
   const predictionOfEntries = (numberOfEntries / timePassed) * timeLeft; // calculate rate of entries and multiply on time left, probably not very accurate as we assume linear rate
