@@ -3,7 +3,18 @@ let settingsInjected = false;
 let settings;
 let token;
 const thisVersion = 20170929;
-let currentPoints = 200; // this will contain current amount of poitns
+const currentState = {
+  amountOfPoints: 0,
+  set points(n) {
+    this.amountOfPoints = parseInt(n, 10);
+    document.querySelectorAll('.nav__points').forEach((el) => {
+      el.textContent = this.amountOfPoints;
+    });
+  },
+  get points() {
+    return this.amountOfPoints;
+  },
+};
 
 let pageNumber;
 let lastPage;
@@ -89,7 +100,7 @@ function parsePage(pageHTML) {
     const numberOfEntries = Number.parseInt(giveawayDOM.querySelector('.fa-tag + span').textContent, 10);
     const timeleft = (giveawayDOM.querySelector('.fa-clock-o + span').dataset.timestamp * 1000) - timePageLoaded;
     const status = { NoPoints: false, NoLevel: false, Entered: false };
-    if (currentPoints < cost) {
+    if (currentState.points < cost) {
       status.NoPoints = true;
     }
     if (levelMatch && levelMatch.classList.contains('giveaway__column--contributor-level--negative')) {
@@ -140,7 +151,7 @@ function modifyPageDOM(pageDOM, timeLoaded) {
         const pointsAndNumberOfCopies = giveaway.querySelectorAll('.giveaway__heading__thin');
         const pointsNeededRaw = pointsAndNumberOfCopies[pointsAndNumberOfCopies.length - 1].textContent.match(/(\d+)P/);
         const pointsNeeded = pointsNeededRaw[pointsNeededRaw.length - 1];
-        if (parseInt(pointsNeeded, 10) > parseInt(document.querySelector('.nav__points').textContent, 10)) {
+        if (parseInt(pointsNeeded, 10) > currentState.points) {
           joinBtn.value = 'Not enough points';
           joinBtn.setAttribute('walkState', 'no-points');
           joinBtn.disabled = true;
@@ -230,6 +241,7 @@ chrome.storage.sync.get({
 function onPageLoad() {
   token = document.querySelector('input[name="xsrf_token"]').value;
   let pagesLoaded = 1;
+  currentState.points = document.querySelector('.nav__points').textContent;
   // parsePage(document.querySelector('html')); // parse this page first
   /* Add AutoJoin and cog button */
   const info = document.createElement('div');
@@ -394,7 +406,7 @@ function onPageLoad() {
           .then((jsonResponse) => {
             if (jsonResponse.type === 'success') {
               current.toggleClass('is-faded');
-              $('.nav__points').text(jsonResponse.points);
+              currentState.points = jsonResponse.points;
               entered++;
               current.find('.btnSingle').attr('walkState', 'leave').prop('disabled', false).val('Leave');
               updateButtons();
@@ -469,7 +481,7 @@ function onPageLoad() {
             .querySelector('.giveaway__heading__thin')
             .textContent.match(/(\d+)P/);
           const pointsNeeded = parseInt(pointsNeededRaw[pointsNeededRaw.length - 1], 10);
-          if (pointsNeeded > parseInt(document.querySelector('.nav__points').textContent, 10)) {
+          if (pointsNeeded > currentState.points) {
             el.disabled = true;
             el.value = 'Not enough points';
             el.setAttribute('walkState', 'no-points');
@@ -552,15 +564,13 @@ function onPageLoad() {
             thisWrap.toggleClass('is-faded');
             if (settings.HideEntered) {
               thisWrap.fadeOut(300, function () { $(this).parent().remove(); });
-              $('.nav__points').text(jsonResponse.points);
-              updateButtons();
             } else {
-              $('.nav__points').text(jsonResponse.points);
               thisButton.attr('walkState', 'leave');
               thisButton.prop('disabled', false);
               thisButton.val('Leave');
-              updateButtons();
             }
+            currentState.points = jsonResponse.points;
+            updateButtons();
           } else {
             thisWrap.toggleClass('is-faded');
             thisButton.val(`Error: ${jsonResponse.msg}`);
@@ -573,7 +583,7 @@ function onPageLoad() {
         .then((jsonResponse) => {
           if (jsonResponse.type === 'success') {
             thisWrap.toggleClass('is-faded');
-            $('.nav__points').text(jsonResponse.points);
+            currentState.points = jsonResponse.points;
             thisButton.attr('walkState', 'join');
             thisButton.prop('disabled', false);
             thisButton.val('Join');
