@@ -145,7 +145,7 @@ function modifyPageDOM(pageDOM, timeLoaded) {
       joinBtn.className = 'btnSingle';
       if (giveawayInnerWrap.querySelector('.giveaway__column--contributor-level--negative')) {
         joinBtn.value = 'Need a higher level';
-        joinBtn.walkState = 'no-level';
+        joinBtn.setAttribute('walkState', 'no-level');
         joinBtn.disabled = true;
       } else {
         const pointsAndNumberOfCopies = giveaway.querySelectorAll('.giveaway__heading__thin');
