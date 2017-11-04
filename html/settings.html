@@ -38,17 +38,7 @@
                                 <input id="chkShowChance" type="checkbox" />Show approximate odds of winning
                             </label>
                         </li>
-                        <li>
-                            <label> 
-                                <input id="chkHideEntered" type="checkbox"/>Hide joined giveaways
-                            </label>
-                        </li>
-                        <li>
-                            <label> 
-                                <input id="chkHideDlc" type="checkbox"/>Hide DLC giveaways
-                            </label>
-                        </li>
-                        <li>
+                                               <li>
                             <label> 
                                 <input id="chkNightTheme" type="checkbox"/>Enable Night theme
                             </label>
@@ -72,17 +62,55 @@
                                 <input type="number" size="2" id="hoursField" min="1" max="24" value="2"> hours if page is opened (1-24)
                             </label>
                         </li>
-                        <li class="dependsOnAutoJoinButton">
+						<li class="dependsOnAutoJoinButton">
+                            <strong>Prioritize giveaways entered by:</strong>
+                        </li>
+						<li class="dependsOnAutoJoinButton">
                             <label> 
-                                <input id="chkIgnoreGroups" type="checkbox"/>Ignore group giveaways for AutoJoin
+                                <input id="chkWishlistPriority" type="checkbox"/>Steam wishlist giveaways
                             </label> &nbsp;&nbsp;
                             <label> 
-                                <input id="chkHideGroups" type="checkbox"/>Completely hide them
+                                <input id="chkGroupPriority" type="checkbox"/>Steam group giveaways
+                            </label> &nbsp;&nbsp;
+							<label> 
+                                <input id="chkRegionPriority" type="checkbox"/>Region locked giveaways
+                            </label> &nbsp;&nbsp;
+							<label> 
+                                <input id="chkWhitelistPriority" type="checkbox"/>Steamgifts whitelist giveaways
                             </label>
                         </li>
-                        <li class="dependsOnAutoJoinButton">
-                            <label>
-                                <input id="chkIgnorePinned" type="checkbox">Ignore featured giveaways for AutoJoin
+						<li class="dependsOnAutoJoinButton">
+                            <strong>Ignore giveaways entered by:</strong>
+                        </li>
+						<li class="dependsOnAutoJoinButton">
+							<label>
+                                <input id="chkIgnorePinned" type="checkbox">Featured giveaways
+                            </label> &nbsp;&nbsp;
+                            <label> 
+                                <input id="chkIgnoreGroups" type="checkbox"/>Steam group giveaways
+                            </label> &nbsp;&nbsp;
+							<label>
+                                <input id="chkIgnoreWhitelist" type="checkbox">Steamgifts whitelist giveaways
+                            </label>
+                        </li>
+						<li class="dependsOnAutoJoinButton">
+                            <strong>Filter giveaways shown by:</strong>
+                        </li>
+						<li>
+                            <label> 
+                                <input id="chkHideDlc" type="checkbox"/>Hide DLC giveaways
+                            </label> &nbsp;&nbsp;
+							<label> 
+                                <input id="chkHideNonTradingCards" type="checkbox"/>Hide non trading card giveways
+                            </label> &nbsp;&nbsp;
+							<label>
+                                <input id="chkHideGroups" type="checkbox"/>Hide steam group giveaways
+                            </label> &nbsp;&nbsp;
+							<label>
+                                <input id="chkHideWhitelist" type="checkbox"/>Hide steamgifts whitelist giveaways
+                            </label> &nbsp;&nbsp;
+                            <label> 
+                                <input id="chkHideEntered" type="checkbox"/>Hide joined giveaways
                             </label>
                         </li>
                         <li class="dependsOnAutoJoinButton">

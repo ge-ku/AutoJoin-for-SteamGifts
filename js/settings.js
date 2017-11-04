@@ -3,12 +3,11 @@ function loadSettings() {
   chrome.storage.sync.get({
     AutoJoinButton: false,
     AutoDescription: true,
-    HideGroups: false,
     IgnoreGroups: false,
     IgnorePinned: true,
+    IgnoreWhitelist: false,
     IgnoreGroupsBG: false,
     IgnorePinnedBG: true,
-    HideEntered: false,
     PageForBG: 'wishlist',
     RepeatHoursBG: 5,
     PagesToLoad: 3,
@@ -21,6 +20,14 @@ function loadSettings() {
     ShowButtons: true,
     LoadFive: false,
     HideDlc: false,
+	HideEntered: false,
+	HideGroups: false,
+	HideNonTradingCards: false,
+	HideWhitelist: false,
+	PriorityGroup: false,
+	PriorityRegion: false,
+	PriorityWhitelist: false,
+	PriorityWishlist: true,
     RepeatIfOnPage: false,
     RepeatHours: 5,
     NightTheme: false,
@@ -49,16 +56,23 @@ function fillSettingsDiv(settings) {
   document.getElementById('chkShowButtons').checked = settings.ShowButtons;
   document.getElementById('chkLoadFive').checked = settings.LoadFive;
   document.getElementById('chkHideDlc').checked = settings.HideDlc;
+  document.getElementById('chkHideEntered').checked = settings.HideEntered;
+  document.getElementById('chkHideGroups').checked = settings.HideGroups;
+  document.getElementById('chkHideNonTradingCards').checked = settings.HideNonTradingCards;
+  document.getElementById('chkHideWhitelist').checked = settings.HideWhitelist;
   document.getElementById('chkNightTheme').checked = settings.NightTheme;
   // document.getElementById("chkLevelPriority").checked = settings.LevelPriority;
   document.getElementById('chkRepeatIfOnPage').checked = settings.RepeatIfOnPage;
-  document.getElementById('chkHideEntered').checked = settings.HideEntered;
-  document.getElementById('chkHideGroups').checked = settings.HideGroups;
   document.getElementById('chkIgnoreGroups').checked = settings.IgnoreGroups;
   document.getElementById('chkIgnorePinned').checked = settings.IgnorePinned;
+  document.getElementById('chkIgnoreWhitelist').checked = settings.IgnoreWhitelist;
   document.getElementById('chkIgnoreGroupsBG').checked = settings.IgnoreGroupsBG;
   document.getElementById('chkIgnorePinnedBG').checked = settings.IgnorePinnedBG;
   document.getElementById('chkEnableBG').checked = settings.BackgroundAJ;
+  document.getElementById('chkGroupPriority').checked = settings.PriorityGroup;
+  document.getElementById('chkRegionPriority').checked = settings.PriorityRegion;
+  document.getElementById('chkWhitelistPriority').checked = settings.PriorityWhitelist;
+  document.getElementById('chkWishlistPriority').checked = settings.PriorityWishlist;
   document.getElementById('chkLevelPriorityBG').checked = settings.LevelPriorityBG;
   document.getElementById('chkOddsPriorityBG').checked = settings.OddsPriorityBG;
   document.getElementById('chkPlayAudio').checked = settings.PlayAudio;
@@ -96,18 +110,25 @@ function settingsAttachEventListeners() {
       ShowButtons: document.getElementById('chkShowButtons').checked,
       LoadFive: document.getElementById('chkLoadFive').checked,
       HideDlc: document.getElementById('chkHideDlc').checked,
+	  HideEntered: document.getElementById('chkHideEntered').checked,
+	  HideGroups: document.getElementById('chkHideGroups').checked,
+	  HideNonTradingCards: document.getElementById('chkHideNonTradingCards').checked,
+	  HideWhitelist: document.getElementById('chkHideWhitelist').checked,
       RepeatIfOnPage: document.getElementById('chkRepeatIfOnPage').checked,
       NightTheme: document.getElementById('chkNightTheme').checked,
       // LevelPriority: document.getElementById("chkLevelPriority").checked,
       LevelPriorityBG: document.getElementById('chkLevelPriorityBG').checked,
       OddsPriorityBG: document.getElementById('chkOddsPriorityBG').checked,
       BackgroundAJ: document.getElementById('chkEnableBG').checked,
-      HideEntered: document.getElementById('chkHideEntered').checked,
+	  PriorityGroup: document.getElementById('chkGroupPriority').checked,
+      PriorityRegion: document.getElementById('chkRegionPriority').checked,
+      PriorityWhitelist: document.getElementById('chkWhitelistPriority').checked,
+      PriorityWishlist: document.getElementById('chkWishlistPriority').checked,
       IgnoreGroups: document.getElementById('chkIgnoreGroups').checked,
       IgnorePinned: document.getElementById('chkIgnorePinned').checked,
+      IgnoreWhitelist: document.getElementById('chkIgnoreWhitelist').checked,
       IgnoreGroupsBG: document.getElementById('chkIgnoreGroupsBG').checked,
       IgnorePinnedBG: document.getElementById('chkIgnorePinnedBG').checked,
-      HideGroups: document.getElementById('chkHideGroups').checked,
       PlayAudio: document.getElementById('chkPlayAudio').checked,
       AudioVolume: document.getElementById('audioVolume').value,
       RepeatHours: document.getElementById('hoursField').value,

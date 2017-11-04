@@ -3,18 +3,12 @@ let settingsInjected = false;
 let settings;
 let token;
 const thisVersion = 20170929;
-const currentState = {
-  amountOfPoints: 0,
-  set points(n) {
-    this.amountOfPoints = parseInt(n, 10);
-    document.querySelectorAll('.nav__points').forEach((el) => {
-      el.textContent = this.amountOfPoints;
-    });
-  },
-  get points() {
-    return this.amountOfPoints;
-  },
-};
+let currentPoints = 200; // this will contain current amount of points
+
+let steamAppData = {};
+let steamPackageData = {};
+let ownedSteamApps = [];
+let wishList = [];
 
 let pageNumber;
 let lastPage;
@@ -100,7 +94,7 @@ function parsePage(pageHTML) {
     const numberOfEntries = Number.parseInt(giveawayDOM.querySelector('.fa-tag + span').textContent, 10);
     const timeleft = (giveawayDOM.querySelector('.fa-clock-o + span').dataset.timestamp * 1000) - timePageLoaded;
     const status = { NoPoints: false, NoLevel: false, Entered: false };
-    if (currentState.points < cost) {
+    if (currentPoints < cost) {
       status.NoPoints = true;
     }
     if (levelMatch && levelMatch.classList.contains('giveaway__column--contributor-level--negative')) {
@@ -121,12 +115,6 @@ function parsePage(pageHTML) {
 function modifyPageDOM(pageDOM, timeLoaded) {
   pageDOM.querySelectorAll('.giveaway__row-outer-wrap').forEach((giveaway) => {
     const giveawayInnerWrap = giveaway.querySelector('.giveaway__row-inner-wrap');
-    if (settings.HideGroups) {
-      if (giveaway.querySelector('.giveaway__column--group')) {
-        giveaway.remove();
-        return;
-      }
-    }
     if (giveawayInnerWrap.classList.contains('is-faded')) {
       if (settings.HideEntered) {
         giveaway.remove();
@@ -145,13 +133,13 @@ function modifyPageDOM(pageDOM, timeLoaded) {
       joinBtn.className = 'btnSingle';
       if (giveawayInnerWrap.querySelector('.giveaway__column--contributor-level--negative')) {
         joinBtn.value = 'Need a higher level';
-        joinBtn.setAttribute('walkState', 'no-level');
+        joinBtn.walkState = 'no-level';
         joinBtn.disabled = true;
       } else {
         const pointsAndNumberOfCopies = giveaway.querySelectorAll('.giveaway__heading__thin');
         const pointsNeededRaw = pointsAndNumberOfCopies[pointsAndNumberOfCopies.length - 1].textContent.match(/(\d+)P/);
         const pointsNeeded = pointsNeededRaw[pointsNeededRaw.length - 1];
-        if (parseInt(pointsNeeded, 10) > currentState.points) {
+        if (parseInt(pointsNeeded, 10) > parseInt(document.querySelector('.nav__points').textContent, 10)) {
           joinBtn.value = 'Not enough points';
           joinBtn.setAttribute('walkState', 'no-points');
           joinBtn.disabled = true;
@@ -163,8 +151,8 @@ function modifyPageDOM(pageDOM, timeLoaded) {
       giveawayInnerWrap.appendChild(joinBtn);
     }
     giveaway.querySelector('.giveaway__hide').dataset.popup = '';
-    if (settings.HideDlc) {
-      checkDLCbyImage(giveaway, false, true);
+    if (settings.HideDlc || settings.HideNonTradingCards || settings.HideGroups) {
+      checkAppData(giveaway, timeLoaded);
     }
     if (settings.ShowChance) {
       const oddsDiv = document.createElement('div');
@@ -201,12 +189,11 @@ chrome.storage.sync.get({
   chrome.storage.sync.get({
     AutoJoinButton: false,
     AutoDescription: true,
-    HideGroups: false,
     IgnoreGroups: false,
     IgnorePinned: true,
+	IgnoreWhitelist: false,
     IgnoreGroupsBG: false,
     IgnorePinnedBG: true,
-    HideEntered: false,
     PageForBG: 'wishlist',
     RepeatHoursBG: 5,
     PagesToLoad: 3,
@@ -220,6 +207,14 @@ chrome.storage.sync.get({
     ShowButtons: true,
     LoadFive: false,
     HideDlc: false,
+	HideEntered: false,
+	HideGroups: false,
+	HideNonTradingCards: false,
+	HideWhitelist: false,
+	PriorityGroup: false,
+	PriorityRegion: false,
+	PriorityWhitelist: false,
+	PriorityWishlist: true,
     RepeatIfOnPage: false,
     RepeatHours: 5,
     NightTheme: false,
@@ -234,14 +229,102 @@ chrome.storage.sync.get({
     ShowChance: true,
   }, (data) => {
     settings = data;
-    onPageLoad();
+    loadCache();
   });
 });
+
+function loadCache() { 
+	chrome.storage.local.get((data) => {	
+		if (typeof data['Packages'] != 'undefined') {
+			steamPackageData = data['Packages'];
+			console.log('Steam packages that are already cached: ', steamPackageData);
+		}
+		if (typeof data['Apps'] != 'undefined') {
+			steamAppData = data['Apps'];
+			console.log('Steam apps that are already cached: ', steamAppData);
+		}
+		
+		let xhr = new XMLHttpRequest();
+		let user = $('.nav__button-container--notification').find('a.nav__avatar-outer-wrap').attr('href')
+		let steamProfileID;
+		
+		if (user == undefined) {
+			return;
+		}
+		
+		xhr.open("GET", "https://www.steamgifts.com" + user, true);
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState == 4) {
+				if (xhr.status == 200) {					
+					let regex = /steamcommunity\.com\/profiles\/(\d+)/g;
+					let matches;
+					while ((matches = regex.exec(this.responseText)) != null) {
+						steamProfileID = matches[1];
+					}
+					if (typeof data[steamProfileID] != 'undefined') {
+						ownedSteamApps = data[steamProfileID]['ownedGames'];
+						console.log('Owned games: ', ownedSteamApps);
+						wishList = data[steamProfileID]['wishlist'];
+						console.log('Wishlist: ', wishList);
+					}
+					
+					let xhr = new XMLHttpRequest();
+					xhr.open("GET", "https://steamcommunity.com/profiles/" + steamProfileID + "/games/?tab=all", true);
+					xhr.onreadystatechange = function () {
+						if (xhr.readyState == 4) {
+							if (xhr.status == 200) {
+								let regex = /rgGames\s=\s(.*);/g;
+								let regexResponse = regex.exec(this.responseText);
+								if (regexResponse != null) {
+									let jsonResponse = JSON.parse(regexResponse[1]);
+									ownedSteamApps = [];
+									for (let i = 0, numApps = jsonResponse.length; i < numApps; i++) {
+										ownedSteamApps.push(jsonResponse[i].appid);
+									}
+									let ownedSteamAppsObj = {};
+									ownedSteamAppsObj[steamProfileID] = {
+										'ownedGames': ownedSteamApps,
+										'wishlist': wishList
+									};
+									chrome.storage.local.set(ownedSteamAppsObj);
+								}
+							}
+						}
+					}
+					xhr.send();
+
+					let wishxhr = new XMLHttpRequest();
+					wishxhr.open("GET", "https://steamcommunity.com/profiles/" + steamProfileID + "/wishlist", true);
+					wishxhr.onreadystatechange = function () {
+						if (wishxhr.readyState == 4) {
+							if (wishxhr.status == 200) {
+								let regex = /steamcommunity\.com\/app\/(\d+)/g;
+								let matches;
+								wishList = [];
+								while ((matches = regex.exec(this.responseText)) != null) {
+									wishList.push(parseInt(matches[1]));
+								}
+								let ownedSteamAppsObj = {};
+								ownedSteamAppsObj[steamProfileID] = {
+									'ownedGames': ownedSteamApps,
+									'wishlist': wishList
+								};
+								chrome.storage.local.set(ownedSteamAppsObj);
+							}
+							onPageLoad();
+						}
+					}
+					wishxhr.send();
+				}
+			}
+		}
+		xhr.send();
+	});
+}
 
 function onPageLoad() {
   token = document.querySelector('input[name="xsrf_token"]').value;
   let pagesLoaded = 1;
-  currentState.points = document.querySelector('.nav__points').textContent;
   // parsePage(document.querySelector('html')); // parse this page first
   /* Add AutoJoin and cog button */
   const info = document.createElement('div');
@@ -380,51 +463,58 @@ function onPageLoad() {
       selectItems = `#posts ${selectItems}`;
     }
 
-    $(selectItems).each(function () {
-      const current = $(this).parent().parent().parent();
-
-      if (settings.IgnoreGroups) {
-        if ($(current).find('.giveaway__column--group').length !== 0) {
-          return;
-        }
-      }
-      const cost = parseInt($(current)
-        .find('.giveaway__heading__thin')
-        .last().html()
-        .match(/\d+/)[0], 10);
-      if (cost < settings.MinCost) {
-        console.log(`^Skipped, cost: ${cost}, your settings.MinCost is ${settings.MinCost}`);
-        return;
-      }
-      timeouts.push(setTimeout($.proxy(function () {
-        const formData = new FormData();
-        formData.append('xsrf_token', token);
-        formData.append('do', 'entry_insert');
-        formData.append('code', this.href.split('/')[4]);
-        fetch(`${window.location.origin}/ajax.php`, { method: 'post', credentials: 'include', body: formData })
-          .then(resp => resp.json())
-          .then((jsonResponse) => {
-            if (jsonResponse.type === 'success') {
-              current.toggleClass('is-faded');
-              currentState.points = jsonResponse.points;
-              entered++;
-              current.find('.btnSingle').attr('walkState', 'leave').prop('disabled', false).val('Leave');
-              updateButtons();
-            }
-            if (jsonResponse.points < 5) {
-              for (let i = 0; i < timeouts.length; i++) {
-                clearTimeout(timeouts[i]);
-              }
-              timeouts = [];
-            }
-            if (entered < 1) {
-              $('#info').text('No giveaways entered.');
-            } else {
-              $('#info').text(`Entered ${entered} giveaway${(entered !== 1) ? 's' : ''}.`);
-            }
-          });
-      }, this), (timeouts.length * settings.Delay * 1000) + Math.floor(Math.random() * 1000)));
-    });
+	const myLevel = parseInt($('a[href="/account"]').find('span').next().html().match(/(\d+)/)[1]);
+	for (let level = myLevel; level >= 0; level--){
+      $(selectItems).each(function () {
+		const current = $(this).parent().parent().parent();
+		let giveawayLevel = $(current).find('.giveaway__column--contributor-level').length != 0 ?
+			parseInt($(current).find('.giveaway__column--contributor-level').html().match(/Level (\d)/)[1]) : 0;
+		let whiteListGiveaway = $(current).find('.giveaway__column--whitelist').length != 0;
+		let regionLockedGiveaway = $(current).find('.giveaway__column--region-restricted').length != 0;
+		let steamGroupGiveaway = $(current).find('.giveaway__column--group').length != 0;
+		if (giveawayLevel == level || (settings.PriorityGroup && steamGroupGiveaway) || (settings.PriorityRegion && regionLockedGiveaway) ||
+		   (settings.PriorityWhitelist && whiteListGiveaway) || (settings.PriorityWishlist && inWishlist(getSteamAppId($(current))))){
+			if ((settings.IgnoreGroups && !steamGroupGiveaway) || (settings.IgnoreWhitelist && !whiteListGiveaway)) {
+			  const cost = parseInt($(current)
+				.find('.giveaway__heading__thin')
+				.last().html()
+				.match(/\d+/)[0], 10);
+				if (cost >= settings.MinCost) {
+				  timeouts.push(setTimeout($.proxy(function () {
+					const formData = new FormData();
+					formData.append('xsrf_token', token);
+					formData.append('do', 'entry_insert');
+					formData.append('code', this.href.split('/')[4]);
+					fetch(`${window.location.origin}/ajax.php`, { method: 'post', credentials: 'include', body: formData })
+					  .then(resp => resp.json())
+					  .then((jsonResponse) => {
+						if (jsonResponse.type === 'success') {
+						  current.toggleClass('is-faded');
+						  $('.nav__points').text(jsonResponse.points);
+						  entered++;
+						  current.find('.btnSingle').attr('walkState', 'leave').prop('disabled', false).val('Leave');
+						  updateButtons();
+						}
+						if (jsonResponse.points < 5) {
+						  for (let i = 0; i < timeouts.length; i++) {
+							clearTimeout(timeouts[i]);
+						  }
+						  timeouts = [];
+						}
+						if (entered < 1) {
+						  $('#info').text('No giveaways entered.');
+						} else {
+						  $('#info').text(`Entered ${entered} giveaway${(entered !== 1) ? 's' : ''}.`);
+						}
+					  });
+					}, this), (timeouts.length * settings.Delay * 1000) + Math.floor(Math.random() * 1000)));
+				} else {
+					console.log(`^Skipped, cost: ${cost}, your settings.MinCost is ${settings.MinCost}`);
+				}
+			}
+		}
+	  });
+	}
     $('#btnAutoJoin').val('Good luck!');
   }
 
@@ -475,20 +565,21 @@ function onPageLoad() {
 
   function updateButtons() {
     if (settings.ShowButtons) {
-      document.querySelectorAll('.btnSingle:not([walkState="no-level"])').forEach((el) => {
-        if (el.parentElement.classList.contains('is-faded')) {
-          const pointsNeededRaw = el.parentElement
-            .querySelector('.giveaway__heading__thin')
-            .textContent.match(/(\d+)P/);
-          const pointsNeeded = parseInt(pointsNeededRaw[pointsNeededRaw.length - 1], 10);
-          if (pointsNeeded > currentState.points) {
-            el.disabled = true;
-            el.value = 'Not enough points';
-            el.setAttribute('walkState', 'no-points');
+      $('.btnSingle:not([walkState="no-level"])').each(function () {
+        if ($(this).parent().attr('class') !== 'giveaway__row-inner-wrap is-faded') {
+          const pointsNeededRaw = $(this).parent()
+            .find('.giveaway__heading__thin')
+            .text()
+            .match(/(\d+)P/);
+          const pointsNeeded = pointsNeededRaw[pointsNeededRaw.length - 1];
+          if (parseInt(pointsNeeded, 10) > parseInt($('.nav__points').first().text(), 10)) {
+            $(this).prop('disabled', true);
+            $(this).attr('walkState', 'no-points');
+            $(this).attr('value', 'Not enough points');
           } else {
-            el.disabled = false;
-            el.value = 'Join';
-            el.setAttribute('walkState', 'join');
+            $(this).prop('disabled', false);
+            $(this).attr('walkState', 'join');
+            $(this).attr('value', 'Join');
           }
         }
       });
@@ -564,13 +655,15 @@ function onPageLoad() {
             thisWrap.toggleClass('is-faded');
             if (settings.HideEntered) {
               thisWrap.fadeOut(300, function () { $(this).parent().remove(); });
+              $('.nav__points').text(jsonResponse.points);
+              updateButtons();
             } else {
+              $('.nav__points').text(jsonResponse.points);
               thisButton.attr('walkState', 'leave');
               thisButton.prop('disabled', false);
               thisButton.val('Leave');
+              updateButtons();
             }
-            currentState.points = jsonResponse.points;
-            updateButtons();
           } else {
             thisWrap.toggleClass('is-faded');
             thisButton.val(`Error: ${jsonResponse.msg}`);
@@ -583,7 +676,7 @@ function onPageLoad() {
         .then((jsonResponse) => {
           if (jsonResponse.type === 'success') {
             thisWrap.toggleClass('is-faded');
-            currentState.points = jsonResponse.points;
+            $('.nav__points').text(jsonResponse.points);
             thisButton.attr('walkState', 'join');
             thisButton.prop('disabled', false);
             thisButton.val('Join');
@@ -626,16 +719,18 @@ function onPageLoad() {
 }
 
 function calculateWinChance(giveaway, timeLoaded) {
-  const timeLeft = parseInt(giveaway.querySelector('.fa.fa-clock-o + span').dataset.timestamp, 10); // time left in seconds
-  const timePassed = timeLoaded - parseInt(giveaway.querySelector('.giveaway__username').parentElement.querySelector('span').dataset.timestamp, 10); // time passed in seconds
-  const numberOfEntries = parseInt(giveaway.querySelector('.fa-tag + span')
-    .textContent.replace(',', ''), 10);
+  const timeLeft = parseInt($(giveaway).find('.fa.fa-clock-o').next('span').attr('data-timestamp'), 10) - timeLoaded; // time left in seconds
+  const timePassed = timeLoaded - parseInt($(giveaway).find('.giveaway__username').prev('span').attr('data-timestamp'), 10); // time passed in seconds
+  const numberOfEntries = parseInt($(giveaway).find('.fa-tag')
+    .next('span')
+    .text()
+    .replace(',', ''), 10);
   let numberOfCopies = 1;
-  if (giveaway.querySelector('.giveaway__heading__thin')
-    .textContent.replace(',', '')
+  if ($(giveaway).find('.giveaway__heading__thin:first').text()
+    .replace(',', '')
     .match(/\(\d+ Copies\)/)) { // if more than one copy there's a text field "(N Copies)"
-    numberOfCopies = parseInt(giveaway.querySelector('.giveaway__heading__thin')
-      .textContent.replace(',', '')
+    numberOfCopies = parseInt($(giveaway).find('.giveaway__heading__thin:first')
+      .text().replace(',', '')
       .match(/\d+/)[0], 10);
   }
   const predictionOfEntries = (numberOfEntries / timePassed) * timeLeft; // calculate rate of entries and multiply on time left, probably not very accurate as we assume linear rate
@@ -670,51 +765,208 @@ function loadDescription(giveaway) {
     });
 }
 
-function checkDLCbyImage(giveaway, encc, frontpage) {
-  // USING STEAMAPI
-  // Maybe should be replaced with local database that contains every DLC appid?
-  // Steam API can stop responding if you send many requests in a short period of time
-  // DLC list can be retrieved from https://steamdb.info/apps/
-  // Flaw: Such list must be updated regulary. Maybe have a local db with every app id (not only DLCs), use Steam API if app id is unknown.
-  const t = $(giveaway).find('.giveaway_image_thumbnail');
-  let appid = $(t).css('background-image');
+function checkAppData(giveaway, timeLoaded){
+	//USING STEAMAPI
+	let appId = getSteamAppId(giveaway);
+
+	if (appId != false) {
+		let tradingCards = false;
+		let cacheData = steamAppData[appId] != undefined ? steamAppData[appId] : undefined;
+		let lastUpdated = cacheData != undefined ? cacheData.lastUpdated : 0;
+		let steamGroupGiveaway = $(giveaway).find('.giveaway__column--group').length != 0;
+		let whiteListGiveaway = $(giveaway).find('.giveaway__column--whitelist').length != 0;
+		
+		if (cacheData != undefined) {
+			tradingCards = cacheData.hasTradingCards;
+			//console.log('Steam app already cached: ', cacheData);
+			if (!inWishlist(appId) && (hasGame(appId) || (settings.HideDlc && cacheData.type == "dlc") || (settings.HideNonTradingCards && !tradingCards) ||
+			   (settings.HideGroups && steamGroupGiveaway) || (settings.HideWhitelist && whiteListGiveaway))) {
+				removeGiveaway("app", appId, giveaway);
+			}
+		}
+		if (cacheData == undefined || ((timeLoaded - lastUpdated) >= 604800) || cacheData.version != thisVersion) {
+			let xhr = new XMLHttpRequest();
+			xhr.open('GET', 'https://store.steampowered.com/api/appdetails?appids=' + appId + '&filters=basic,categories', true);
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState == 4 && xhr.status == 200) {
+					let jsonResponse = JSON.parse(this.responseText);
+					if (jsonResponse[appId].success == true) {
+						tradingCards = jsonResponse[appId].data.categories != undefined ? jsonResponse[appId].data.categories.some(function (data) {
+							return  data.id == 29;
+						}) : false;
+						cacheSteamAppData(appId, jsonResponse[appId].data.type, tradingCards, lastUpdated, timeLoaded);
+						if (!inWishlist(appId) && (hasGame(appId) || (settings.HideDlc && jsonResponse[appId].type == "dlc") || (settings.HideNonTradingCards && !tradingCards) ||
+						   (settings.HideGroups && steamGroupGiveaway) || (settings.HideWhitelist && whiteListGiveaway))) {
+							removeGiveaway("app", appId, giveaway);
+						}
+					}
+				}
+			}
+			xhr.send();
+		}
+	} else {
+		checkSteamPackageData(giveaway, timeLoaded);
+	}
+}
+
+function checkSteamPackageData(giveaway, timeLoaded){
+	let packageId = getSteamPackageId(giveaway);
+	if (packageId == false) {
+		return
+	}
+	let appIds = [];
+	let cacheData = steamPackageData[packageId] != undefined ? steamPackageData[packageId] : undefined;
+	let lastUpdated = cacheData != undefined ? cacheData.lastUpdated : 0;
+	
+	if (cacheData != undefined) {
+		appIds = steamPackageData[packageId].appIds;
+		//console.log('Steam package already cached: ', steamPackageData[packageId]);
+		checkSteamPackageApps(appIds, packageId, giveaway, timeLoaded);
+	} 
+	if (cacheData == undefined || ((timeLoaded - lastUpdated) >= 604800) || cacheData.version != thisVersion) {
+		let xhr = new XMLHttpRequest();
+		xhr.open("GET", "https://store.steampowered.com/api/packagedetails?packageids=" + packageId, true);
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState == 4 && xhr.status == 200) {
+				let jsonResponse = JSON.parse(this.responseText);
+				if (jsonResponse[packageId].success == true) {
+					let jsonIds = jsonResponse[packageId].data.apps;
+					for (let i = 0, numIds = jsonIds != null ? jsonIds.length : 0; i < numIds; i++) {
+						appIds[i] = jsonIds[i].id;
+					}
+					cacheSteamPackageData(packageId, appIds, lastUpdated, timeLoaded);
+				}
+				checkSteamPackageApps(appIds, packageId, giveaway, timeLoaded);
+			}
+		}
+		xhr.send();
+	}
+}
+
+function checkSteamPackageApps(appIds, packageId, giveaway, timeLoaded) {
+	let removePackage = true;
+	for (let i = 0; i < appIds.length; i++) {
+		let appId = appIds[i];
+		let tradingCards = false;
+		let cacheData = steamAppData[appId] != undefined ? steamAppData[appId] : undefined;
+		let lastUpdated = cacheData != undefined ? cacheData.lastUpdated : 0;
+		let steamGroupGiveaway = $(giveaway).find('.giveaway__column--group').length != 0;
+		let whiteListGiveaway = $(giveaway).find('.giveaway__column--whitelist').length != 0;
+		
+		if (cacheData != undefined) {
+			tradingCards = cacheData != undefined ? cacheData.hasTradingCards : false;
+			//console.log('Steam app from package already cached: ', cacheData);
+		}
+		if (cacheData == undefined || ((timeLoaded - lastUpdated) >= 604800) || cacheData.version != thisVersion) {
+			let xhr = new XMLHttpRequest();
+			xhr.open("GET", "https://store.steampowered.com/api/appdetails?appids=" + appId + "&filters=basic,categories", true);
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState == 4 && xhr.status == 200) {
+					let jsonResponse = JSON.parse(this.responseText);
+					if (jsonResponse[appId].success == true) {
+						tradingCards = jsonResponse[appId].data.categories != undefined ? jsonResponse[appId].data.categories.some(function (data) {
+							return  data.id == 29;
+						}) : false;
+						cacheSteamAppData(appId, jsonResponse[appId].data.type, tradingCards, lastUpdated, timeLoaded);
+					}
+				}
+			}
+			xhr.send();
+		}
+		if (inWishlist(appId) || (hasGame(appId) || (!settings.HideDlc || (cacheData != undefined && settings.HideDlc && cacheData.type == "game")) &&
+		   (!settings.HideNonTradingCards || (settings.HideNonTradingCards && tradingCards)) && (!settings.HideGroups || (settings.HideGroups && !steamGroupGiveaway)) &&
+		   (!settings.HideWhitelist || (settings.HideWhitelist && whiteListGiveaway)))) {
+			removePackage = false;
+			return false;
+		}
+	}
+	if (removePackage) {
+		removeGiveaway("package", packageId, giveaway);
+	}
+}
+
+function cacheSteamAppData(appId, appType, tradingCards, lastUpdated, timeLoaded) {
+	if (steamAppData[appId] === undefined || ((timeLoaded - lastUpdated) >= 604800) || steamAppData[appId].version != thisVersion) {
+		steamAppData[appId] = {
+			'appId': appId,
+			'type': appType,
+			'hasTradingCards': tradingCards,
+			'lastUpdated': timeLoaded,
+			'version': thisVersion
+		};
+		
+		let cacheAppData = {};
+		cacheAppData['Apps'] = steamAppData
+		chrome.storage.local.set(cacheAppData, function () {
+			if (chrome.runtime.lastError) {
+				console.log(chrome.runtime.lastError.message);
+			} else {
+				console.log('Cached', steamAppData[appId]);
+			}
+		});
+	}
+}
+
+function cacheSteamPackageData(packageId, appIds, lastUpdated, timeLoaded) {
+	if (steamPackageData[packageId] === undefined || ((timeLoaded - lastUpdated) >= 604800) || steamPackageData[packageId].version != thisVersion) {
+		steamPackageData[packageId] = {
+			'packageId': packageId,
+			'appIds': appIds,
+			'lastUpdated': timeLoaded,
+			'version': thisVersion
+		};
+		
+		let cachePackageData = {};
+		cachePackageData['Packages'] = steamPackageData
+		chrome.storage.local.set(cachePackageData, function () {
+			if (chrome.runtime.lastError) {
+				console.log(chrome.runtime.lastError.message);
+			} else {
+				console.log('Cached', steamPackageData[packageId]);
+			}
+		});
+	}
+}
+
+function getSteamAppId(giveaway) {
+  const t = $(giveaway).find(".giveaway__summary").find(".giveaway__heading").find(".giveaway__icon");
+  let appid = $(t).attr('href');
   if (appid == null) {
-    console.log('error in image');
+    console.log('error retrieving app id');
     return false;
   }
-  const appmatch = appid.match(/.+apps\/(\d+)\/cap.+/);
+  const appmatch = appid.match(/.+app\/(\d+)\//);
   if (appmatch == null) {
     return false;
   }
-  appid = appmatch[1];
-  const xhr = new XMLHttpRequest();
-  if (encc) {
-    xhr.open('GET', `https://store.steampowered.com/api/appdetails?appids=${appid}&cc=en`, true);
-  } else {
-    xhr.open('GET', `https://store.steampowered.com/api/appdetails?appids=${appid}`, true);
-  }
-  function checkIfDlc() {
-    if (xhr.readyState === 4 && xhr.status === 200) {
-      const jsonResponse = JSON.parse(this.responseText);
-      if (jsonResponse[appid].success === false && !encc) {
-        checkDLCbyImage(this, true, frontpage); // try with cc = en
-      } else if (jsonResponse[appid].data.type === 'dlc') {
-        console.log(`hidden ${appid}`);
-        if (frontpage) {
-          $(giveaway).parent().remove();
-        } else {
-          const linkToGiveaway = $(giveaway).find('.giveaway__heading__name').attr('href');
-          $(giveaway).parent().remove();
-          $('#posts').find(`[href='${linkToGiveaway}']`)
-            .parent()
-            .parent()
-            .remove();
-        }
-      }
-      return true;
-    }
-    return false;
-  }
-  xhr.onreadystatechange = checkIfDlc();
-  xhr.send();
+  return parseInt(appmatch[1]);
+}
+
+function getSteamPackageId(giveaway) {
+	let t = $(giveaway).find(".giveaway__summary").find(".giveaway__heading").find(".giveaway__icon");
+	let packageId = $(t).attr('href');
+	if (packageId == null) {
+		console.log('error retrieving package id');
+		return false
+	}
+	let packagematch = packageId.match(/.+sub\/(\d+)\//);
+	if (packagematch == null) {
+		return false;
+	}
+	return parseInt(packagematch[1]);
+}
+
+function removeGiveaway(type, id, giveaway) {
+	if ($(giveaway).parent().hasClass('pinned-giveaways__inner-wrap') == false) {
+		console.log("hidden " + type + ": " + id);
+		$(giveaway).remove();
+	}
+}
+
+function hasGame(id) {
+	return ownedSteamApps.indexOf(id) > -1;
+}
+
+function inWishlist(id) {
+	return wishList.indexOf(id) > -1;
 }
