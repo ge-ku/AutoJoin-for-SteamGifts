@@ -16,18 +16,6 @@ const currentState = {
   },
 };
 
-/*chrome.permissions.contains({
-  permissions: ['webRequest'],
-  origins: ['*://steamcommunity.com/profiles/*']
-}, function(result) {
-  if (result) {
-    console.log('test');
-  } else {
-    console.log('test2');
-  }
-});*/
-console.log('test: ' + chrome.permissions);
-
 let steamAppData = {};
 let steamPackageData = {};
 let ownedSteamApps = [];
