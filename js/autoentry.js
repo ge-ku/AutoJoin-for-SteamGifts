@@ -479,50 +479,48 @@ function onPageLoad() {
     for (let level = myLevel; level >= 0; level--) {
       $(selectItems).each(function () {
         const current = $(this).parent().parent().parent();
-        let giveawayLevel = $(current).find('.giveaway__column--contributor-level').length != 0 ?
-          parseInt($(current).find('.giveaway__column--contributor-level').html().match(/Level (\d)/)[1]) : 0;
         let whiteListGiveaway = $(current).find('.giveaway__column--whitelist').length != 0;
         let regionLockedGiveaway = $(current).find('.giveaway__column--region-restricted').length != 0;
         let steamGroupGiveaway = $(current).find('.giveaway__column--group').length != 0;
-        if (giveawayLevel == level || (settings.PriorityGroup && steamGroupGiveaway) || (settings.PriorityRegion && regionLockedGiveaway) ||
-          (settings.PriorityWhitelist && whiteListGiveaway) || (settings.PriorityWishlist && inWishlist(getSteamAppId($(current))))) {
-          if ((settings.IgnoreGroups && !steamGroupGiveaway) || (settings.IgnoreWhitelist && !whiteListGiveaway)) {
-            const cost = parseInt($(current)
-              .find('.giveaway__heading__thin')
-              .last().html()
-              .match(/\d+/)[0], 10);
-            if (cost >= settings.MinCost) {
-              timeouts.push(setTimeout($.proxy(function () {
-                const formData = new FormData();
-                formData.append('xsrf_token', token);
-                formData.append('do', 'entry_insert');
-                formData.append('code', this.href.split('/')[4]);
-                fetch(`${window.location.origin}/ajax.php`, { method: 'post', credentials: 'include', body: formData })
-                  .then(resp => resp.json())
-                  .then((jsonResponse) => {
-                    if (jsonResponse.type === 'success') {
-                      current.toggleClass('is-faded');
-                      currentState.points = jsonResponse.points;
-                      entered++;
-                      current.find('.btnSingle').attr('walkState', 'leave').prop('disabled', false).val('Leave');
-                      updateButtons();
+        let giveawayLevel = $(current).find('.giveaway__column--contributor-level').length != 0 ?
+          parseInt($(current).find('.giveaway__column--contributor-level').html().match(/Level (\d)/)[1]) : 0;
+        if (giveawayLevel == level || priorityGiveaway(current, steamGroupGiveaway, regionLockedGiveaway, whiteListGiveaway) &&
+          !ignoreGiveaway(steamGroupGiveaway, whiteListGiveaway)) {
+          const cost = parseInt($(current)
+            .find('.giveaway__heading__thin')
+            .last().html()
+            .match(/\d+/)[0], 10);
+          if (cost >= settings.MinCost) {
+            timeouts.push(setTimeout($.proxy(function () {
+              const formData = new FormData();
+              formData.append('xsrf_token', token);
+              formData.append('do', 'entry_insert');
+              formData.append('code', this.href.split('/')[4]);
+              fetch(`${window.location.origin}/ajax.php`, { method: 'post', credentials: 'include', body: formData })
+                .then(resp => resp.json())
+                .then((jsonResponse) => {
+                  if (jsonResponse.type === 'success') {
+                    current.toggleClass('is-faded');
+                    currentState.points = jsonResponse.points;
+                    entered++;
+                    current.find('.btnSingle').attr('walkState', 'leave').prop('disabled', false).val('Leave');
+                    updateButtons();
+                  }
+                  if (jsonResponse.points < 5) {
+                    for (let i = 0; i < timeouts.length; i++) {
+                      clearTimeout(timeouts[i]);
                     }
-                    if (jsonResponse.points < 5) {
-                      for (let i = 0; i < timeouts.length; i++) {
-                        clearTimeout(timeouts[i]);
-                      }
-                      timeouts = [];
-                    }
-                    if (entered < 1) {
-                      $('#info').text('No giveaways entered.');
-                    } else {
-                      $('#info').text(`Entered ${entered} giveaway${(entered !== 1) ? 's' : ''}.`);
-                    }
-                  });
-              }, this), (timeouts.length * settings.Delay * 1000) + Math.floor(Math.random() * 1000)));
-            } else {
-              console.log(`^Skipped, cost: ${cost}, your settings.MinCost is ${settings.MinCost}`);
-            }
+                    timeouts = [];
+                  }
+                  if (entered < 1) {
+                    $('#info').text('No giveaways entered.');
+                  } else {
+                    $('#info').text(`Entered ${entered} giveaway${(entered !== 1) ? 's' : ''}.`);
+                  }
+                });
+            }, this), (timeouts.length * settings.Delay * 1000) + Math.floor(Math.random() * 1000)));
+          } else {
+            console.log(`^Skipped, cost: ${cost}, your settings.MinCost is ${settings.MinCost}`);
           }
         }
       });
@@ -777,19 +775,11 @@ function checkAppData(giveaway, timeLoaded) {
   let appId = getSteamAppId(giveaway);
 
   if (appId != false) {
-    let tradingCards = false;
     let cacheData = steamAppData[appId] != undefined ? steamAppData[appId] : undefined;
     let lastUpdated = cacheData != undefined ? cacheData.lastUpdated : 0;
-    let steamGroupGiveaway = $(giveaway).find('.giveaway__column--group').length != 0;
-    let whiteListGiveaway = $(giveaway).find('.giveaway__column--whitelist').length != 0;
 
-    if (cacheData != undefined) {
-      tradingCards = cacheData.hasTradingCards;
-      //console.log('Steam app already cached: ', cacheData);
-      if (!inWishlist(appId) && (hasGame(appId) || (settings.HideDlc && cacheData.type == "dlc") || (settings.HideNonTradingCards && !tradingCards) ||
-        (settings.HideGroups && steamGroupGiveaway) || (settings.HideWhitelist && whiteListGiveaway))) {
-        removeGiveaway("app", appId, giveaway);
-      }
+    if (cacheData != undefined && filterGiveaway(giveaway, appId, cacheData.type, cacheData.hasTradingCards)) {
+      removeGiveaway("app", appId, giveaway);
     }
     if (cacheData == undefined || ((timeLoaded - lastUpdated) >= 604800) || cacheData.version != thisVersion) {
       let xhr = new XMLHttpRequest();
@@ -798,12 +788,11 @@ function checkAppData(giveaway, timeLoaded) {
         if (xhr.readyState == 4 && xhr.status == 200) {
           let jsonResponse = JSON.parse(this.responseText);
           if (jsonResponse[appId].success == true) {
-            tradingCards = jsonResponse[appId].data.categories != undefined ? jsonResponse[appId].data.categories.some(function (data) {
+            let tradingCards = jsonResponse[appId].data.categories != undefined ? jsonResponse[appId].data.categories.some(function (data) {
               return data.id == 29;
             }) : false;
             cacheSteamAppData(appId, jsonResponse[appId].data.type, tradingCards, lastUpdated, timeLoaded);
-            if (!inWishlist(appId) && (hasGame(appId) || (settings.HideDlc && jsonResponse[appId].type == "dlc") || (settings.HideNonTradingCards && !tradingCards) ||
-              (settings.HideGroups && steamGroupGiveaway) || (settings.HideWhitelist && whiteListGiveaway))) {
+            if (filterGiveaway(giveaway, appId, jsonResponse[appId].data.type, tradingCards)) {
               removeGiveaway("app", appId, giveaway);
             }
           }
@@ -854,15 +843,13 @@ function checkSteamPackageApps(appIds, packageId, giveaway, timeLoaded) {
   let removePackage = true;
   for (let i = 0; i < appIds.length; i++) {
     let appId = appIds[i];
-    let tradingCards = false;
     let cacheData = steamAppData[appId] != undefined ? steamAppData[appId] : undefined;
     let lastUpdated = cacheData != undefined ? cacheData.lastUpdated : 0;
-    let steamGroupGiveaway = $(giveaway).find('.giveaway__column--group').length != 0;
-    let whiteListGiveaway = $(giveaway).find('.giveaway__column--whitelist').length != 0;
 
     if (cacheData != undefined) {
-      tradingCards = cacheData != undefined ? cacheData.hasTradingCards : false;
-      //console.log('Steam app from package already cached: ', cacheData);
+      if (cacheData != undefined && !filterGiveaway(giveaway, appId, cacheData.appType, cacheData.hasTradingCards)) {
+        removePackage = false;
+      }
     }
     if (cacheData == undefined || ((timeLoaded - lastUpdated) >= 604800) || cacheData.version != thisVersion) {
       let xhr = new XMLHttpRequest();
@@ -875,16 +862,16 @@ function checkSteamPackageApps(appIds, packageId, giveaway, timeLoaded) {
               return data.id == 29;
             }) : false;
             cacheSteamAppData(appId, jsonResponse[appId].data.type, tradingCards, lastUpdated, timeLoaded);
+            if (!filterGiveaway(giveaway, appId, jsonResponse[appId].data.type, tradingCards)) {
+              removePackage = false;
+            }
           }
         }
       }
       xhr.send();
     }
-    if (inWishlist(appId) || (hasGame(appId) || (!settings.HideDlc || (cacheData != undefined && settings.HideDlc && cacheData.type == "game")) &&
-      (!settings.HideNonTradingCards || (settings.HideNonTradingCards && tradingCards)) && (!settings.HideGroups || (settings.HideGroups && !steamGroupGiveaway)) &&
-      (!settings.HideWhitelist || (settings.HideWhitelist && whiteListGiveaway)))) {
-      removePackage = false;
-      return false;
+    if (!removePackage) {
+      break;
     }
   }
   if (removePackage) {
@@ -967,6 +954,51 @@ function removeGiveaway(type, id, giveaway) {
   if ($(giveaway).parent().hasClass('pinned-giveaways__inner-wrap') == false) {
     console.log("hidden " + type + ": " + id);
     $(giveaway).remove();
+  }
+}
+
+function priorityGiveaway(giveaway, steamGroup, regionLocked, whitelist) {
+  if (settings.PriorityWishlist && inWishlist(getSteamAppId($(giveaway)))) {
+    return true;
+  } else if (settings.PriorityGroup && steamGroup) {
+    return true;
+  } else if (settings.PriorityRegion && regionLocked) {
+    return true;
+  } else if (settings.PriorityWhitelist && whitelist) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function ignoreGiveaway(steamGroup, whitelist) {
+  if (settings.IgnoreGroups && steamGroup) {
+    return true;
+  } else if (settings.IgnoreWhitelist && whitelist) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function filterGiveaway(giveaway, appID, appType, hasTradingCards) {
+  let steamGroupGiveaway = $(giveaway).find('.giveaway__column--group').length != 0;
+  let whiteListGiveaway = $(giveaway).find('.giveaway__column--whitelist').length != 0;
+
+  if (hasGame(appID)) {
+    return true;
+  } else if (inWishlist(appID)) {
+    return false;
+  } else if (settings.HideNonTradingCards && !hasTradingCards) {
+    return true;
+  } else if (settings.HideDlc && appType == "dlc" && appType != "game") {
+    return true;
+  } else if (settings.HideGroups && steamGroupGiveaway) {
+    return true;
+  } else if (settings.HideWhitelist && whiteListGiveaway) {
+    return true;
+  } else {
+    return false;
   }
 }
 
