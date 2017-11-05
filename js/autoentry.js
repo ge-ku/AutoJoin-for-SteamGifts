@@ -336,6 +336,7 @@ function loadCache() {
 function onPageLoad() {
   token = document.querySelector('input[name="xsrf_token"]').value;
   let pagesLoaded = 1;
+  currentState.points = document.querySelector('.nav__points').textContent;
   // parsePage(document.querySelector('html')); // parse this page first
   /* Add AutoJoin and cog button */
   const info = document.createElement('div');
