@@ -409,3 +409,35 @@ chrome.runtime.onInstalled.addListener((updateInfo) => {
     });
   }
 });
+
+// Check if we have "*://steamcommunity.com/profiles/*" permission, ask for them if not
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  chrome.runtime.sendMessage({ task: 'checkPermission' });
+  if (request.task === 'checkPermission') {
+    console.log('Got a request for "*://steamcommunity.com/profiles/*" permission');
+    chrome.permissions.contains({
+      origins: ['*://steamcommunity.com/profiles/*'],
+    }, (result) => {
+      if (result) {
+        console.log('We already have permission');
+        chrome.tabs.sendMessage(sender.tab.id, { granted: 'true' });
+        sendResponse({ granted: 'true' });
+      } else if (request.ask === 'true') {
+        // We don't have permission, try to request them if ask is 'true'
+        chrome.permissions.request({
+          origins: ['*://steamcommunity.com/profiles/*'],
+        }, (granted) => {
+          if (granted) {
+            console.log('Permission granted');
+            chrome.tabs.sendMessage(sender.tab.id, { granted: 'true' });
+          } else {
+            console.log('Permission declined');
+            chrome.tabs.sendMessage(sender.tab.id, { granted: 'false' });
+          }
+        });
+      } else {
+        sendResponse({ granted: 'false' });
+      }
+    });
+  }
+});
