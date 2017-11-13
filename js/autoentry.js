@@ -433,16 +433,19 @@ function onPageLoad() {
   }
 
   function loadPage() {
-    const timeLoaded = Math.round(Date.now() / 1000); // when the page was loaded (in seconds)
-    if (pageNumber > lastPage) {
-      loadingNextPage = true;
-      pagesLoaded = 9999;
-      $('.pagination').hide();
+    if (lastPage) {
+      return
     }
+    const timeLoaded = Math.round(Date.now() / 1000); // when the page was loaded (in seconds)
     if (loadingNextPage === false) {
       loadingNextPage = true;
 
       $('<div>').load(`${window.location.origin + pageLink + pageNumber + thirdPart} :not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap`, function () {
+        if ($(this)[0].children.length < 50) {
+          lastPage = true;
+          pagesLoaded = 9999;
+          $('.pagination').hide();
+        }
         modifyPageDOM(this, timeLoaded);
         $('#posts').last().append($(this).html());
         pageNumber++;
@@ -539,7 +542,7 @@ function onPageLoad() {
     }
     // This is a work-around since steamgifts.com stopped showing last page number.
     // Proper fix is to check every new page's pagination, last page doesn't have "Next" link.
-    lastPage = 100;
+    //lastPage = 100;
     // try {
     //   lastPage = ($('.pagination__navigation')
     //     .find('a:contains("Last")')
@@ -576,9 +579,9 @@ function onPageLoad() {
   function updateButtons() {
     if (settings.ShowButtons) {
       document.querySelectorAll('.btnSingle:not([walkState="no-level"])').forEach((el) => {
-        if (el.parentElement.classList.contains('is-faded')) {
+        if (!el.parentElement.classList.contains('is-faded')) {
           const pointsNeededRaw = el.parentElement
-            .querySelector('.giveaway__heading__thin')
+            .querySelector('.giveaway__heading__thin:last-of-type')
             .textContent.match(/(\d+)P/);
           const pointsNeeded = parseInt(pointsNeededRaw[pointsNeededRaw.length - 1], 10);
           if (pointsNeeded > currentState.points) {
@@ -703,7 +706,7 @@ function onPageLoad() {
         loadingNextPage = false;
         pageNumber = '';
         thirdPart = '';
-        lastPage = 0;
+        lastPage = true;
         pagesLoaded = 0;
         $('#posts').empty();
         loadPage();
@@ -726,7 +729,7 @@ function onPageLoad() {
 }
 
 function calculateWinChance(giveaway, timeLoaded) {
-  const timeLeft = parseInt(giveaway.querySelector('.fa.fa-clock-o + span').dataset.timestamp, 10); // time left in seconds
+  const timeLeft = parseInt(giveaway.querySelector('.fa.fa-clock-o + span').dataset.timestamp, 10) - timeLoaded; // time left in seconds
   const timePassed = timeLoaded - parseInt(giveaway.querySelector('.giveaway__username').parentElement.querySelector('span').dataset.timestamp, 10); // time passed in seconds
   const numberOfEntries = parseInt(giveaway.querySelector('.fa-tag + span')
     .textContent.replace(',', ''), 10);
