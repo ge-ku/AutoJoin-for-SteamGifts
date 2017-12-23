@@ -6,7 +6,7 @@
 //    "matches": [ "*://store.steampowered.com/*" ]
 // }
 
-if (Date.now() < 1499299200000) {
+if (Date.now() < 1515088800000) {
   // I will update extension after the sale and remove this injection but.. in case I die you're not stuck with useless button :)
 
   // We have to inject it like this to access global functions and variables
