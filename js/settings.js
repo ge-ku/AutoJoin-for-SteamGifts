@@ -163,8 +163,11 @@ function settingsAttachEventListeners() {
   });
 
   // grant "*://steamcommunity.com/profiles/*" permission
-  document.getElementById('chkWishlistPriority').addEventListener('change', function () {
-    if (this.checked) {
+  document.getElementById('chkWishlistPriority').addEventListener('change', requirePermissions);
+  document.getElementById('chkHideNonTradingCards').addEventListener('change', requirePermissions);
+  document.getElementById('chkHideDlc').addEventListener('change', requirePermissions);
+  function requirePermissions(e) {
+    if (e.target.checked) {
       // chrome.permissions.* API is not available in content script
       // we'll have to message background script to check if we have it
 
@@ -174,12 +177,12 @@ function settingsAttachEventListeners() {
           // we have permission, do nothing
         } else {
           // we don't have permission, uncheck this option
-          this.checked = false;
+          e.target.checked = false;
         }
       });
       chrome.runtime.sendMessage({ task: 'checkPermission', ask: 'true' });
     }
-  });
+  }
 
   // to show 0.5 when value goes below 1 in hoursFieldBG field
   document.getElementById('hoursFieldBG').addEventListener('input', function () {

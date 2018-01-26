@@ -263,7 +263,7 @@ function loadCache() {
     }
 
     let xhr = new XMLHttpRequest();
-    let user = $('.nav__button-container--notification').find('a.nav__avatar-outer-wrap').attr('href')
+    let user = $('.nav__button-container--notification').find('a.nav__avatar-outer-wrap').attr('href');
     let steamProfileID;
 
     if (user == undefined) {
