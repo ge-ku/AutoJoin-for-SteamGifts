@@ -24,6 +24,7 @@ function loadSettings() {
     HideGroups: false,
     HideNonTradingCards: false,
     HideWhitelist: false,
+    HideLevelsBelow: 0,
     PriorityGroup: false,
     PriorityRegion: false,
     PriorityWhitelist: false,
@@ -60,6 +61,7 @@ function fillSettingsDiv(settings) {
   document.getElementById('chkHideGroups').checked = settings.HideGroups;
   document.getElementById('chkHideNonTradingCards').checked = settings.HideNonTradingCards;
   document.getElementById('chkHideWhitelist').checked = settings.HideWhitelist;
+  document.getElementById('hideLevelsBelow').value = settings.HideLevelsBelow;
   document.getElementById('chkNightTheme').checked = settings.NightTheme;
   // document.getElementById("chkLevelPriority").checked = settings.LevelPriority;
   document.getElementById('chkRepeatIfOnPage').checked = settings.RepeatIfOnPage;
@@ -114,6 +116,7 @@ function settingsAttachEventListeners() {
       HideGroups: document.getElementById('chkHideGroups').checked,
       HideNonTradingCards: document.getElementById('chkHideNonTradingCards').checked,
       HideWhitelist: document.getElementById('chkHideWhitelist').checked,
+      HideLevelsBelow: parseInt(document.getElementById('hideLevelsBelow').value, 10),
       RepeatIfOnPage: document.getElementById('chkRepeatIfOnPage').checked,
       NightTheme: document.getElementById('chkNightTheme').checked,
       // LevelPriority: document.getElementById("chkLevelPriority").checked,

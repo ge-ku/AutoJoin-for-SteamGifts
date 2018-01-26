@@ -126,6 +126,12 @@ function parsePage(pageHTML) {
 function modifyPageDOM(pageDOM, timeLoaded) {
   pageDOM.querySelectorAll('.giveaway__row-outer-wrap').forEach((giveaway) => {
     const giveawayInnerWrap = giveaway.querySelector('.giveaway__row-inner-wrap');
+    
+    const levelEl = giveaway.querySelector('.giveaway__column--contributor-level');
+    let level;
+    levelEl === null ? level = 0 : level = parseInt(levelEl.textContent.match(/\d+/)[0], 10);
+    if (level < settings.HideLevelsBelow) giveaway.remove();
+
     if (giveawayInnerWrap.classList.contains('is-faded')) {
       if (settings.HideEntered) {
         giveaway.remove();
@@ -222,6 +228,7 @@ chrome.storage.sync.get({
     HideGroups: false,
     HideNonTradingCards: false,
     HideWhitelist: false,
+    HideLevelsBelow: 0,
     PriorityGroup: false,
     PriorityRegion: false,
     PriorityWhitelist: false,
