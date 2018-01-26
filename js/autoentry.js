@@ -194,7 +194,7 @@ function modifyPageDOM(pageDOM, timeLoaded) {
     descriptionA.appendChild(descriptionText);
     descriptionDiv.appendChild(descriptionA);
     giveaway.querySelector('.giveaway__links').appendChild(descriptionDiv);
-    if (document.querySelector('.pinned-giveaways__inner-wrap').children.length === 0) {
+    if (document.querySelector('.pinned-giveaways__inner-wrap') && document.querySelector('.pinned-giveaways__inner-wrap').children.length === 0) {
       document.querySelector('.pinned-giveaways__inner-wrap').remove();
     }
   });
