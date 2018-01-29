@@ -82,11 +82,13 @@ function scanpage(e) {
         if ($(ga).find('.giveaway__column--contributor-level--positive').length) {
           GAlevel = $(ga).find('.giveaway__column--contributor-level--positive').html().match(/(\d+)/)[1];
         }
-        const s = $(ga).find('.global__image-outer-wrap--game-medium').find('.global__image-inner-wrap').css('background-image');
-        const c = s.match(/.+apps\/(\d+)\/cap.+/);
         let GAsteamAppID = '0';
-        if (s && c) {
-          GAsteamAppID = c[1];
+        const s = $(ga).find('.giveaway_image_thumbnail').css('background-image');
+        if (s !== undefined) { // undefined when no thumbnail is available (mostly non-steam bundles)
+          const c = s.match(/.+(?:apps|subs)\/(\d+)\/cap.+/);
+          if (s && c) {
+            GAsteamAppID = c[1]; // TODO: differentiate between sub ID and app ID
+          }
         }
         const cost = $(ga).find('.giveaway__heading__thin')
           .last()
