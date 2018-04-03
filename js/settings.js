@@ -44,6 +44,8 @@ function loadSettings() {
     WishlistPriorityForMainBG: false,
     IgnorePreserveWishlistOnMainBG: false,
     ShowChance: true,
+    NotifyLimit: false,
+    NotifyLimitAmount: 300,
   }, (settings) => {
     fillSettingsDiv(settings);
   });
@@ -92,6 +94,8 @@ function fillSettingsDiv(settings) {
   document.getElementById('pointsToPreserve').value = settings.PointsToPreserve;
   document.getElementById('chkWishlistPriorityForMainBG').checked = settings.WishlistPriorityForMainBG;
   document.getElementById('chkIgnorePreserveWishlistOnMainBG').checked = settings.IgnorePreserveWishlistOnMainBG;
+  document.getElementById('chkNotifyLimit').checked = settings.NotifyLimit;
+  document.getElementById('notifyLimitAmount').value = settings.NotifyLimitAmount;
   if (settings.RepeatHoursBG === 0) {
     document.getElementById('hoursFieldBG').value = '0.5';
   } else {
@@ -148,6 +152,8 @@ function settingsAttachEventListeners() {
       WishlistPriorityForMainBG: document.getElementById('chkWishlistPriorityForMainBG').checked,
       IgnorePreserveWishlistOnMainBG: document.getElementById('chkIgnorePreserveWishlistOnMainBG').checked,
       ShowChance: document.getElementById('chkShowChance').checked,
+      NotifyLimit: document.getElementById('chkNotifyLimit').checked,
+      NotifyLimitAmount: document.getElementById('notifyLimitAmount').value,
     }, () => {
       if (document.location.protocol !== 'http:' && document.location.protocol !== 'https:') {
         saveButtonEl.innerText = 'Settings Saved!';
@@ -186,7 +192,6 @@ function settingsAttachEventListeners() {
 
   // to show 0.5 when value goes below 1 in hoursFieldBG field
   document.getElementById('hoursFieldBG').addEventListener('input', function () {
-    console.log(this.value);
     if (this.value === 0) this.value = 0.5;
     else if (this.value % 1 !== 0 && this.value > 1) {
       this.value = parseInt(this.value, 10);
@@ -213,7 +218,7 @@ function settingsAttachEventListeners() {
 
 function setAudioVolume() {
   // play audio when changing volume
-  const audio = new Audio(chrome.extension.getURL('/audio.mp3'));
+  const audio = new Audio(chrome.extension.getURL('/media/audio.mp3'));
   audio.volume = document.getElementById('audioVolume').value;
   audio.play();
 }

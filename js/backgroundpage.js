@@ -43,27 +43,44 @@ function calculateWinChance(giveaway, timeLoaded) {
   return chance;
 }
 
-function notify() {
-  $.get('https://www.steamgifts.com/giveaways/won', (wonPage) => {
-    const name = $(wonPage).find('.table__column__heading')[0].innerText;
-    chrome.notifications.clear('won_notification', () => {
-      const e = {
-        type: 'basic',
-        title: 'AutoJoin',
-        message: `You won ${name}! Click here to open Steamgifts.com`,
-        iconUrl: 'autologosteam.png',
-      };
-      chrome.notifications.create('won_notification', e, () => {
-        chrome.storage.sync.get({ PlayAudio: 'true', AudioVolume: 1 }, (data) => {
-          if (data.PlayAudio === true) {
-            const audio = new Audio('audio.mp3');
-            audio.volume = data.AudioVolume;
-            audio.play();
-          }
+function notify(type, currentPoints) {
+  switch (type) {
+    case "win":
+      $.get('https://www.steamgifts.com/giveaways/won', (wonPage) => {
+        const name = $(wonPage).find('.table__column__heading')[0].innerText;
+        chrome.notifications.clear('won_notification', () => {
+          const e = {
+            type: 'basic',
+            title: 'AutoJoin',
+            message: `You won ${name}! Click here to open Steamgifts.com`,
+            iconUrl: 'media/autologosteam.png',
+          };
+          chrome.notifications.create('won_notification', e, () => {
+            chrome.storage.sync.get({ PlayAudio: 'true', AudioVolume: 1 }, (data) => {
+              if (data.PlayAudio === true) {
+                const audio = new Audio('media/audio.mp3');
+                audio.volume = data.AudioVolume;
+                audio.play();
+              }
+            });
+          });
         });
       });
-    });
-  });
+      break;
+    case "points":
+      chrome.notifications.clear('points_notification', () => {
+        const e = {
+          type: 'basic',
+          title: 'AutoJoin',
+          message: `You have ${currentPoints} points on Steamgifts.com. Time to spend!`,
+          iconUrl: 'media/autologosteam.png',
+        };
+        chrome.notifications.create('points_notification', e);
+      });
+      break;
+    default:
+      console.log('Unknown notification type');
+  }
 }
 
 /* This function scans the pages and calls the function pagesloaded() once it finished
@@ -238,7 +255,16 @@ function settingsloaded() {
   if (settings.BackgroundAJ === false || timepassed < timetopass) {
     $.get(link + 1, (data) => {
       if ($(data).filter('.popup--gift-received').length) {
-        notify();
+        notify('win');
+      } else {
+        currPoints = parseInt($(data).find('a[href="/account"]')
+          .find('span.nav__points')
+          .text(), 10);
+        if (currPoints >= settings.NotifyLimitAmount && settings.NotifyLimit) {
+          console.log(`Sending notification about accumulated points: ${currPoints} > ${settings.NotifyLimitAmount}`);
+          notify('points', currPoints);
+        }
+        console.log(`Current Points: ${currPoints}`);
       }
       // check level and save if changed
       mylevel = $(data).find('a[href="/account"]')
@@ -260,8 +286,16 @@ function settingsloaded() {
     else linkToUse = link;
     arr.length = 0;
     $.get(linkToUse + 1, (data) => {
+      currPoints = parseInt($(data).find('a[href="/account"]')
+        .find('span.nav__points')
+        .text(), 10);
       if ($(data).filter('.popup--gift-received').length) {
-        notify();
+        notify('win');
+      } else {
+        if (currPoints >= settings.NotifyLimitAmount && settings.NotifyLimit) {
+          console.log(`Sending notification about accumulated points: ${currPoints} > ${settings.NotifyLimitAmount}`);
+          notify('points', currPoints);
+        }
       }
       if (pages > 5 || pages < 1) { pagestemp = 3; } else { pagestemp = pages; } // in case someone has old setting with more than 5 pages to load or somehow set this value to <1 use 3 (default)
       token = $(data).find('input[name=xsrf_token]').val();
@@ -274,10 +308,7 @@ function settingsloaded() {
       if (settings.LastKnownLevel !== parseInt(mylevel, 10)) {
         chrome.storage.sync.set({ LastKnownLevel: parseInt(mylevel, 10) });
       }
-      currPoints = parseInt($(data).find('a[href="/account"]')
-        .find('span.nav__points')
-        .text(), 10);
-      console.log(`Current Points: ${currPoints}`);
+        
       // var numOfGAsOnPage = parseInt($(data).find('.pagination__results').children().next().text(), 10);
       if (currPoints >= settings.PointsToPreserve || (useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG)) {
         scanpage(data); // scan this page that was already loaded to get info above
@@ -318,6 +349,8 @@ function loadsettings() {
     IgnoreGroupsBG: false,
     IgnorePinnedBG: true,
     LastKnownLevel: 10, // set to 10 by default so it loads pages with max_level set to 10 (maximum) before extensions learns actual level
+    NotifyLimit: false,
+    NotifyLimitAmount: 300,
     lastLaunchedVersion: thisVersion,
   }, (data) => {
     settings = data;
@@ -362,7 +395,16 @@ chrome.alarms.create('routine', {
 
 /* Creating a new tab if notification is clicked */
 chrome.notifications.onClicked.addListener((notificationId) => {
-  const url = (notificationId === '1.5.0 announcement') ? 'http://steamcommunity.com/groups/autojoin#announcements/detail/1485483400577229657' : 'https://www.steamgifts.com/giveaways/won';
+  switch(notificationId) {
+    case '1.5.0 announcement':
+      url = 'http://steamcommunity.com/groups/autojoin#announcements/detail/1485483400577229657';
+      break;
+    case 'points_notification':
+      url = 'https://www.steamgifts.com/';
+      break;
+    default: 
+      url = 'https://www.steamgifts.com/giveaways/won';
+  }
   chrome.windows.getCurrent((currentWindow) => {
     if (currentWindow) {
       chrome.tabs.create({
