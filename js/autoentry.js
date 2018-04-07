@@ -103,7 +103,7 @@ function parsePage(pageHTML) {
     const levelMatch = giveawayDOM.querySelector('.giveaway__column--contributor-level');
     const level = (levelMatch) ? Number.parseInt(levelMatch.textContent.match(/Level (\d)/)[1], 10) : 0;
     const numberOfEntries = Number.parseInt(giveawayDOM.querySelector('.fa-tag + span').textContent, 10);
-    const timeleft = (giveawayDOM.querySelector('.fa-clock-o + span').dataset.timestamp * 1000) - timePageLoaded;
+	const timeleft = (giveawayDOM.querySelector('.fa-clock-o + span').dataset.timestamp * 1000) - timePageLoaded;
     const status = { NoPoints: false, NoLevel: false, Entered: false };
     if (currentState.points < cost) {
       status.NoPoints = true;
@@ -192,11 +192,13 @@ function modifyPageDOM(pageDOM, timeLoaded) {
     descriptionA.appendChild(descriptionIcon);
     descriptionA.appendChild(document.createTextNode(' '));
     descriptionA.appendChild(descriptionText);
-    descriptionDiv.appendChild(descriptionA);
+	descriptionDiv.appendChild(descriptionA);
     giveaway.querySelector('.giveaway__links').appendChild(descriptionDiv);
     if (document.querySelector('.pinned-giveaways__inner-wrap') && document.querySelector('.pinned-giveaways__inner-wrap').children.length === 0) {
       document.querySelector('.pinned-giveaways__inner-wrap').remove();
-    }
+	}
+	let timeRemaining = giveaway.querySelector('.fa-clock-o + span').dataset.timestamp - timeLoaded;
+	giveaway.querySelector('.fa-clock-o + span').textContent = secToTime(timeRemaining);
   });
 }
 
@@ -1018,4 +1020,26 @@ function hasGame(id) {
 
 function inWishlist(id) {
   return wishList.indexOf(id) > -1;
+}
+function secToTime(x){
+	let days=Math.floor(x/86400);
+	x%=86400;
+	let hours=Math.floor(x/3600);
+	x%=3600;
+	let minutes=Math.floor(x/60);
+	x%=60;
+	let sec=x;
+	if(minutes === 0){
+		return sec+ "sec";
+	}
+	else if(hours===0){
+		return minutes+"m:"+sec+"sec";
+	}
+	else if(days===0){
+		return hours+"h:"+minutes+"m:"+sec+"sec";
+	}
+	else{
+		return days+"d:"+hours+"h:"+minutes+"m:"+sec+"sec";
+	}
+
 }
