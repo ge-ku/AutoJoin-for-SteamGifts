@@ -1029,17 +1029,17 @@ function secToTime(x){
 	let minutes=Math.floor(x/60);
 	x%=60;
 	let sec=x;
-	if(minutes === 0){
-		return sec+ "sec";
+	if(days !== 0){
+		return days+"d:"+hours+"h:"+minutes+"m:"+sec+"sec";
 	}
-	else if(hours===0){
-		return minutes+"m:"+sec+"sec";
-	}
-	else if(days===0){
+	else if(hours!==0){
 		return hours+"h:"+minutes+"m:"+sec+"sec";
 	}
+	else if(minutes!==0){
+		return minutes+"m:"+sec+"sec";
+	}
 	else{
-		return days+"d:"+hours+"h:"+minutes+"m:"+sec+"sec";
+		return sec+ "sec";
 	}
 
 }
