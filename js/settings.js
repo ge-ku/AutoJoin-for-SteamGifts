@@ -46,6 +46,7 @@ function loadSettings() {
     ShowChance: true,
     NotifyLimit: false,
     NotifyLimitAmount: 300,
+    PreciseTime: false,
   }, (settings) => {
     fillSettingsDiv(settings);
   });
@@ -96,6 +97,7 @@ function fillSettingsDiv(settings) {
   document.getElementById('chkIgnorePreserveWishlistOnMainBG').checked = settings.IgnorePreserveWishlistOnMainBG;
   document.getElementById('chkNotifyLimit').checked = settings.NotifyLimit;
   document.getElementById('notifyLimitAmount').value = settings.NotifyLimitAmount;
+  document.getElementById('chkPreciseTime').checked = settings.PreciseTime;
   if (settings.RepeatHoursBG === 0) {
     document.getElementById('hoursFieldBG').value = '0.5';
   } else {
@@ -154,6 +156,7 @@ function settingsAttachEventListeners() {
       ShowChance: document.getElementById('chkShowChance').checked,
       NotifyLimit: document.getElementById('chkNotifyLimit').checked,
       NotifyLimitAmount: document.getElementById('notifyLimitAmount').value,
+      PreciseTime: document.getElementById('chkPreciseTime').checked,
     }, () => {
       if (document.location.protocol !== 'http:' && document.location.protocol !== 'https:') {
         saveButtonEl.innerText = 'Settings Saved!';
