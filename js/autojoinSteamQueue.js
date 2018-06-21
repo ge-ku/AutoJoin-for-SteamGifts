@@ -6,14 +6,15 @@
 //    "matches": [ "*://store.steampowered.com/*" ]
 // }
 
-if (Date.now() < 1515088800000) {
+const summer2018 = new Date(2018, 6, 6);
+if (Date.now() < summer2018) {
   // I will update extension after the sale and remove this injection but.. in case I die you're not stuck with useless button :)
 
   // We have to inject it like this to access global functions and variables
   const scriptToInject = `var DiscoveryQueueModal, GenerateQueue = function(queueNumber) {
   DiscoveryQueueModal = ShowBlockingWaitDialog('Exploring queue...', 'Generating new discovery queue #' + ++queueNumber);
 
-  jQuery.post('http://store.steampowered.com/explore/generatenewdiscoveryqueue', {
+  jQuery.post('//store.steampowered.com/explore/generatenewdiscoveryqueue', {
     sessionid: g_sessionID,
     queuetype: 0
   }).done(function(data) {
@@ -22,7 +23,7 @@ if (Date.now() < 1515088800000) {
       errorShown;
 
     for (var i = 0; i < data.queue.length; i++) {
-      var request = jQuery.post('http://store.steampowered.com/app/10', {
+      var request = jQuery.post('//store.steampowered.com/app/10', {
         appid_to_clear_from_queue: data.queue[i],
         sessionid: g_sessionID
       });
