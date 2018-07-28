@@ -3,6 +3,195 @@
   This script page is the background script. autoentry.js is the autojoin button and other page
   modifications */
 
+  // should be integrated into the chrome alarm system instead of the basic setInterval
+  setInterval(function(){
+  $.get('https://www.steamgifts.com/giveaways/won', function(wonPage) {
+
+    // if(autoRedeemOption) {
+
+        $(wonPage).find(".view_key_btn").each(function() {
+        // Get necessary data
+        var dataForm = $(this).parent().next().find("form");
+        var winnerId = dataForm.find("input[name='winner_id']").val();
+        var xsrfToken = dataForm.find("input[name='xsrf_token']").val();
+        var latestSteamKeyRedeemResponse = ""; // for debugging
+        var latestSteamGiftsKeyRequestResponse = ""; // for debugging
+
+        // Request the won key
+        $.post("https://www.steamgifts.com/ajax.php", {
+            do: "view_key",
+            winner_id: winnerId,
+            xsrf_token: xsrfToken
+        }, function(data) {
+
+            data = JSON.stringify(data)
+            var key = data.substr( data.indexOf("?key=") + 5, data.substr( data.indexOf("?key=") ).indexOf("\\") - 5 ); // RIP
+            latestSteamGiftsKeyRequestResponse = data; // for debugging
+
+            // Check key format
+            if (/^[a-zA-Z0-9]{4,6}\-[a-zA-Z0-9]{4,6}\-[a-zA-Z0-9]{4,6}$/.test(key)) {
+
+                $.get("http://store.steampowered.com", function(data) {
+
+                    // Check if user is logged in on Steam
+                    if (data.indexOf("playerAvatar") != -1) {
+
+                        var steamSessionId = data.substr(data.indexOf("g_sessionID") + 15, 24);
+
+                        $.post("https://store.steampowered.com/account/ajaxregisterkey/", {
+                            product_key: key,
+                            sessionid: steamSessionId
+                        }, function(data) {
+
+                            latestSteamKeyRedeemResponse = JSON.stringify(data); // for debugging
+
+                            var redeemedGames = "";
+                            var itemsList = data.purchase_receipt_info.line_items;
+                            for (var i = 0; i < itemsList.length; i++) {
+                                if (!i) {
+                                    redeemedGames += itemsList[i].line_item_description;
+                                } else {
+                                    redeemedGames += ", " + itemsList[i].line_item_description;
+                                }
+                            }
+
+                            console.log(steamKeyRedeemResponses[data.purchase_result_details]);
+
+                            // Check response (success needs to be exactly 1, no more, no less)
+                            if (data.success === 1) {
+                                console.log("Steam Code for " + redeemedGames + " was redeemed successfully!");
+                                //notifySteamCodeResponse("Steam Code for " + redeemedGames + " was redeemed successfully!");
+
+                                // Mark as received
+                                $.post("https://www.steamgifts.com/ajax.php", {
+                                    xsrf_token: xsrfToken,
+                                    do: "received_feedback",
+                                    action: "1",
+                                    winner_id: winnerId
+                                });
+
+                            } else if (steamKeyRedeemResponses[data.purchase_result_details] != undefined) {
+                                // In case there is an error but the names of the games failed to be redeemed are also returned
+                                if (redeemedGames != "") {
+                                    console.log("[!] Steam Code: " + key + " for " + redeemedGames + " was not redeemed! Error: " + steamKeyRedeemResponses[data.purchase_result_details]);
+                                    //notifySteamCodeResponse("Steam Code: " + key + " for " + redeemedGames + " was not redeemed!\nError: " + steamKeyRedeemResponses[data.purchase_result_details]);
+                                } else {
+                                    console.log("[!] Steam Code: " + key + " was not redeemed! Error: " + steamKeyRedeemResponses[data.purchase_result_details]);
+                                    //notifySteamCodeResponse("Steam Code: " + key + " was not redeemed!\nError: " + steamKeyRedeemResponses[data.purchase_result_details]);
+                                }
+                            } else {
+                                console.log("[!] Steam Code: " + key + " was not redeemed! Unknown Error. Debug: " + latestSteamKeyRedeemResponse);
+                                //notifySteamCodeResponse("Steam Code: " + key + " was not redeemed!\nUnknown Error.");
+                            }
+
+                        });
+
+                    } else {
+                        console.log("[!] Not logged in on Steam! Code: " + key + " was not redeemed!");
+                        ////notifySteamCodeResponse("Not logged in on Steam!\nCode: " + key + " was not redeemed!");
+                    }
+
+                });
+
+            } else {
+                console.log("[!] Invalid Format!");
+                ////notifySteamCodeResponse("Invalid Format!\nCode: " + key + " was not redeemed!");
+            }
+
+        });
+      });
+
+      /* Feel free to integrate the messages from the "notifySteamCodeResponse" calls to your notification system
+      // Notifies about the steams response of a key sent to be redeemed
+      function notifySteamCodeResponse(info) {
+
+          var notificationSteamCodeResponse = new Notification("Steam Code Database", {
+              body: info,
+              icon: "img/icon.png"
+          });
+          notificationSteamCodeResponse.onclick = function() {
+              notificationSteamCodeResponse.close();
+          };
+          setTimeout(function() {
+              notificationSteamCodeResponse.close();
+          }, 10000);
+
+      }
+      */
+    });
+}, 1000 * 60 * 5);
+
+var steamKeyRedeemResponses = {
+    0: "NoDetail",
+    1: "AVSFailure",
+    2: "InsufficientFunds",
+    3: "ContactSupport",
+    4: "Timeout",
+    5: "InvalidPackage",
+    6: "InvalidPaymentMethod",
+    7: "InvalidData",
+    8: "OthersInProgress",
+    9: "AlreadyPurchased",
+    10: "WrongPrice",
+    11: "FraudCheckFailed",
+    12: "CancelledByUser",
+    13: "RestrictedCountry",
+    14: "BadActivationCode",
+    15: "DuplicateActivationCode",
+    16: "UseOtherPaymentMethod",
+    17: "UseOtherFunctionSource",
+    18: "InvalidShippingAddress",
+    19: "RegionNotSupported",
+    20: "AcctIsBlocked",
+    21: "AcctNotVerified",
+    22: "InvalidAccount",
+    23: "StoreBillingCountryMismatch",
+    24: "DoesNotOwnRequiredApp",
+    25: "CanceledByNewTransaction",
+    26: "ForceCanceledPending",
+    27: "FailCurrencyTransProvider",
+    28: "FailedCyberCafe",
+    29: "NeedsPreApproval",
+    30: "PreApprovalDenied",
+    31: "WalletCurrencyMismatch",
+    32: "EmailNotValidated",
+    33: "ExpiredCard",
+    34: "TransactionExpired",
+    35: "WouldExceedMaxWallet",
+    36: "MustLoginPS3AppForPurchase",
+    37: "CannotShipToPOBox",
+    38: "InsufficientInventory",
+    39: "CannotGiftShippedGoods",
+    40: "CannotShipInternationally",
+    41: "BillingAgreementCancelled",
+    42: "InvalidCoupon",
+    43: "ExpiredCoupon",
+    44: "AccountLocked",
+    45: "OtherAbortableInProgress",
+    46: "ExceededSteamLimit",
+    47: "OverlappingPackagesInCart",
+    48: "NoWallet",
+    49: "NoCachedPaymentMethod",
+    50: "CannotRedeemCodeFromClient",
+    51: "PurchaseAmountNoSupportedByProvider",
+    52: "OverlappingPackagesInPendingTransaction",
+    53: "RateLimited",
+    54: "OwnsExcludedApp",
+    55: "CreditCardBinMismatchesType",
+    56: "CartValueTooHigh",
+    57: "BillingAgreementAlreadyExists",
+    58: "POSACodeNotActivated",
+    59: "CannotShipToCountry",
+    60: "HungTransactionCancelled",
+    61: "PaypalInternalError",
+    62: "UnknownGlobalCollectError",
+    63: "InvalidTaxAddress",
+    64: "PhysicalProductLimitExceeded",
+    65: "PurchaseCannotBeReplayed",
+    66: "DelayedCompletion",
+    67: "BundleTypeCannotBeGifted"
+};
+
 function Giveaway(code, level, appid, odds, cost, timeleft) {
   this.code = code;
   this.level = level;
@@ -308,7 +497,7 @@ function settingsloaded() {
       if (settings.LastKnownLevel !== parseInt(mylevel, 10)) {
         chrome.storage.sync.set({ LastKnownLevel: parseInt(mylevel, 10) });
       }
-        
+
       // var numOfGAsOnPage = parseInt($(data).find('.pagination__results').children().next().text(), 10);
       if (currPoints >= settings.PointsToPreserve || (useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG)) {
         scanpage(data); // scan this page that was already loaded to get info above
@@ -402,7 +591,7 @@ chrome.notifications.onClicked.addListener((notificationId) => {
     case 'points_notification':
       url = 'https://www.steamgifts.com/';
       break;
-    default: 
+    default:
       url = 'https://www.steamgifts.com/giveaways/won';
   }
   chrome.windows.getCurrent((currentWindow) => {
