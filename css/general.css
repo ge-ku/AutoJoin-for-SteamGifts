@@ -213,6 +213,10 @@
 	padding: 0;
 }
 
+#settingsDiv #enableAJrow {
+	min-height: 4em;
+}
+
 #settingsShade {
 	z-index: 7999;
 	visibility: hidden;
