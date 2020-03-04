@@ -7,7 +7,7 @@ const currentState = {
   amountOfPoints: 0,
   set points(n) {
     this.amountOfPoints = parseInt(n, 10);
-    document.querySelectorAll('.nav__points').forEach((el) => {
+    document.querySelectorAll('.nav__points').forEach(el => {
       el.textContent = this.amountOfPoints;
     });
   },
@@ -28,7 +28,17 @@ let pageLink;
 let thirdPart;
 
 class Giveaway {
-  constructor(code, appid, name, cost, timeleft, level, numberOfCopies, numberOfEntries, status) {
+  constructor(
+    code,
+    appid,
+    name,
+    cost,
+    timeleft,
+    level,
+    numberOfCopies,
+    numberOfEntries,
+    status
+  ) {
     this.code = code;
     this.appid = appid;
     this.name = name;
@@ -45,9 +55,13 @@ class Giveaway {
     formData.append('xsrf_token', token);
     formData.append('do', 'entry_insert');
     formData.append('code', this.code);
-    return fetch('https://www.steamgifts.com/ajax.php', { method: 'post', credentials: 'include', body: formData })
+    return fetch('https://www.steamgifts.com/ajax.php', {
+      method: 'post',
+      credentials: 'include',
+      body: formData,
+    })
       .then(resp => resp.json())
-      .then((jsonResponse) => {
+      .then(jsonResponse => {
         if (jsonResponse.type === 'success') {
           this.status = 'Entered';
         } else {
@@ -63,9 +77,13 @@ class Giveaway {
     formData.append('xsrf_token', token);
     formData.append('do', 'entry_delete');
     formData.append('code', this.code);
-    return fetch('https://www.steamgifts.com/ajax.php', { method: 'post', credentials: 'include', body: formData })
+    return fetch('https://www.steamgifts.com/ajax.php', {
+      method: 'post',
+      credentials: 'include',
+      body: formData,
+    })
       .then(resp => resp.json())
-      .then((jsonResponse) => {
+      .then(jsonResponse => {
         if (jsonResponse.type === 'success') {
           this.status = 'Ready';
         } else {
@@ -82,41 +100,83 @@ function parsePage(pageHTML) {
   const parser = new DOMParser();
   const pageDOM = parser.parseFromString(pageHTML, 'text/html'); // contains DOM of a whole page
   const pageGiveawaysDiv = pageDOM.querySelector('.page__heading + div');
-  const giveawaysDOM = pageGiveawaysDiv.querySelectorAll('.giveaway__row-outer-wrap');
+  const giveawaysDOM = pageGiveawaysDiv.querySelectorAll(
+    '.giveaway__row-outer-wrap'
+  );
   const pageGiveaways = [];
 
-  giveawaysDOM.forEach((giveawayDOM) => {
-    const giveawayHeadingName = giveawayDOM.querySelector('.giveaway__heading__name');
+  giveawaysDOM.forEach(giveawayDOM => {
+    const giveawayHeadingName = giveawayDOM.querySelector(
+      '.giveaway__heading__name'
+    );
     const code = giveawayHeadingName.href.match(/giveaway\/(.+)\//)[1];
     const name = giveawayHeadingName.textContent;
-    const appid = giveawayDOM.querySelector('.fa.fa-steam').parentNode.href.match(/\/(\d+)\//)[1];
-    const copiesAndCostElements = giveawayDOM.querySelectorAll('.giveaway__heading__thin');
+    const appid = giveawayDOM
+      .querySelector('.fa.fa-steam')
+      .parentNode.href.match(/\/(\d+)\//)[1];
+    const copiesAndCostElements = giveawayDOM.querySelectorAll(
+      '.giveaway__heading__thin'
+    );
     let cost;
     let numberOfCopies;
     if (copiesAndCostElements.length > 1) {
-      numberOfCopies = Number.parseInt(copiesAndCostElements[0].textContent.replace(',', '').match(/\d+/)[0], 10);
-      cost = Number.parseInt(copiesAndCostElements[1].textContent.match(/\d+/)[0], 10);
+      numberOfCopies = Number.parseInt(
+        copiesAndCostElements[0].textContent.replace(',', '').match(/\d+/)[0],
+        10
+      );
+      cost = Number.parseInt(
+        copiesAndCostElements[1].textContent.match(/\d+/)[0],
+        10
+      );
     } else {
       numberOfCopies = 1;
-      cost = Number.parseInt(copiesAndCostElements[0].textContent.match(/\d+/)[0], 10);
+      cost = Number.parseInt(
+        copiesAndCostElements[0].textContent.match(/\d+/)[0],
+        10
+      );
     }
-    const levelMatch = giveawayDOM.querySelector('.giveaway__column--contributor-level');
-    const level = (levelMatch) ? Number.parseInt(levelMatch.textContent.match(/Level (\d)/)[1], 10) : 0;
-    const numberOfEntries = Number.parseInt(giveawayDOM.querySelector('.fa-tag + span').textContent, 10);
-    const timeleft = (giveawayDOM.querySelector('.fa-clock-o + span').dataset.timestamp * 1000) - timePageLoaded;
+    const levelMatch = giveawayDOM.querySelector(
+      '.giveaway__column--contributor-level'
+    );
+    const level = levelMatch
+      ? Number.parseInt(levelMatch.textContent.match(/Level (\d)/)[1], 10)
+      : 0;
+    const numberOfEntries = Number.parseInt(
+      giveawayDOM.querySelector('.fa-tag + span').textContent,
+      10
+    );
+    const timeleft =
+      giveawayDOM.querySelector('.fa-clock-o + span').dataset.timestamp * 1000 -
+      timePageLoaded;
     const status = { NoPoints: false, NoLevel: false, Entered: false };
     if (currentState.points < cost) {
       status.NoPoints = true;
     }
-    if (levelMatch && levelMatch.classList.contains('giveaway__column--contributor-level--negative')) {
+    if (
+      levelMatch &&
+      levelMatch.classList.contains(
+        'giveaway__column--contributor-level--negative'
+      )
+    ) {
       status.NoLevel = true;
     }
-    if (giveawayDOM.querySelector('.giveaway__row-inner-wrap').classList.contains('is-faded')) {
+    if (
+      giveawayDOM
+        .querySelector('.giveaway__row-inner-wrap')
+        .classList.contains('is-faded')
+    ) {
       status.Entered = true; // doesn't work for some reason
     }
     const giveaway = new Giveaway(
-      code, appid, name, cost, timeleft, level,
-      numberOfCopies, numberOfEntries, status,
+      code,
+      appid,
+      name,
+      cost,
+      timeleft,
+      level,
+      numberOfCopies,
+      numberOfEntries,
+      status
     );
     pageGiveaways.push(giveaway);
   });
@@ -124,10 +184,14 @@ function parsePage(pageHTML) {
 }
 
 function modifyPageDOM(pageDOM, timeLoaded) {
-  pageDOM.querySelectorAll('.giveaway__row-outer-wrap').forEach((giveaway) => {
-    const giveawayInnerWrap = giveaway.querySelector('.giveaway__row-inner-wrap');
+  pageDOM.querySelectorAll('.giveaway__row-outer-wrap').forEach(giveaway => {
+    const giveawayInnerWrap = giveaway.querySelector(
+      '.giveaway__row-inner-wrap'
+    );
 
-    const levelEl = giveaway.querySelector('.giveaway__column--contributor-level');
+    const levelEl = giveaway.querySelector(
+      '.giveaway__column--contributor-level'
+    );
     let level;
     if (levelEl === null) {
       level = 0;
@@ -152,13 +216,21 @@ function modifyPageDOM(pageDOM, timeLoaded) {
       const joinBtn = document.createElement('input');
       joinBtn.type = 'button';
       joinBtn.className = 'btnSingle';
-      if (giveawayInnerWrap.querySelector('.giveaway__column--contributor-level--negative')) {
+      if (
+        giveawayInnerWrap.querySelector(
+          '.giveaway__column--contributor-level--negative'
+        )
+      ) {
         joinBtn.value = 'Need a higher level';
         joinBtn.setAttribute('walkState', 'no-level');
         joinBtn.disabled = true;
       } else {
-        const pointsAndNumberOfCopies = giveaway.querySelectorAll('.giveaway__heading__thin');
-        const pointsNeededRaw = pointsAndNumberOfCopies[pointsAndNumberOfCopies.length - 1].textContent.match(/(\d+)P/);
+        const pointsAndNumberOfCopies = giveaway.querySelectorAll(
+          '.giveaway__heading__thin'
+        );
+        const pointsNeededRaw = pointsAndNumberOfCopies[
+          pointsAndNumberOfCopies.length - 1
+        ].textContent.match(/(\d+)P/);
         const pointsNeeded = pointsNeededRaw[pointsNeededRaw.length - 1];
         if (parseInt(pointsNeeded, 10) > currentState.points) {
           joinBtn.value = 'Not enough points';
@@ -172,7 +244,11 @@ function modifyPageDOM(pageDOM, timeLoaded) {
       giveawayInnerWrap.appendChild(joinBtn);
     }
     giveaway.querySelector('.giveaway__hide').dataset.popup = '';
-    if (settings.HideDlc || settings.HideNonTradingCards || settings.HideGroups) {
+    if (
+      settings.HideDlc ||
+      settings.HideNonTradingCards ||
+      settings.HideGroups
+    ) {
       checkAppData(giveaway, timeLoaded);
     }
     if (settings.ShowChance) {
@@ -181,10 +257,17 @@ function modifyPageDOM(pageDOM, timeLoaded) {
       oddsDiv.title = 'approx. odds of winning';
       const oddsIcon = document.createElement('i');
       oddsIcon.className = 'fa fa-trophy';
-      const oddsText = document.createTextNode(` ${calculateWinChance(giveaway, timeLoaded)}%`);
+      const oddsText = document.createTextNode(
+        ` ${calculateWinChance(giveaway, timeLoaded)}%`
+      );
       oddsDiv.appendChild(oddsIcon);
       oddsDiv.appendChild(oddsText);
-      giveaway.querySelector('.giveaway__columns').insertBefore(oddsDiv, giveaway.querySelector('.giveaway__columns').firstChild);
+      giveaway
+        .querySelector('.giveaway__columns')
+        .insertBefore(
+          oddsDiv,
+          giveaway.querySelector('.giveaway__columns').firstChild
+        );
     }
     const descriptionDiv = document.createElement('div');
     descriptionDiv.className = 'description descriptionLoad';
@@ -198,70 +281,84 @@ function modifyPageDOM(pageDOM, timeLoaded) {
     descriptionA.appendChild(descriptionText);
     descriptionDiv.appendChild(descriptionA);
     giveaway.querySelector('.giveaway__links').appendChild(descriptionDiv);
-    if (document.querySelector('.pinned-giveaways__inner-wrap') && document.querySelector('.pinned-giveaways__inner-wrap').children.length === 0) {
+    if (
+      document.querySelector('.pinned-giveaways__inner-wrap') &&
+      document.querySelector('.pinned-giveaways__inner-wrap').children
+        .length === 0
+    ) {
       document.querySelector('.pinned-giveaways__inner-wrap').remove();
     }
-    let timeRemaining = giveaway.querySelector('.fa-clock-o + span').dataset.timestamp - timeLoaded;
+    let timeRemaining =
+      giveaway.querySelector('.fa-clock-o + span').dataset.timestamp -
+      timeLoaded;
     if (settings.PreciseTime) {
-      giveaway.querySelector('.fa-clock-o + span').textContent = secToTime(timeRemaining);
+      giveaway.querySelector('.fa-clock-o + span').textContent = secToTime(
+        timeRemaining
+      );
     }
   });
 }
 
-chrome.storage.sync.get({
-  lastLaunchedVersion: thisVersion,
-}, () => {
-  chrome.storage.sync.get({
-    AutoJoinButton: false,
-    AutoDescription: true,
-    IgnoreGroups: false,
-    IgnorePinned: true,
-    IgnoreWhitelist: false,
-    IgnoreGroupsBG: false,
-    IgnorePinnedBG: true,
-    PageForBG: 'wishlist',
-    RepeatHoursBG: 5,
-    PagesToLoad: 3,
-    PagesToLoadBG: 2,
-    BackgroundAJ: false,
-    LevelPriorityBG: true,
-    OddsPriorityBG: false,
+chrome.storage.sync.get(
+  {
     lastLaunchedVersion: thisVersion,
-    InfiniteScrolling: true,
-    ShowPoints: true,
-    ShowButtons: true,
-    LoadFive: false,
-    HideDlc: false,
-    HideEntered: false,
-    HideGroups: false,
-    HideNonTradingCards: false,
-    HideWhitelist: false,
-    HideLevelsBelow: 0,
-    PriorityGroup: false,
-    PriorityRegion: false,
-    PriorityWhitelist: false,
-    PriorityWishlist: true,
-    RepeatIfOnPage: false,
-    RepeatHours: 5,
-    NightTheme: false,
-    LevelPriority: false,
-    PlayAudio: true,
-    AudioVolume: 1,
-    DelayBG: 10,
-    Delay: 10,
-    MinLevelBG: 0,
-    MinCost: 0,
-    MinCostBG: 0,
-    ShowChance: true,
-    PreciseTime: false,
-  }, (data) => {
-    settings = data;
-    loadCache();
-  });
-});
+  },
+  () => {
+    chrome.storage.sync.get(
+      {
+        AutoJoinButton: false,
+        AutoDescription: true,
+        IgnoreGroups: false,
+        IgnorePinned: true,
+        IgnoreWhitelist: false,
+        IgnoreGroupsBG: false,
+        IgnorePinnedBG: true,
+        PageForBG: 'wishlist',
+        RepeatHoursBG: 5,
+        PagesToLoad: 3,
+        PagesToLoadBG: 2,
+        BackgroundAJ: false,
+        LevelPriorityBG: true,
+        OddsPriorityBG: false,
+        lastLaunchedVersion: thisVersion,
+        InfiniteScrolling: true,
+        ShowPoints: true,
+        ShowButtons: true,
+        LoadFive: false,
+        HideDlc: false,
+        HideEntered: false,
+        HideGroups: false,
+        HideNonTradingCards: false,
+        HideWhitelist: false,
+        HideLevelsBelow: 0,
+        PriorityGroup: false,
+        PriorityRegion: false,
+        PriorityWhitelist: false,
+        PriorityWishlist: true,
+        RepeatIfOnPage: false,
+        RepeatHours: 5,
+        NightTheme: false,
+        LevelPriority: false,
+        PlayAudio: true,
+        AudioVolume: 1,
+        DelayBG: 10,
+        Delay: 10,
+        MinLevelBG: 0,
+        MinCost: 0,
+        MinCostBG: 0,
+        ShowChance: true,
+        PreciseTime: false,
+      },
+      data => {
+        settings = data;
+        loadCache();
+      }
+    );
+  }
+);
 
 function loadCache() {
-  chrome.storage.local.get((data) => {
+  chrome.storage.local.get(data => {
     if (typeof data.Packages != 'undefined') {
       steamPackageData = data.Packages;
       console.log('Steam packages that are already cached: ', steamPackageData);
@@ -272,7 +369,9 @@ function loadCache() {
     }
 
     let xhr = new XMLHttpRequest();
-    let user = $('.nav__button-container--notification').find('a.nav__avatar-outer-wrap').attr('href');
+    let user = $('.nav__button-container--notification')
+      .find('a.nav__avatar-outer-wrap')
+      .attr('href');
     let steamProfileID;
 
     if (user == undefined) {
@@ -280,7 +379,7 @@ function loadCache() {
     }
 
     xhr.open('GET', `https://www.steamgifts.com${user}`, true);
-    xhr.onreadystatechange = function () {
+    xhr.onreadystatechange = function() {
       if (xhr.readyState == 4) {
         if (xhr.status == 200) {
           let regex = /steamcommunity\.com\/profiles\/(\d+)/g;
@@ -296,8 +395,12 @@ function loadCache() {
           }
 
           let xhr = new XMLHttpRequest();
-          xhr.open('GET', `https://steamcommunity.com/profiles/${steamProfileID}/games/?tab=all`, true);
-          xhr.onreadystatechange = function () {
+          xhr.open(
+            'GET',
+            `https://steamcommunity.com/profiles/${steamProfileID}/games/?tab=all`,
+            true
+          );
+          xhr.onreadystatechange = function() {
             if (xhr.readyState == 4) {
               if (xhr.status == 200) {
                 let regex = /rgGames\s=\s(.*);/g;
@@ -305,7 +408,11 @@ function loadCache() {
                 if (regexResponse != null) {
                   let jsonResponse = JSON.parse(regexResponse[1]);
                   ownedSteamApps = [];
-                  for (let i = 0, numApps = jsonResponse.length; i < numApps; i++) {
+                  for (
+                    let i = 0, numApps = jsonResponse.length;
+                    i < numApps;
+                    i++
+                  ) {
                     ownedSteamApps.push(jsonResponse[i].appid);
                   }
                   let ownedSteamAppsObj = {};
@@ -317,12 +424,16 @@ function loadCache() {
                 }
               }
             }
-          }
+          };
           xhr.send();
 
           let wishxhr = new XMLHttpRequest();
-          wishxhr.open('GET', `https://steamcommunity.com/profiles/${steamProfileID}/wishlist`, true);
-          wishxhr.onreadystatechange = function () {
+          wishxhr.open(
+            'GET',
+            `https://steamcommunity.com/profiles/${steamProfileID}/wishlist`,
+            true
+          );
+          wishxhr.onreadystatechange = function() {
             if (wishxhr.readyState == 4) {
               if (wishxhr.status == 200) {
                 let regex = /steamcommunity\.com\/app\/(\d+)/g;
@@ -340,11 +451,11 @@ function loadCache() {
               }
               onPageLoad();
             }
-          }
+          };
           wishxhr.send();
         }
       }
-    }
+    };
     xhr.send();
   });
 }
@@ -383,9 +494,11 @@ function onPageLoad() {
     const suspensionNotice = document.createElement('div');
     suspensionNotice.id = 'suspensionNotice';
     const linkToAnnouncement = document.createElement('a');
-    linkToAnnouncement.href = 'http://steamcommunity.com/groups/autojoin#announcements/detail/1485483400577229657';
+    linkToAnnouncement.href =
+      'http://steamcommunity.com/groups/autojoin#announcements/detail/1485483400577229657';
     linkToAnnouncement.target = '_blank';
-    linkToAnnouncement.innerHTML = '<p>By using AutoJoin button and AutoJoin in background you risk getting a suspension.</p><p>Click to read more...</p>';
+    linkToAnnouncement.innerHTML =
+      '<p>By using AutoJoin button and AutoJoin in background you risk getting a suspension.</p><p>Click to read more...</p>';
     suspensionNotice.appendChild(linkToAnnouncement);
 
     buttonsAJ.appendChild(btnAutoJoin);
@@ -404,18 +517,21 @@ function onPageLoad() {
     navbar.appendChild(buttonContainer);
   }
 
-
   /* First time cog/settings button is pressed inject part of settings.html and show it
      If settings already injected just show them */
   document.getElementById('btnSettings').addEventListener('click', () => {
     if (settingsInjected) {
-      document.getElementById('settingsShade').classList.replace('fadeOut', 'fadeIn');
-      document.getElementById('settingsDiv').classList.replace('fadeOut', 'fadeIn');
+      document
+        .getElementById('settingsShade')
+        .classList.replace('fadeOut', 'fadeIn');
+      document
+        .getElementById('settingsDiv')
+        .classList.replace('fadeOut', 'fadeIn');
     } else {
       settingsInjected = true;
       fetch(chrome.extension.getURL('/html/settings.html'))
         .then(resp => resp.text())
-        .then((settingsHTML) => {
+        .then(settingsHTML => {
           const parser = new DOMParser();
           const settingsDOM = parser.parseFromString(settingsHTML, 'text/html');
           const settingsDiv = settingsDOM.getElementById('bodyWrapper');
@@ -427,21 +543,28 @@ function onPageLoad() {
     }
   });
 
-  document.querySelector(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap').parentNode.id = 'posts'; // give div with giveaways id "posts"
+  document.querySelector(
+    ':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap'
+  ).parentNode.id = 'posts'; // give div with giveaways id "posts"
 
   let accountInfo;
   if (settings.ShowPoints) {
     accountInfo = $('a[href="/account"]')
-      .clone().prependTo('body')
+      .clone()
+      .prependTo('body')
       .addClass('pointsFloating')
       .css({ position: 'fixed', opacity: '0' })
       .hide();
   }
 
   if (settings.InfiniteScrolling) {
-    document.querySelector('.widget-container .widget-container--margin-top').remove();
+    document
+      .querySelector('.widget-container .widget-container--margin-top')
+      .remove();
   }
-  const splitPageLinkCheck = $('.pagination__navigation').find('a:contains("Next")');
+  const splitPageLinkCheck = $('.pagination__navigation').find(
+    'a:contains("Next")'
+  );
   let onlyOnePage = false;
   if (splitPageLinkCheck.length === 0) {
     pagesLoaded = 9999;
@@ -456,21 +579,29 @@ function onPageLoad() {
     if (loadingNextPage === false) {
       loadingNextPage = true;
 
-      $('<div>').load(`${window.location.origin + pageLink + pageNumber + thirdPart} :not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap`, function () {
-        if ($(this)[0].children.length < 50) {
-          lastPage = true;
-          pagesLoaded = 9999;
-          $('.pagination').hide();
-        }
-        modifyPageDOM(this, timeLoaded);
-        $('#posts').last().append($(this).html());
-        pageNumber++;
-        pagesLoaded++;
-        loadingNextPage = false;
-        /* if(($(window).scrollTop() + $(window).height() > $(document).height() - 600) && settings.infiniteScrolling) {
+      $('<div>').load(
+        `${window.location.origin +
+          pageLink +
+          pageNumber +
+          thirdPart} :not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap`,
+        function() {
+          if ($(this)[0].children.length < 50) {
+            lastPage = true;
+            pagesLoaded = 9999;
+            $('.pagination').hide();
+          }
+          modifyPageDOM(this, timeLoaded);
+          $('#posts')
+            .last()
+            .append($(this).html());
+          pageNumber++;
+          pagesLoaded++;
+          loadingNextPage = false;
+          /* if(($(window).scrollTop() + $(window).height() > $(document).height() - 600) && settings.infiniteScrolling) {
           loadPage();
         } */
-      });
+        }
+      );
     }
   }
 
@@ -485,7 +616,8 @@ function onPageLoad() {
     let entered = 0;
     let timeouts = [];
 
-    let selectItems = '.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name';
+    let selectItems =
+      '.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name';
 
     // Here I'm filtering the giveaways to enter to only the one created by regular users in the #posts div
     // which means featured giveaways won't be autojoined if users decides so in the options
@@ -494,56 +626,104 @@ function onPageLoad() {
       selectItems = `#posts ${selectItems}`;
     }
 
-    const myLevel = parseInt($('a[href="/account"]')
-      .find('span')
-      .next()
-      .html()
-      .match(/(\d+)/)[1], 10);
+    const myLevel = parseInt(
+      $('a[href="/account"]')
+        .find('span')
+        .next()
+        .html()
+        .match(/(\d+)/)[1],
+      10
+    );
     for (let level = myLevel; level >= 0; level--) {
-      $(selectItems).each(function () {
-        const current = $(this).parent().parent().parent();
-        let whiteListGiveaway = $(current).find('.giveaway__column--whitelist').length != 0;
-        let regionLockedGiveaway = $(current).find('.giveaway__column--region-restricted').length != 0;
-        let steamGroupGiveaway = $(current).find('.giveaway__column--group').length != 0;
-        let giveawayLevel = $(current).find('.giveaway__column--contributor-level').length != 0 ?
-          parseInt($(current).find('.giveaway__column--contributor-level').html().match(/Level (\d)/)[1]) : 0;
-        if (giveawayLevel == level || priorityGiveaway(current, steamGroupGiveaway, regionLockedGiveaway, whiteListGiveaway) &&
-          !ignoreGiveaway(steamGroupGiveaway, whiteListGiveaway)) {
-          const cost = parseInt($(current)
-            .find('.giveaway__heading__thin')
-            .last().html()
-            .match(/\d+/)[0], 10);
+      $(selectItems).each(function() {
+        const current = $(this)
+          .parent()
+          .parent()
+          .parent();
+        let whiteListGiveaway =
+          $(current).find('.giveaway__column--whitelist').length != 0;
+        let regionLockedGiveaway =
+          $(current).find('.giveaway__column--region-restricted').length != 0;
+        let steamGroupGiveaway =
+          $(current).find('.giveaway__column--group').length != 0;
+        let giveawayLevel =
+          $(current).find('.giveaway__column--contributor-level').length != 0
+            ? parseInt(
+                $(current)
+                  .find('.giveaway__column--contributor-level')
+                  .html()
+                  .match(/Level (\d)/)[1]
+              )
+            : 0;
+        if (
+          giveawayLevel == level ||
+          (priorityGiveaway(
+            current,
+            steamGroupGiveaway,
+            regionLockedGiveaway,
+            whiteListGiveaway
+          ) &&
+            !ignoreGiveaway(steamGroupGiveaway, whiteListGiveaway))
+        ) {
+          const cost = parseInt(
+            $(current)
+              .find('.giveaway__heading__thin')
+              .last()
+              .html()
+              .match(/\d+/)[0],
+            10
+          );
           if (cost >= settings.MinCost) {
-            timeouts.push(setTimeout($.proxy(function () {
-              const formData = new FormData();
-              formData.append('xsrf_token', token);
-              formData.append('do', 'entry_insert');
-              formData.append('code', this.href.split('/')[4]);
-              fetch(`${window.location.origin}/ajax.php`, { method: 'post', credentials: 'include', body: formData })
-                .then(resp => resp.json())
-                .then((jsonResponse) => {
-                  if (jsonResponse.type === 'success') {
-                    current.toggleClass('is-faded');
-                    currentState.points = jsonResponse.points;
-                    entered++;
-                    current.find('.btnSingle').attr('walkState', 'leave').prop('disabled', false).val('Leave');
-                    updateButtons();
-                  }
-                  if (jsonResponse.points < 5) {
-                    for (let i = 0; i < timeouts.length; i++) {
-                      clearTimeout(timeouts[i]);
-                    }
-                    timeouts = [];
-                  }
-                  if (entered < 1) {
-                    $('#info').text('No giveaways entered.');
-                  } else {
-                    $('#info').text(`Entered ${entered} giveaway${(entered !== 1) ? 's' : ''}.`);
-                  }
-                });
-            }, this), (timeouts.length * settings.Delay * 1000) + Math.floor(Math.random() * 1000)));
+            timeouts.push(
+              setTimeout(
+                $.proxy(function() {
+                  const formData = new FormData();
+                  formData.append('xsrf_token', token);
+                  formData.append('do', 'entry_insert');
+                  formData.append('code', this.href.split('/')[4]);
+                  fetch(`${window.location.origin}/ajax.php`, {
+                    method: 'post',
+                    credentials: 'include',
+                    body: formData,
+                  })
+                    .then(resp => resp.json())
+                    .then(jsonResponse => {
+                      if (jsonResponse.type === 'success') {
+                        current.toggleClass('is-faded');
+                        currentState.points = jsonResponse.points;
+                        entered++;
+                        current
+                          .find('.btnSingle')
+                          .attr('walkState', 'leave')
+                          .prop('disabled', false)
+                          .val('Leave');
+                        updateButtons();
+                      }
+                      if (jsonResponse.points < 5) {
+                        for (let i = 0; i < timeouts.length; i++) {
+                          clearTimeout(timeouts[i]);
+                        }
+                        timeouts = [];
+                      }
+                      if (entered < 1) {
+                        $('#info').text('No giveaways entered.');
+                      } else {
+                        $('#info').text(
+                          `Entered ${entered} giveaway${
+                            entered !== 1 ? 's' : ''
+                          }.`
+                        );
+                      }
+                    });
+                }, this),
+                timeouts.length * settings.Delay * 1000 +
+                  Math.floor(Math.random() * 1000)
+              )
+            );
           } else {
-            console.log(`^Skipped, cost: ${cost}, your settings.MinCost is ${settings.MinCost}`);
+            console.log(
+              `^Skipped, cost: ${cost}, your settings.MinCost is ${settings.MinCost}`
+            );
           }
         }
       });
@@ -576,21 +756,41 @@ function onPageLoad() {
     // }
     loadingNextPage = false;
     if (settings.InfiniteScrolling) {
-      $('.pagination').html('<div style = "margin-left: auto; margin-right: auto;"><i style="font-size: 55px" class="fa fa-refresh fa-spin"></i></div>');
+      $('.pagination').html(
+        '<div style = "margin-left: auto; margin-right: auto;"><i style="font-size: 55px" class="fa fa-refresh fa-spin"></i></div>'
+      );
     }
     $(window).scroll(() => {
-      if ($(window).scrollTop() > $(window).height() * 2 && settings.ShowPoints) {
-        accountInfo.show().stop().animate({ opacity: 1 }, 'slow');
-      } else if ($(window).scrollTop() < $(window).height() + ($(window).height() / 2) && settings.ShowPoints) {
-        accountInfo.stop().animate({
-          opacity: 0,
-        }, {
-          easing: 'swing',
-          duration: 200,
-          complete: () => { accountInfo.hide(); },
-        });
+      if (
+        $(window).scrollTop() > $(window).height() * 2 &&
+        settings.ShowPoints
+      ) {
+        accountInfo
+          .show()
+          .stop()
+          .animate({ opacity: 1 }, 'slow');
+      } else if (
+        $(window).scrollTop() < $(window).height() + $(window).height() / 2 &&
+        settings.ShowPoints
+      ) {
+        accountInfo.stop().animate(
+          {
+            opacity: 0,
+          },
+          {
+            easing: 'swing',
+            duration: 200,
+            complete: () => {
+              accountInfo.hide();
+            },
+          }
+        );
       }
-      if (($(window).scrollTop() + $(window).height() > $(document).height() - 600) && settings.InfiniteScrolling) {
+      if (
+        $(window).scrollTop() + $(window).height() >
+          $(document).height() - 600 &&
+        settings.InfiniteScrolling
+      ) {
         loadPage();
       }
     });
@@ -598,75 +798,97 @@ function onPageLoad() {
 
   function updateButtons() {
     if (settings.ShowButtons) {
-      document.querySelectorAll('.btnSingle:not([walkState="no-level"])').forEach((el) => {
-        if (!el.parentElement.classList.contains('is-faded')) {
-          const pointsNeededRaw = el.parentElement
-            .querySelector('.giveaway__heading__thin:last-of-type')
-            .textContent.match(/(\d+)P/);
-          const pointsNeeded = parseInt(pointsNeededRaw[pointsNeededRaw.length - 1], 10);
-          if (pointsNeeded > currentState.points) {
-            el.disabled = true;
-            el.value = 'Not enough points';
-            el.setAttribute('walkState', 'no-points');
-          } else {
-            el.disabled = false;
-            el.value = 'Join';
-            el.setAttribute('walkState', 'join');
+      document
+        .querySelectorAll('.btnSingle:not([walkState="no-level"])')
+        .forEach(el => {
+          if (!el.parentElement.classList.contains('is-faded')) {
+            const pointsNeededRaw = el.parentElement
+              .querySelector('.giveaway__heading__thin:last-of-type')
+              .textContent.match(/(\d+)P/);
+            const pointsNeeded = parseInt(
+              pointsNeededRaw[pointsNeededRaw.length - 1],
+              10
+            );
+            if (pointsNeeded > currentState.points) {
+              el.disabled = true;
+              el.value = 'Not enough points';
+              el.setAttribute('walkState', 'no-points');
+            } else {
+              el.disabled = false;
+              el.value = 'Join';
+              el.setAttribute('walkState', 'join');
+            }
           }
-        }
-      });
+        });
     }
   }
 
   const timeOfFirstPage = Math.round(Date.now() / 1000);
   modifyPageDOM(document.querySelector('body'), timeOfFirstPage);
 
-  $('#posts').parent().on('click', '.giveaway__hide', function () {
-    const thisPost = $(this).parent()
-      .parent()
-      .parent()
-      .parent();
-    const gameid = thisPost.attr('data-game-id');
-    console.log(`hiding ${gameid}`);
-    $(this).attr('class', 'giveaway__icon giveaway__hide trigger-popup fa fa-refresh fa-spin');
-    const formData = new FormData();
-    formData.append('xsrf_token', token);
-    formData.append('game_id', gameid);
-    formData.append('do', 'hide_giveaways_by_game_id');
-    fetch(`${window.location.origin}/ajax.php`, { method: 'post', credentials: 'include', body: formData })
-      .then(() => {
-        $(`[data-game-id='${gameid}']`).each(function () {
-          $(this).fadeOut('slow', function () {
+  $('#posts')
+    .parent()
+    .on('click', '.giveaway__hide', function() {
+      const thisPost = $(this)
+        .parent()
+        .parent()
+        .parent()
+        .parent();
+      const gameid = thisPost.attr('data-game-id');
+      console.log(`hiding ${gameid}`);
+      $(this).attr(
+        'class',
+        'giveaway__icon giveaway__hide trigger-popup fa fa-refresh fa-spin'
+      );
+      const formData = new FormData();
+      formData.append('xsrf_token', token);
+      formData.append('game_id', gameid);
+      formData.append('do', 'hide_giveaways_by_game_id');
+      fetch(`${window.location.origin}/ajax.php`, {
+        method: 'post',
+        credentials: 'include',
+        body: formData,
+      }).then(() => {
+        $(`[data-game-id='${gameid}']`).each(function() {
+          $(this).fadeOut('slow', function() {
             $(this).hide();
           });
         });
       });
-  });
+    });
 
-  $('#posts').parent().on('click', '.description', function () {
-    const thisPost = $(this).parent()
-      .parent()
-      .parent()
-      .parent();
-    if ($(this).hasClass('descriptionLoad')) {
-      loadDescription(thisPost[0]);
-    } else {
-      const $descriptionContent = $(thisPost).find('.descriptionContent');
-      if ($descriptionContent.hasClass('visible')) {
-        $descriptionContent.removeClass('visible');
-        $(this).find('span').text('Show description');
+  $('#posts')
+    .parent()
+    .on('click', '.description', function() {
+      const thisPost = $(this)
+        .parent()
+        .parent()
+        .parent()
+        .parent();
+      if ($(this).hasClass('descriptionLoad')) {
+        loadDescription(thisPost[0]);
       } else {
-        $descriptionContent.addClass('visible');
-        $(this).find('span').text('Hide description');
+        const $descriptionContent = $(thisPost).find('.descriptionContent');
+        if ($descriptionContent.hasClass('visible')) {
+          $descriptionContent.removeClass('visible');
+          $(this)
+            .find('span')
+            .text('Show description');
+        } else {
+          $descriptionContent.addClass('visible');
+          $(this)
+            .find('span')
+            .text('Hide description');
+        }
       }
-    }
-  });
+    });
 
-  $(document).on('click', '.btnSingle', function () {
+  $(document).on('click', '.btnSingle', function() {
     const thisButton = $(this);
     const thisWrap = $(this).parent();
     thisButton.prop('disabled', true);
-    const uniqueCode = $(this).parent()
+    const uniqueCode = $(this)
+      .parent()
       .find('.giveaway__heading__name')
       .attr('href')
       .substr(10, 5);
@@ -680,13 +902,21 @@ function onPageLoad() {
         }
       }
       formData.append('do', 'entry_insert');
-      fetch(`${window.location.origin}/ajax.php`, { method: 'post', credentials: 'include', body: formData })
+      fetch(`${window.location.origin}/ajax.php`, {
+        method: 'post',
+        credentials: 'include',
+        body: formData,
+      })
         .then(resp => resp.json())
-        .then((jsonResponse) => {
+        .then(jsonResponse => {
           if (jsonResponse.type === 'success') {
             thisWrap.toggleClass('is-faded');
             if (settings.HideEntered) {
-              thisWrap.fadeOut(300, function () { $(this).parent().remove(); });
+              thisWrap.fadeOut(300, function() {
+                $(this)
+                  .parent()
+                  .remove();
+              });
             } else {
               thisButton.attr('walkState', 'leave');
               thisButton.prop('disabled', false);
@@ -701,9 +931,13 @@ function onPageLoad() {
         });
     } else {
       formData.append('do', 'entry_delete');
-      fetch(`${window.location.origin}/ajax.php`, { method: 'post', credentials: 'include', body: formData })
+      fetch(`${window.location.origin}/ajax.php`, {
+        method: 'post',
+        credentials: 'include',
+        body: formData,
+      })
         .then(resp => resp.json())
-        .then((jsonResponse) => {
+        .then(jsonResponse => {
           if (jsonResponse.type === 'success') {
             thisWrap.toggleClass('is-faded');
             currentState.points = jsonResponse.points;
@@ -737,7 +971,9 @@ function onPageLoad() {
           settings.InfiniteScrolling = false;
           $('#posts').empty();
           loadPage();
-          setTimeout(() => { settings.InfiniteScrolling = true; }, 5000);
+          setTimeout(() => {
+            settings.InfiniteScrolling = true;
+          }, 5000);
         } else {
           $('#posts').empty();
           loadPage();
@@ -749,20 +985,42 @@ function onPageLoad() {
 }
 
 function calculateWinChance(giveaway, timeLoaded) {
-  const timeLeft = parseInt(giveaway.querySelector('.fa.fa-clock-o + span').dataset.timestamp, 10) - timeLoaded; // time left in seconds
-  const timePassed = timeLoaded - parseInt(giveaway.querySelector('.giveaway__username').parentElement.querySelector('span').dataset.timestamp, 10); // time passed in seconds
-  const numberOfEntries = parseInt(giveaway.querySelector('.fa-tag + span')
-    .textContent.replace(',', ''), 10);
+  const timeLeft =
+    parseInt(
+      giveaway.querySelector('.fa.fa-clock-o + span').dataset.timestamp,
+      10
+    ) - timeLoaded; // time left in seconds
+  const timePassed =
+    timeLoaded -
+    parseInt(
+      giveaway
+        .querySelector('.giveaway__username')
+        .parentElement.querySelector('span').dataset.timestamp,
+      10
+    ); // time passed in seconds
+  const numberOfEntries = parseInt(
+    giveaway.querySelector('.fa-tag + span').textContent.replace(',', ''),
+    10
+  );
   let numberOfCopies = 1;
-  if (giveaway.querySelector('.giveaway__heading__thin')
-    .textContent.replace(',', '')
-    .match(/\(\d+ Copies\)/)) { // if more than one copy there's a text field "(N Copies)"
-    numberOfCopies = parseInt(giveaway.querySelector('.giveaway__heading__thin')
+  if (
+    giveaway
+      .querySelector('.giveaway__heading__thin')
       .textContent.replace(',', '')
-      .match(/\d+/)[0], 10);
+      .match(/\(\d+ Copies\)/)
+  ) {
+    // if more than one copy there's a text field "(N Copies)"
+    numberOfCopies = parseInt(
+      giveaway
+        .querySelector('.giveaway__heading__thin')
+        .textContent.replace(',', '')
+        .match(/\d+/)[0],
+      10
+    );
   }
   const predictionOfEntries = (numberOfEntries / timePassed) * timeLeft; // calculate rate of entries and multiply on time left, probably not very accurate as we assume linear rate
-  let chance = (1 / (numberOfEntries + 1 + predictionOfEntries)) * 100 * numberOfCopies;
+  let chance =
+    (1 / (numberOfEntries + 1 + predictionOfEntries)) * 100 * numberOfCopies;
   if (chance > 100) chance = 100;
   return chance.toFixed(3);
 }
@@ -781,10 +1039,12 @@ function loadDescription(giveaway) {
 
   fetch(giveawayURL, { credentials: 'include' })
     .then(resp => resp.text())
-    .then((giveawayContent) => {
+    .then(giveawayContent => {
       const parser = new DOMParser();
       const giveawayDOM = parser.parseFromString(giveawayContent, 'text/html');
-      let giveawayDescription = giveawayDOM.querySelector('.page__description .markdown');
+      let giveawayDescription = giveawayDOM.querySelector(
+        '.page__description .markdown'
+      );
       if (giveawayDescription == null) {
         giveawayDescription = document.createTextNode('No description.');
       }
@@ -798,24 +1058,52 @@ function checkAppData(giveaway, timeLoaded) {
   let appId = getSteamAppId(giveaway);
 
   if (appId != false) {
-    let cacheData = steamAppData[appId] != undefined ? steamAppData[appId] : undefined;
+    let cacheData =
+      steamAppData[appId] != undefined ? steamAppData[appId] : undefined;
     let lastUpdated = cacheData != undefined ? cacheData.lastUpdated : 0;
 
-    if (cacheData != undefined && filterGiveaway(giveaway, appId, cacheData.type, cacheData.hasTradingCards)) {
+    if (
+      cacheData != undefined &&
+      filterGiveaway(giveaway, appId, cacheData.type, cacheData.hasTradingCards)
+    ) {
       removeGiveaway('app', appId, giveaway);
     }
-    if (cacheData == undefined || ((timeLoaded - lastUpdated) >= 604800) || cacheData.version != thisVersion) {
+    if (
+      cacheData == undefined ||
+      timeLoaded - lastUpdated >= 604800 ||
+      cacheData.version != thisVersion
+    ) {
       let xhr = new XMLHttpRequest();
-      xhr.open('GET', `https://store.steampowered.com/api/appdetails?appids=${appId}&filters=basic,categories`, true);
-      xhr.onreadystatechange = function () {
+      xhr.open(
+        'GET',
+        `https://store.steampowered.com/api/appdetails?appids=${appId}&filters=basic,categories`,
+        true
+      );
+      xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
           let jsonResponse = JSON.parse(this.responseText);
           if (jsonResponse[appId].success == true) {
-            let tradingCards = jsonResponse[appId].data.categories != undefined ? jsonResponse[appId].data.categories.some(function (data) {
-              return data.id == 29;
-            }) : false;
-            cacheSteamAppData(appId, jsonResponse[appId].data.type, tradingCards, lastUpdated, timeLoaded);
-            if (filterGiveaway(giveaway, appId, jsonResponse[appId].data.type, tradingCards)) {
+            let tradingCards =
+              jsonResponse[appId].data.categories != undefined
+                ? jsonResponse[appId].data.categories.some(function(data) {
+                    return data.id == 29;
+                  })
+                : false;
+            cacheSteamAppData(
+              appId,
+              jsonResponse[appId].data.type,
+              tradingCards,
+              lastUpdated,
+              timeLoaded
+            );
+            if (
+              filterGiveaway(
+                giveaway,
+                appId,
+                jsonResponse[appId].data.type,
+                tradingCards
+              )
+            ) {
               removeGiveaway('app', appId, giveaway);
             }
           }
@@ -834,7 +1122,10 @@ function checkSteamPackageData(giveaway, timeLoaded) {
     return;
   }
   let appIds = [];
-  let cacheData = steamPackageData[packageId] != undefined ? steamPackageData[packageId] : undefined;
+  let cacheData =
+    steamPackageData[packageId] != undefined
+      ? steamPackageData[packageId]
+      : undefined;
   let lastUpdated = cacheData != undefined ? cacheData.lastUpdated : 0;
 
   if (cacheData != undefined) {
@@ -842,15 +1133,27 @@ function checkSteamPackageData(giveaway, timeLoaded) {
     // console.log('Steam package already cached: ', steamPackageData[packageId]);
     checkSteamPackageApps(appIds, packageId, giveaway, timeLoaded);
   }
-  if (cacheData == undefined || ((timeLoaded - lastUpdated) >= 604800) || cacheData.version != thisVersion) {
+  if (
+    cacheData == undefined ||
+    timeLoaded - lastUpdated >= 604800 ||
+    cacheData.version != thisVersion
+  ) {
     let xhr = new XMLHttpRequest();
-    xhr.open('GET', `https://store.steampowered.com/api/packagedetails?packageids=${packageId}`, true);
-    xhr.onreadystatechange = function () {
+    xhr.open(
+      'GET',
+      `https://store.steampowered.com/api/packagedetails?packageids=${packageId}`,
+      true
+    );
+    xhr.onreadystatechange = function() {
       if (xhr.readyState == 4 && xhr.status == 200) {
         let jsonResponse = JSON.parse(this.responseText);
         if (jsonResponse[packageId].success == true) {
           let jsonIds = jsonResponse[packageId].data.apps;
-          for (let i = 0, numIds = jsonIds != null ? jsonIds.length : 0; i < numIds; i++) {
+          for (
+            let i = 0, numIds = jsonIds != null ? jsonIds.length : 0;
+            i < numIds;
+            i++
+          ) {
             appIds[i] = jsonIds[i].id;
           }
           cacheSteamPackageData(packageId, appIds, lastUpdated, timeLoaded);
@@ -866,26 +1169,59 @@ function checkSteamPackageApps(appIds, packageId, giveaway, timeLoaded) {
   let removePackage = true;
   for (let i = 0; i < appIds.length; i++) {
     let appId = appIds[i];
-    let cacheData = steamAppData[appId] != undefined ? steamAppData[appId] : undefined;
+    let cacheData =
+      steamAppData[appId] != undefined ? steamAppData[appId] : undefined;
     let lastUpdated = cacheData != undefined ? cacheData.lastUpdated : 0;
 
     if (cacheData != undefined) {
-      if (cacheData != undefined && !filterGiveaway(giveaway, appId, cacheData.appType, cacheData.hasTradingCards)) {
+      if (
+        cacheData != undefined &&
+        !filterGiveaway(
+          giveaway,
+          appId,
+          cacheData.appType,
+          cacheData.hasTradingCards
+        )
+      ) {
         removePackage = false;
       }
     }
-    if (cacheData == undefined || ((timeLoaded - lastUpdated) >= 604800) || cacheData.version != thisVersion) {
+    if (
+      cacheData == undefined ||
+      timeLoaded - lastUpdated >= 604800 ||
+      cacheData.version != thisVersion
+    ) {
       let xhr = new XMLHttpRequest();
-      xhr.open('GET', `https://store.steampowered.com/api/appdetails?appids=${appId}&filters=basic,categories`, true);
-      xhr.onreadystatechange = function () {
+      xhr.open(
+        'GET',
+        `https://store.steampowered.com/api/appdetails?appids=${appId}&filters=basic,categories`,
+        true
+      );
+      xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
           let jsonResponse = JSON.parse(this.responseText);
           if (jsonResponse[appId].success == true) {
-            tradingCards = jsonResponse[appId].data.categories != undefined ? jsonResponse[appId].data.categories.some(function (data) {
-              return data.id == 29;
-            }) : false;
-            cacheSteamAppData(appId, jsonResponse[appId].data.type, tradingCards, lastUpdated, timeLoaded);
-            if (!filterGiveaway(giveaway, appId, jsonResponse[appId].data.type, tradingCards)) {
+            tradingCards =
+              jsonResponse[appId].data.categories != undefined
+                ? jsonResponse[appId].data.categories.some(function(data) {
+                    return data.id == 29;
+                  })
+                : false;
+            cacheSteamAppData(
+              appId,
+              jsonResponse[appId].data.type,
+              tradingCards,
+              lastUpdated,
+              timeLoaded
+            );
+            if (
+              !filterGiveaway(
+                giveaway,
+                appId,
+                jsonResponse[appId].data.type,
+                tradingCards
+              )
+            ) {
               removePackage = false;
             }
           }
@@ -902,8 +1238,18 @@ function checkSteamPackageApps(appIds, packageId, giveaway, timeLoaded) {
   }
 }
 
-function cacheSteamAppData(appId, appType, tradingCards, lastUpdated, timeLoaded) {
-  if (steamAppData[appId] === undefined || ((timeLoaded - lastUpdated) >= 604800) || steamAppData[appId].version != thisVersion) {
+function cacheSteamAppData(
+  appId,
+  appType,
+  tradingCards,
+  lastUpdated,
+  timeLoaded
+) {
+  if (
+    steamAppData[appId] === undefined ||
+    timeLoaded - lastUpdated >= 604800 ||
+    steamAppData[appId].version != thisVersion
+  ) {
     steamAppData[appId] = {
       appId,
       type: appType,
@@ -925,7 +1271,11 @@ function cacheSteamAppData(appId, appType, tradingCards, lastUpdated, timeLoaded
 }
 
 function cacheSteamPackageData(packageId, appIds, lastUpdated, timeLoaded) {
-  if (steamPackageData[packageId] === undefined || ((timeLoaded - lastUpdated) >= 604800) || steamPackageData[packageId].version != thisVersion) {
+  if (
+    steamPackageData[packageId] === undefined ||
+    timeLoaded - lastUpdated >= 604800 ||
+    steamPackageData[packageId].version != thisVersion
+  ) {
     steamPackageData[packageId] = {
       packageId,
       appIds,
@@ -946,7 +1296,10 @@ function cacheSteamPackageData(packageId, appIds, lastUpdated, timeLoaded) {
 }
 
 function getSteamAppId(giveaway) {
-  const t = $(giveaway).find('.giveaway__summary').find('.giveaway__heading').find('.giveaway__icon');
+  const t = $(giveaway)
+    .find('.giveaway__summary')
+    .find('.giveaway__heading')
+    .find('.giveaway__icon');
   let appid = $(t).attr('href');
   if (appid == null) {
     console.log('error retrieving app id');
@@ -960,7 +1313,10 @@ function getSteamAppId(giveaway) {
 }
 
 function getSteamPackageId(giveaway) {
-  let t = $(giveaway).find('.giveaway__summary').find('.giveaway__heading').find('.giveaway__icon');
+  let t = $(giveaway)
+    .find('.giveaway__summary')
+    .find('.giveaway__heading')
+    .find('.giveaway__icon');
   let packageId = $(t).attr('href');
   if (packageId == null) {
     console.log('error retrieving package id');
@@ -974,7 +1330,11 @@ function getSteamPackageId(giveaway) {
 }
 
 function removeGiveaway(type, id, giveaway) {
-  if ($(giveaway).parent().hasClass('pinned-giveaways__inner-wrap') == false) {
+  if (
+    $(giveaway)
+      .parent()
+      .hasClass('pinned-giveaways__inner-wrap') == false
+  ) {
     console.log(`hidden ${type}: ${id}`);
     $(giveaway).remove();
   }
@@ -1003,8 +1363,10 @@ function ignoreGiveaway(steamGroup, whitelist) {
 }
 
 function filterGiveaway(giveaway, appID, appType, hasTradingCards) {
-  let steamGroupGiveaway = $(giveaway).find('.giveaway__column--group').length != 0;
-  let whiteListGiveaway = $(giveaway).find('.giveaway__column--whitelist').length != 0;
+  let steamGroupGiveaway =
+    $(giveaway).find('.giveaway__column--group').length != 0;
+  let whiteListGiveaway =
+    $(giveaway).find('.giveaway__column--whitelist').length != 0;
 
   if (hasGame(appID)) {
     return true;
@@ -1030,7 +1392,6 @@ function inWishlist(id) {
   return wishList.indexOf(id) > -1;
 }
 
-
 function secToTime(x) {
   let sec = x;
   const days = Math.floor(sec / (24 * 60 * 60));
@@ -1040,11 +1401,17 @@ function secToTime(x) {
   const minutes = Math.floor(sec / 60);
   sec %= 60;
   if (days !== 0) {
-    return `${days}d ${hours}:${minutes.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+    return `${days}d ${hours}:${minutes
+      .toString()
+      .padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
   } else if (hours !== 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+    return `${hours}:${minutes
+      .toString()
+      .padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
   } else if (minutes !== 0) {
-    return `${minutes.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+    return `${minutes.toString().padStart(2, '0')}:${sec
+      .toString()
+      .padStart(2, '0')}`;
   }
   return `${sec} s`;
 }
