@@ -19,20 +19,20 @@ zip "temp/AutoJoin_Chrome_${VERSION}.zip" css/* media/* html/* js/jquery.min.js;
 cp js/* temp/js;
 cd temp;
 
-echo "Minifying js files (besides jquery) using Closure Compiler...";
-for jsfile in js/*.js; do
-	if [ ! "$jsfile" = "js/jquery.min.js" ] ; then
-		echo "--minifying $jsfile...";
-		curl -s \
-		  -d compilation_level=SIMPLE_OPTIMIZATIONS \
-		  -d output_format=text \
-		  -d output_info=compiled_code \
-		  -d charset=utf-8 \
-		  --data-urlencode "js_code@$jsfile" \
-		  closure-compiler.appspot.com/compile \
-		  -o "$jsfile"
-	fi
-done
+# echo "Minifying js files (besides jquery) using Closure Compiler...";
+# for jsfile in js/*.js; do
+# 	if [ ! "$jsfile" = "js/jquery.min.js" ] ; then
+# 		echo "--minifying $jsfile...";
+# 		curl -s \
+# 		  -d compilation_level=SIMPLE_OPTIMIZATIONS \
+# 		  -d output_format=text \
+# 		  -d output_info=compiled_code \
+# 		  -d charset=utf-8 \
+# 		  --data-urlencode "js_code@$jsfile" \
+# 		  closure-compiler.appspot.com/compile \
+# 		  -o "$jsfile"
+# 	fi
+# done
 
 echo "Adding minified js files into AutoJoin_${VERSION}.zip...";
 zip "AutoJoin_Chrome_${VERSION}.zip" js/*;
