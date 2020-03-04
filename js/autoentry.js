@@ -243,7 +243,8 @@ function modifyPageDOM(pageDOM, timeLoaded) {
       }
       giveawayInnerWrap.appendChild(joinBtn);
     }
-    giveaway.querySelector('.giveaway__hide').dataset.popup = '';
+    const giveawayHideEl = giveaway.querySelector('.giveaway__hide');
+    if (giveawayHideEl) giveawayHideEl.dataset.popup = '';
     if (
       settings.HideDlc ||
       settings.HideNonTradingCards ||
