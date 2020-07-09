@@ -504,6 +504,13 @@ function pagesloaded() {
       );
       return true;
     }
+    if ((settings.MaxCostBG != -1) && (arr[e].cost > settings.MaxCostBG)) {
+      arr[e].showInfo();
+      console.log(
+        `^Skipped, cost: ${arr[e].cost}, your settings.MaxCostBG is ${settings.MaxCostBG}`
+      );
+      return true;
+    }
     if (
       arr[e].timeleft > settings.MaxTimeLeftBG &&
       settings.MaxTimeLeftBG !== 0
@@ -717,6 +724,7 @@ function loadsettings() {
       MaxTimeLeftBG: 0, // in seconds
       MinLevelBG: 0,
       MinCostBG: 0,
+      MaxCostBG: -1,
       PointsToPreserve: 0,
       WishlistPriorityForMainBG: false,
       IgnorePreserveWishlistOnMainBG: false,
