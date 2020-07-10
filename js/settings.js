@@ -4,6 +4,8 @@ function loadSettings() {
     {
       AutoJoinButton: false,
       AutoDescription: true,
+      AutoComment: false,
+      Comment: '',
       IgnoreGroups: false,
       IgnorePinned: true,
       IgnoreWhitelist: false,
@@ -61,6 +63,8 @@ function fillSettingsDiv(settings) {
     settings.AutoJoinButton;
   document.getElementById('chkAutoDescription').checked =
     settings.AutoDescription;
+  document.getElementById('chkAutoComment').checked = settings.AutoComment;
+  document.getElementById('txtAutoComment').value = settings.Comment;
   document.getElementById('chkInfiniteScroll').checked =
     settings.InfiniteScrolling;
   document.getElementById('chkShowPoints').checked = settings.ShowPoints;
@@ -135,6 +139,8 @@ function settingsAttachEventListeners() {
       {
         AutoJoinButton: document.getElementById('chkAutoJoinButton').checked,
         AutoDescription: document.getElementById('chkAutoDescription').checked,
+        AutoComment: document.getElementById('chkAutoComment').checked,
+        Comment: document.getElementById('txtAutoComment').value.trim(),
         InfiniteScrolling: document.getElementById('chkInfiniteScroll').checked,
         ShowPoints: document.getElementById('chkShowPoints').checked,
         ShowButtons: document.getElementById('chkShowButtons').checked,
