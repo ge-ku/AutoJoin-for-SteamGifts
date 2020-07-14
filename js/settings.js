@@ -41,6 +41,8 @@ function loadSettings() {
       MinLevelBG: 0,
       MinCost: 0,
       MinCostBG: 0,
+      MaxCost: -1,
+      MaxCostBG: -1,
       PointsToPreserve: 0,
       WishlistPriorityForMainBG: false,
       IgnorePreserveWishlistOnMainBG: false,
@@ -109,6 +111,8 @@ function fillSettingsDiv(settings) {
   document.getElementById('minLevelBG').value = settings.MinLevelBG;
   document.getElementById('minCost').value = settings.MinCost;
   document.getElementById('minCostBG').value = settings.MinCostBG;
+  document.getElementById('maxCost').value = settings.MaxCost;
+  document.getElementById('maxCostBG').value = settings.MaxCostBG;
   document.getElementById('pointsToPreserve').value = settings.PointsToPreserve;
   document.getElementById('chkWishlistPriorityForMainBG').checked =
     settings.WishlistPriorityForMainBG;
@@ -184,6 +188,8 @@ function settingsAttachEventListeners() {
         MinLevelBG: parseInt(document.getElementById('minLevelBG').value, 10),
         MinCost: parseInt(document.getElementById('minCost').value, 10),
         MinCostBG: parseInt(document.getElementById('minCostBG').value, 10),
+        MaxCost: parseInt(document.getElementById('maxCost').value, 10),
+        MaxCostBG: parseInt(document.getElementById('maxCostBG').value, 10),
         PointsToPreserve: parseInt(
           document.getElementById('pointsToPreserve').value,
           10

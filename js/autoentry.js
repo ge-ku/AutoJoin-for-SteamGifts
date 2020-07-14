@@ -354,6 +354,8 @@ function getSettings() {
           MinLevelBG: 0,
           MinCost: 0,
           MinCostBG: 0,
+          MaxCost: -1,
+          MaxCostBG: -1,
           ShowChance: true,
           PreciseTime: false,
         },
@@ -682,7 +684,7 @@ function onPageLoad() {
               .match(/\d+/)[0],
             10
           );
-          if (cost >= settings.MinCost) {
+          if ((cost >= settings.MinCost) && ((settings.MaxCost == -1) || (cost <= settings.MaxCost))) {
             timeouts.push(
               setTimeout(
                 $.proxy(function() {
@@ -730,9 +732,15 @@ function onPageLoad() {
               )
             );
           } else {
-            console.log(
-              `^Skipped, cost: ${cost}, your settings.MinCost is ${settings.MinCost}`
-            );
+            if (cost < settings.MinCost) {
+              console.log(
+                `^Skipped, cost: ${cost}, your settings.MinCost is ${settings.MinCost}`
+              );
+            } else {
+              console.log(
+                `^Skipped, cost: ${cost}, your settings.MaxCost is ${settings.MaxCost}`
+              );
+            }
           }
         }
       });
