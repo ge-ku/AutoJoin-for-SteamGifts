@@ -316,6 +316,8 @@ function getSettings() {
         {
           AutoJoinButton: false,
           AutoDescription: true,
+          AutoComment: false,	
+          Comment: '',
           IgnoreGroups: false,
           IgnorePinned: true,
           IgnoreWhitelist: false,
@@ -904,11 +906,11 @@ function onPageLoad() {
     const thisButton = $(this);
     const thisWrap = $(this).parent();
     thisButton.prop('disabled', true);
-    const uniqueCode = $(this)
+    const giveawayUrlPath = $(this)
       .parent()
       .find('.giveaway__heading__name')
-      .attr('href')
-      .substr(10, 5);
+      .attr('href');
+    const uniqueCode = giveawayUrlPath.substr(10, 5);
     const formData = new FormData();
     formData.append('xsrf_token', token);
     formData.append('code', uniqueCode);
@@ -941,6 +943,23 @@ function onPageLoad() {
             }
             currentState.points = jsonResponse.points;
             updateButtons();
+            /* Post Comment */
+            if (settings.AutoComment && settings.Comment) {
+              const formData = new FormData();
+              formData.append('xsrf_token', token);
+              formData.append('do', 'comment_new');
+              formData.append('description', settings.Comment);
+              formData.append('parent_id', '');
+              fetch(`${window.location.origin}${giveawayUrlPath}`, {
+                method: 'post',
+                credentials: 'include',
+                body: formData,
+              })
+              .then(resp => resp.json())
+              .then(jsonResponse => {
+                console.debug('Comment response', jsonResponse);
+              });
+            }
           } else {
             thisWrap.toggleClass('is-faded');
             thisButton.val(`Error: ${jsonResponse.msg}`);
