@@ -76,12 +76,11 @@
     "alarms",
     "notifications",
     "storage",
-    "tabs",
     "*://www.steamgifts.com/*",
     "*://store.steampowered.com/*"
   ],
   "optional_permissions": ["*://steamcommunity.com/profiles/*"],
-  "version": "1.9.1",
+  "version": "1.9.2",
   "web_accessible_resources": [
     "html/settings.html",
     "css/night.css",
