@@ -28,6 +28,7 @@ function loadSettings() {
       HideNonTradingCards: false,
       HideWhitelist: false,
       HideLevelsBelow: 0,
+      HideCostsBelow: 0,
       PriorityGroup: false,
       PriorityRegion: false,
       PriorityWhitelist: false,
@@ -79,6 +80,7 @@ function fillSettingsDiv(settings) {
     settings.HideNonTradingCards;
   document.getElementById('chkHideWhitelist').checked = settings.HideWhitelist;
   document.getElementById('hideLevelsBelow').value = settings.HideLevelsBelow;
+  document.getElementById('hideCostsBelow').value = settings.HideCostsBelow;
   document.getElementById('chkNightTheme').checked = settings.NightTheme;
   // document.getElementById("chkLevelPriority").checked = settings.LevelPriority;
   document.getElementById('chkRepeatIfOnPage').checked =
@@ -157,6 +159,10 @@ function settingsAttachEventListeners() {
         HideWhitelist: document.getElementById('chkHideWhitelist').checked,
         HideLevelsBelow: parseInt(
           document.getElementById('hideLevelsBelow').value,
+          10
+        ),
+        HideCostsBelow: parseInt(
+          document.getElementById('hideCostsBelow').value,
           10
         ),
         RepeatIfOnPage: document.getElementById('chkRepeatIfOnPage').checked,
