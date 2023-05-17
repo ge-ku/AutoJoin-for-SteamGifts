@@ -337,7 +337,7 @@ nav {
 	text-align: center;
 	border-radius: 1em 1em 0 0;
 	color: white;
-	background-color: #95a4c0;
+	background-color: #2f3540;
 }
 #ajFooter #ajFooterArrow {
 	transition: transform .4s;
@@ -346,12 +346,12 @@ nav {
 #ajFooter.pinned #ajFooterArrow {
 	transform: rotate(180deg);
 }
-#ajFooter.pinned .footer__outer-wrap {
+#ajFooter.pinned footer {
 	max-height: 100%;
 	padding: 15px 25px;
 }
-#ajFooter .footer__outer-wrap {
-	background-color: #95a4c0;
+#ajFooter footer {
+	background-color: #2f3540;
 	transition: all 0.2s ease-in;
 	max-height: 0px;
 	padding: 0 25px;
