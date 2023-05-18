@@ -16,8 +16,10 @@
       "matches": [
         "*://www.steamgifts.com/",
         "*://www.steamgifts.com/giveaways/search?*",
+        "*://www.steamgifts.com/game/*",
         "*://steamgifts.com/",
-        "*://steamgifts.com/giveaways/search?*"
+        "*://steamgifts.com/giveaways/search?*",
+        "*://steamgifts.com/game/*"
       ]
     },
     {

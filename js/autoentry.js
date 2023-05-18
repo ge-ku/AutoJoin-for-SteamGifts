@@ -259,19 +259,6 @@ function modifyPageDOM(pageDOM, timeLoaded) {
       giveawayInnerWrap.appendChild(joinBtn);
     }
 
-    //Replaces the More Giveaways '/game/*' url with 'search?q=', retaining extension features
-    //.substring(0,35) because steamgifts adds extra characters (...) to the headings
-    const giveawayNameURI = encodeURIComponent(
-      giveaway
-        .querySelector('.giveaway__heading__name')
-        .textContent.substring(0, 35)
-    );
-    const MoreGiveawaysBtn = giveaway.querySelector(
-      '.giveaway__icon[href^="/game/"]'
-    );
-    if (MoreGiveawaysBtn)
-      MoreGiveawaysBtn.href = `/giveaways/search?q=` + giveawayNameURI;
-
     const giveawayHideEl = giveaway.querySelector('.giveaway__hide');
     if (giveawayHideEl) giveawayHideEl.dataset.popup = '';
     if (
@@ -602,7 +589,7 @@ function onPageLoad() {
   if (settings.InfiniteScrolling) {
     document
       .querySelector('.widget-container .widget-container--margin-top')
-      .remove();
+      ?.remove();
   }
   const splitPageLinkCheck = $('.pagination__navigation').find(
     'a:contains("Next")'
