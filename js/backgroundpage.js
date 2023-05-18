@@ -6,12 +6,9 @@
 function findAndRedeemKeys(wonPage) {
   $(wonPage)
     .find('.view_key_btn')
-    .each(function() {
+    .each(function () {
       // Get necessary data
-      var dataForm = $(this)
-        .parent()
-        .next()
-        .find('form');
+      var dataForm = $(this).parent().next().find('form');
       var winnerId = dataForm.find("input[name='winner_id']").val();
       var xsrfToken = dataForm.find("input[name='xsrf_token']").val();
       var latestSteamKeyRedeemResponse = ''; // for debugging
@@ -25,7 +22,7 @@ function findAndRedeemKeys(wonPage) {
           winner_id: winnerId,
           xsrf_token: xsrfToken,
         },
-        function(data) {
+        function (data) {
           data = JSON.stringify(data);
           var key = data.substr(
             data.indexOf('?key=') + 5,
@@ -37,7 +34,7 @@ function findAndRedeemKeys(wonPage) {
           if (
             /^[a-zA-Z0-9]{4,6}\-[a-zA-Z0-9]{4,6}\-[a-zA-Z0-9]{4,6}$/.test(key)
           ) {
-            $.get('http://store.steampowered.com', function(data) {
+            $.get('http://store.steampowered.com', function (data) {
               // Check if user is logged in on Steam
               if (data.indexOf('playerAvatar') != -1) {
                 var steamSessionId = data.substr(
@@ -51,7 +48,7 @@ function findAndRedeemKeys(wonPage) {
                     product_key: key,
                     sessionid: steamSessionId,
                   },
-                  function(data) {
+                  function (data) {
                     latestSteamKeyRedeemResponse = JSON.stringify(data); // for debugging
 
                     var redeemedGames = '';
@@ -253,7 +250,7 @@ function Giveaway(code, level, appid, odds, cost, timeleft) {
   this.odds = odds;
   this.cost = cost;
   this.timeleft = timeleft;
-  this.showInfo = function() {
+  this.showInfo = function () {
     console.log(`
     Giveaway https://www.steamgifts.com/giveaway/${this.code}/ (${this.cost} P) | Level: ${this.level} | Time left: ${this.timeleft} s
     Steam: http://store.steampowered.com/app/"${this.steamlink} Odds of winning: ${this.odds}`);
@@ -271,10 +268,7 @@ function compareOdds(a, b) {
 function calculateWinChance(giveaway, timeLoaded) {
   const timeLeft =
     parseInt(
-      $(giveaway)
-        .find('.fa.fa-clock-o')
-        .next('span')
-        .attr('data-timestamp'),
+      $(giveaway).find('.fa.fa-clock-o').next('span').attr('data-timestamp'),
       10
     ) - timeLoaded; // time left in seconds
   const timePassed =
@@ -287,11 +281,7 @@ function calculateWinChance(giveaway, timeLoaded) {
       10
     ); // time passed in seconds
   const numberOfEntries = parseInt(
-    $(giveaway)
-      .find('.fa-tag')
-      .next('span')
-      .text()
-      .replace(',', ''),
+    $(giveaway).find('.fa-tag').next('span').text().replace(',', ''),
     10
   );
   let numberOfCopies = 1;
@@ -323,7 +313,7 @@ function calculateWinChance(giveaway, timeLoaded) {
 function notify(type, msg) {
   switch (type) {
     case 'win':
-      $.get('https://www.steamgifts.com/giveaways/won', wonPage => {
+      $.get('https://www.steamgifts.com/giveaways/won', (wonPage) => {
         const name = $(wonPage).find('.table__column__heading')[0].innerText;
         chrome.notifications.clear('won_notification', () => {
           const e = {
@@ -335,7 +325,7 @@ function notify(type, msg) {
           chrome.notifications.create('won_notification', e, () => {
             chrome.storage.sync.get(
               { PlayAudio: 'true', AudioVolume: 1 },
-              data => {
+              (data) => {
                 if (data.PlayAudio === true) {
                   const audio = new Audio('media/audio.mp3');
                   audio.volume = data.AudioVolume;
@@ -390,11 +380,8 @@ function scanpage(e) {
     : $(e)
   )
     .find('.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name')
-    .each(function() {
-      const ga = $(this)
-        .parent()
-        .parent()
-        .parent();
+    .each(function () {
+      const ga = $(this).parent().parent().parent();
       const t = this.href.match(/giveaway\/(.+)\//);
       if (t.length > 0) {
         const GAcode = t[1];
@@ -433,10 +420,7 @@ function scanpage(e) {
           const oddsOfWinning = calculateWinChance(ga, timePageLoaded);
           const timeleft =
             parseInt(
-              $(ga)
-                .find('.fa.fa-clock-o')
-                .next('span')
-                .attr('data-timestamp'),
+              $(ga).find('.fa.fa-clock-o').next('span').attr('data-timestamp'),
               10
             ) - timePageLoaded;
           arr.push(
@@ -492,7 +476,7 @@ function pagesloaded() {
   }
 
   let timeouts = [];
-  $.each(arr, e => {
+  $.each(arr, (e) => {
     if (arr[e].level < settings.MinLevelBG) {
       // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
       return true;
@@ -504,7 +488,7 @@ function pagesloaded() {
       );
       return true;
     }
-    if ((settings.MaxCostBG != -1) && (arr[e].cost > settings.MaxCostBG)) {
+    if (settings.MaxCostBG != -1 && arr[e].cost > settings.MaxCostBG) {
       arr[e].showInfo();
       console.log(
         `^Skipped, cost: ${arr[e].cost}, your settings.MaxCostBG is ${settings.MaxCostBG}`
@@ -530,7 +514,7 @@ function pagesloaded() {
             do: 'entry_insert',
             code: arr[e].code,
           },
-          response => {
+          (response) => {
             arr[e].showInfo();
             const jsonResponse = JSON.parse(response);
 
@@ -610,15 +594,12 @@ function settingsloaded() {
 
   /* If background autojoin is disabled or not enough time passed only check if won */
   if (settings.BackgroundAJ === false || timepassed < timetopass) {
-    $.get(link + 1, data => {
+    $.get(link + 1, (data) => {
       if ($(data).filter('.popup--gift-received').length) {
         notify('win');
       } else {
         currPoints = parseInt(
-          $(data)
-            .find('a[href="/account"]')
-            .find('span.nav__points')
-            .text(),
+          $(data).find('a[href="/account"]').find('span.nav__points').text(),
           10
         );
         if (currPoints >= settings.NotifyLimitAmount && settings.NotifyLimit) {
@@ -649,12 +630,9 @@ function settingsloaded() {
     if (useWishlistPriorityForMainBG) linkToUse = wishLink;
     else linkToUse = link;
     arr.length = 0;
-    $.get(linkToUse + 1, data => {
+    $.get(linkToUse + 1, (data) => {
       currPoints = parseInt(
-        $(data)
-          .find('a[href="/account"]')
-          .find('span.nav__points')
-          .text(),
+        $(data).find('a[href="/account"]').find('span.nav__points').text(),
         10
       );
       if ($(data).filter('.popup--gift-received').length) {
@@ -672,9 +650,7 @@ function settingsloaded() {
       } else {
         pagestemp = pages;
       } // in case someone has old setting with more than 5 pages to load or somehow set this value to <1 use 3 (default)
-      token = $(data)
-        .find('input[name=xsrf_token]')
-        .val();
+      token = $(data).find('input[name=xsrf_token]').val();
       mylevel = $(data)
         .find('a[href="/account"]')
         .find('span')
@@ -704,7 +680,7 @@ function settingsloaded() {
             if (n > 3 - i) {
               break;
             } // no more than 3 pages at a time since the ban wave
-            $.get(linkToUse + n, newPage => {
+            $.get(linkToUse + n, (newPage) => {
               scanpage(newPage);
             });
           }
@@ -740,7 +716,7 @@ function loadsettings() {
       AutoRedeemKey: false,
       lastLaunchedVersion: thisVersion,
     },
-    data => {
+    (data) => {
       settings = data;
       settingsloaded();
     }
@@ -750,7 +726,7 @@ function loadsettings() {
 /* Function declarations over */
 
 /* It all begins with the loadsettings call */
-chrome.alarms.onAlarm.addListener(alarm => {
+chrome.alarms.onAlarm.addListener((alarm) => {
   console.log('Alarm fired.');
   if (alarm.name === 'routine') {
     loadsettings();
@@ -782,7 +758,7 @@ chrome.alarms.create('routine', {
 });
 
 /* Creating a new tab if notification is clicked */
-chrome.notifications.onClicked.addListener(notificationId => {
+chrome.notifications.onClicked.addListener((notificationId) => {
   switch (notificationId) {
     case '1.5.0 announcement':
       url =
@@ -794,7 +770,7 @@ chrome.notifications.onClicked.addListener(notificationId => {
     default:
       url = 'https://www.steamgifts.com/giveaways/won';
   }
-  chrome.windows.getCurrent(currentWindow => {
+  chrome.windows.getCurrent((currentWindow) => {
     if (currentWindow) {
       chrome.tabs.create({
         url,
@@ -809,7 +785,7 @@ chrome.notifications.onClicked.addListener(notificationId => {
   });
 });
 
-chrome.runtime.onInstalled.addListener(updateInfo => {
+chrome.runtime.onInstalled.addListener((updateInfo) => {
   if (updateInfo.previousVersion < '1.5.0') {
     console.log('Changing settings to prevent mass ban of extension users...');
     chrome.storage.sync.set(
@@ -837,7 +813,7 @@ chrome.runtime.onInstalled.addListener(updateInfo => {
       {
         MinCost: 0,
       },
-      minCost => {
+      (minCost) => {
         chrome.storage.sync.set(
           {
             MinCost: 0,
@@ -865,7 +841,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       {
         origins: ['*://steamcommunity.com/profiles/*'],
       },
-      result => {
+      (result) => {
         if (result) {
           console.log('We already have permission');
           chrome.tabs.sendMessage(sender.tab.id, { granted: 'true' });
@@ -876,7 +852,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             {
               origins: ['*://steamcommunity.com/profiles/*'],
             },
-            granted => {
+            (granted) => {
               if (granted) {
                 console.log('Permission granted');
                 chrome.tabs.sendMessage(sender.tab.id, { granted: 'true' });

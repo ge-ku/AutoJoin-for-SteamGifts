@@ -72,6 +72,10 @@ if (Date.now() < summer2018) {
   const script = document.createElement('script');
   script.innerHTML = scriptToInject;
   document.body.appendChild(script);
-  document.querySelector('.supernav_container')
-    .insertAdjacentHTML('beforeend', '<a class="menuitem supernav" style="cursor: pointer; color: #FFD700" title="This button will be removed after the sale. Visit AutoJoin Steam group for more details." onclick="GenerateQueue(0)">AutoJoin Queue</a>');
+  document
+    .querySelector('.supernav_container')
+    .insertAdjacentHTML(
+      'beforeend',
+      '<a class="menuitem supernav" style="cursor: pointer; color: #FFD700" title="This button will be removed after the sale. Visit AutoJoin Steam group for more details." onclick="GenerateQueue(0)">AutoJoin Queue</a>'
+    );
 }

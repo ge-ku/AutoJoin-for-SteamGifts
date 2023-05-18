@@ -7,7 +7,7 @@ const currentState = {
   amountOfPoints: 0,
   set points(n) {
     this.amountOfPoints = parseInt(n, 10);
-    document.querySelectorAll('.nav__points').forEach(el => {
+    document.querySelectorAll('.nav__points').forEach((el) => {
       el.textContent = this.amountOfPoints;
     });
   },
@@ -60,8 +60,8 @@ class Giveaway {
       credentials: 'include',
       body: formData,
     })
-      .then(resp => resp.json())
-      .then(jsonResponse => {
+      .then((resp) => resp.json())
+      .then((jsonResponse) => {
         if (jsonResponse.type === 'success') {
           this.status = 'Entered';
         } else {
@@ -82,8 +82,8 @@ class Giveaway {
       credentials: 'include',
       body: formData,
     })
-      .then(resp => resp.json())
-      .then(jsonResponse => {
+      .then((resp) => resp.json())
+      .then((jsonResponse) => {
         if (jsonResponse.type === 'success') {
           this.status = 'Ready';
         } else {
@@ -105,7 +105,7 @@ function parsePage(pageHTML) {
   );
   const pageGiveaways = [];
 
-  giveawaysDOM.forEach(giveawayDOM => {
+  giveawaysDOM.forEach((giveawayDOM) => {
     const giveawayHeadingName = giveawayDOM.querySelector(
       '.giveaway__heading__name'
     );
@@ -184,7 +184,7 @@ function parsePage(pageHTML) {
 }
 
 function modifyPageDOM(pageDOM, timeLoaded) {
-  pageDOM.querySelectorAll('.giveaway__row-outer-wrap').forEach(giveaway => {
+  pageDOM.querySelectorAll('.giveaway__row-outer-wrap').forEach((giveaway) => {
     const giveawayInnerWrap = giveaway.querySelector(
       '.giveaway__row-inner-wrap'
     );
@@ -210,10 +210,7 @@ function modifyPageDOM(pageDOM, timeLoaded) {
       } else {
         costElement = copiesAndCostElements[0];
       }
-      const cost = Number.parseInt(
-        costElement.textContent.match(/\d+/)[0],
-        10
-      );
+      const cost = Number.parseInt(costElement.textContent.match(/\d+/)[0], 10);
       if (cost < settings.HideCostsBelow) giveaway.remove();
     }
 
@@ -245,9 +242,10 @@ function modifyPageDOM(pageDOM, timeLoaded) {
         const pointsAndNumberOfCopies = giveaway.querySelectorAll(
           '.giveaway__heading__thin'
         );
-        const pointsNeededRaw = pointsAndNumberOfCopies[
-          pointsAndNumberOfCopies.length - 1
-        ].textContent.match(/(\d+)P/);
+        const pointsNeededRaw =
+          pointsAndNumberOfCopies[
+            pointsAndNumberOfCopies.length - 1
+          ].textContent.match(/(\d+)P/);
         const pointsNeeded = pointsNeededRaw[pointsNeededRaw.length - 1];
         if (parseInt(pointsNeeded, 10) > currentState.points) {
           joinBtn.value = 'Not enough points';
@@ -260,12 +258,19 @@ function modifyPageDOM(pageDOM, timeLoaded) {
       }
       giveawayInnerWrap.appendChild(joinBtn);
     }
-    
+
     //Replaces the More Giveaways '/game/*' url with 'search?q=', retaining extension features
     //.substring(0,35) because steamgifts adds extra characters (...) to the headings
-    const giveawayNameURI = encodeURIComponent(giveaway.querySelector('.giveaway__heading__name').textContent.substring(0,35));
-    const MoreGiveawaysBtn = giveaway.querySelector('.giveaway__icon[href^="/game/"]');
-    if(MoreGiveawaysBtn) MoreGiveawaysBtn.href = `/giveaways/search?q=`+giveawayNameURI;
+    const giveawayNameURI = encodeURIComponent(
+      giveaway
+        .querySelector('.giveaway__heading__name')
+        .textContent.substring(0, 35)
+    );
+    const MoreGiveawaysBtn = giveaway.querySelector(
+      '.giveaway__icon[href^="/game/"]'
+    );
+    if (MoreGiveawaysBtn)
+      MoreGiveawaysBtn.href = `/giveaways/search?q=` + giveawayNameURI;
 
     const giveawayHideEl = giveaway.querySelector('.giveaway__hide');
     if (giveawayHideEl) giveawayHideEl.dataset.popup = '';
@@ -317,9 +322,8 @@ function modifyPageDOM(pageDOM, timeLoaded) {
       giveaway.querySelector('.fa-clock-o + span').dataset.timestamp -
       timeLoaded;
     if (settings.PreciseTime) {
-      giveaway.querySelector('.fa-clock-o + span').textContent = secToTime(
-        timeRemaining
-      );
+      giveaway.querySelector('.fa-clock-o + span').textContent =
+        secToTime(timeRemaining);
     }
   });
 }
@@ -340,7 +344,7 @@ function getSettings() {
         {
           AutoJoinButton: false,
           AutoDescription: true,
-          AutoComment: false,	
+          AutoComment: false,
           Comment: '',
           IgnoreGroups: false,
           IgnorePinned: true,
@@ -386,7 +390,7 @@ function getSettings() {
           ShowChance: true,
           PreciseTime: false,
         },
-        data => {
+        (data) => {
           settings = data;
           loadCache();
         }
@@ -396,7 +400,7 @@ function getSettings() {
 }
 
 function loadCache() {
-  chrome.storage.local.get(data => {
+  chrome.storage.local.get((data) => {
     if (typeof data.Packages != 'undefined') {
       steamPackageData = data.Packages;
       console.log('Steam packages that are already cached: ', steamPackageData);
@@ -417,7 +421,7 @@ function loadCache() {
     }
 
     xhr.open('GET', `https://www.steamgifts.com${user}`, true);
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
       if (xhr.readyState == 4) {
         if (xhr.status == 200) {
           let regex = /steamcommunity\.com\/profiles\/(\d+)/g;
@@ -438,7 +442,7 @@ function loadCache() {
             `https://steamcommunity.com/profiles/${steamProfileID}/games/?tab=all`,
             true
           );
-          xhr.onreadystatechange = function() {
+          xhr.onreadystatechange = function () {
             if (xhr.readyState == 4) {
               if (xhr.status == 200) {
                 let regex = /rgGames\s=\s(.*);/g;
@@ -471,7 +475,7 @@ function loadCache() {
             `https://steamcommunity.com/profiles/${steamProfileID}/wishlist`,
             true
           );
-          wishxhr.onreadystatechange = function() {
+          wishxhr.onreadystatechange = function () {
             if (wishxhr.readyState == 4) {
               if (wishxhr.status == 200) {
                 let regex = /steamcommunity\.com\/app\/(\d+)/g;
@@ -568,8 +572,8 @@ function onPageLoad() {
     } else {
       settingsInjected = true;
       fetch(chrome.extension.getURL('/html/settings.html'))
-        .then(resp => resp.text())
-        .then(settingsHTML => {
+        .then((resp) => resp.text())
+        .then((settingsHTML) => {
           const parser = new DOMParser();
           const settingsDOM = parser.parseFromString(settingsHTML, 'text/html');
           const settingsDiv = settingsDOM.getElementById('bodyWrapper');
@@ -618,20 +622,17 @@ function onPageLoad() {
       loadingNextPage = true;
 
       $('<div>').load(
-        `${window.location.origin +
-          pageLink +
-          pageNumber +
-          thirdPart} :not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap`,
-        function() {
+        `${
+          window.location.origin + pageLink + pageNumber + thirdPart
+        } :not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap`,
+        function () {
           if ($(this)[0].children.length < 50) {
             lastPage = true;
             pagesLoaded = 9999;
             $('.pagination').hide();
           }
           modifyPageDOM(this, timeLoaded);
-          $('#posts')
-            .last()
-            .append($(this).html());
+          $('#posts').last().append($(this).html());
           pageNumber++;
           pagesLoaded++;
           loadingNextPage = false;
@@ -665,19 +666,12 @@ function onPageLoad() {
     }
 
     const myLevel = parseInt(
-      $('a[href="/account"]')
-        .find('span')
-        .next()
-        .html()
-        .match(/(\d+)/)[1],
+      $('a[href="/account"]').find('span').next().html().match(/(\d+)/)[1],
       10
     );
     for (let level = myLevel; level >= 0; level--) {
-      $(selectItems).each(function() {
-        const current = $(this)
-          .parent()
-          .parent()
-          .parent();
+      $(selectItems).each(function () {
+        const current = $(this).parent().parent().parent();
         let whiteListGiveaway =
           $(current).find('.giveaway__column--whitelist').length != 0;
         let regionLockedGiveaway =
@@ -711,10 +705,13 @@ function onPageLoad() {
               .match(/\d+/)[0],
             10
           );
-          if ((cost >= settings.MinCost) && ((settings.MaxCost == -1) || (cost <= settings.MaxCost))) {
+          if (
+            cost >= settings.MinCost &&
+            (settings.MaxCost == -1 || cost <= settings.MaxCost)
+          ) {
             timeouts.push(
               setTimeout(
-                $.proxy(function() {
+                $.proxy(function () {
                   const formData = new FormData();
                   formData.append('xsrf_token', token);
                   formData.append('do', 'entry_insert');
@@ -724,8 +721,8 @@ function onPageLoad() {
                     credentials: 'include',
                     body: formData,
                   })
-                    .then(resp => resp.json())
-                    .then(jsonResponse => {
+                    .then((resp) => resp.json())
+                    .then((jsonResponse) => {
                       if (jsonResponse.type === 'success') {
                         current.toggleClass('is-faded');
                         currentState.points = jsonResponse.points;
@@ -809,10 +806,7 @@ function onPageLoad() {
         $(window).scrollTop() > $(window).height() * 2 &&
         settings.ShowPoints
       ) {
-        accountInfo
-          .show()
-          .stop()
-          .animate({ opacity: 1 }, 'slow');
+        accountInfo.show().stop().animate({ opacity: 1 }, 'slow');
       } else if (
         $(window).scrollTop() < $(window).height() + $(window).height() / 2 &&
         settings.ShowPoints
@@ -844,7 +838,7 @@ function onPageLoad() {
     if (settings.ShowButtons) {
       document
         .querySelectorAll('.btnSingle:not([walkState="no-level"])')
-        .forEach(el => {
+        .forEach((el) => {
           if (!el.parentElement.classList.contains('is-faded')) {
             const pointsNeededRaw = el.parentElement
               .querySelector('.giveaway__heading__thin:last-of-type')
@@ -872,12 +866,8 @@ function onPageLoad() {
 
   $('#posts')
     .parent()
-    .on('click', '.giveaway__hide', function() {
-      const thisPost = $(this)
-        .parent()
-        .parent()
-        .parent()
-        .parent();
+    .on('click', '.giveaway__hide', function () {
+      const thisPost = $(this).parent().parent().parent().parent();
       const gameid = thisPost.attr('data-game-id');
       console.log(`hiding ${gameid}`);
       $(this).attr(
@@ -893,8 +883,8 @@ function onPageLoad() {
         credentials: 'include',
         body: formData,
       }).then(() => {
-        $(`[data-game-id='${gameid}']`).each(function() {
-          $(this).fadeOut('slow', function() {
+        $(`[data-game-id='${gameid}']`).each(function () {
+          $(this).fadeOut('slow', function () {
             $(this).hide();
           });
         });
@@ -903,31 +893,23 @@ function onPageLoad() {
 
   $('#posts')
     .parent()
-    .on('click', '.description', function() {
-      const thisPost = $(this)
-        .parent()
-        .parent()
-        .parent()
-        .parent();
+    .on('click', '.description', function () {
+      const thisPost = $(this).parent().parent().parent().parent();
       if ($(this).hasClass('descriptionLoad')) {
         loadDescription(thisPost[0]);
       } else {
         const $descriptionContent = $(thisPost).find('.descriptionContent');
         if ($descriptionContent.hasClass('visible')) {
           $descriptionContent.removeClass('visible');
-          $(this)
-            .find('span')
-            .text('Show description');
+          $(this).find('span').text('Show description');
         } else {
           $descriptionContent.addClass('visible');
-          $(this)
-            .find('span')
-            .text('Hide description');
+          $(this).find('span').text('Hide description');
         }
       }
     });
 
-  $(document).on('click', '.btnSingle', function() {
+  $(document).on('click', '.btnSingle', function () {
     const thisButton = $(this);
     const thisWrap = $(this).parent();
     thisButton.prop('disabled', true);
@@ -951,15 +933,13 @@ function onPageLoad() {
         credentials: 'include',
         body: formData,
       })
-        .then(resp => resp.json())
-        .then(jsonResponse => {
+        .then((resp) => resp.json())
+        .then((jsonResponse) => {
           if (jsonResponse.type === 'success') {
             thisWrap.toggleClass('is-faded');
             if (settings.HideEntered) {
-              thisWrap.fadeOut(300, function() {
-                $(this)
-                  .parent()
-                  .remove();
+              thisWrap.fadeOut(300, function () {
+                $(this).parent().remove();
               });
             } else {
               thisButton.attr('walkState', 'leave');
@@ -980,10 +960,10 @@ function onPageLoad() {
                 credentials: 'include',
                 body: formData,
               })
-              .then(resp => resp.json())
-              .then(jsonResponse => {
-                console.debug('Comment response', jsonResponse);
-              });
+                .then((resp) => resp.json())
+                .then((jsonResponse) => {
+                  console.debug('Comment response', jsonResponse);
+                });
             }
           } else {
             thisWrap.toggleClass('is-faded');
@@ -997,8 +977,8 @@ function onPageLoad() {
         credentials: 'include',
         body: formData,
       })
-        .then(resp => resp.json())
-        .then(jsonResponse => {
+        .then((resp) => resp.json())
+        .then((jsonResponse) => {
           if (jsonResponse.type === 'success') {
             thisWrap.toggleClass('is-faded');
             currentState.points = jsonResponse.points;
@@ -1099,8 +1079,8 @@ function loadDescription(giveaway) {
   descriptionIcon.className = 'fa fa-refresh fa-spin descriptionIcon';
 
   fetch(giveawayURL, { credentials: 'include' })
-    .then(resp => resp.text())
-    .then(giveawayContent => {
+    .then((resp) => resp.text())
+    .then((giveawayContent) => {
       const parser = new DOMParser();
       const giveawayDOM = parser.parseFromString(giveawayContent, 'text/html');
       let giveawayDescription = giveawayDOM.querySelector(
@@ -1140,13 +1120,13 @@ function checkAppData(giveaway, timeLoaded) {
         `https://store.steampowered.com/api/appdetails?appids=${appId}&filters=basic,categories`,
         true
       );
-      xhr.onreadystatechange = function() {
+      xhr.onreadystatechange = function () {
         if (xhr.readyState == 4 && xhr.status == 200) {
           let jsonResponse = JSON.parse(this.responseText);
           if (jsonResponse[appId].success == true) {
             let tradingCards =
               jsonResponse[appId].data.categories != undefined
-                ? jsonResponse[appId].data.categories.some(function(data) {
+                ? jsonResponse[appId].data.categories.some(function (data) {
                     return data.id == 29;
                   })
                 : false;
@@ -1205,7 +1185,7 @@ function checkSteamPackageData(giveaway, timeLoaded) {
       `https://store.steampowered.com/api/packagedetails?packageids=${packageId}`,
       true
     );
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
       if (xhr.readyState == 4 && xhr.status == 200) {
         let jsonResponse = JSON.parse(this.responseText);
         if (jsonResponse[packageId].success == true) {
@@ -1258,13 +1238,13 @@ function checkSteamPackageApps(appIds, packageId, giveaway, timeLoaded) {
         `https://store.steampowered.com/api/appdetails?appids=${appId}&filters=basic,categories`,
         true
       );
-      xhr.onreadystatechange = function() {
+      xhr.onreadystatechange = function () {
         if (xhr.readyState == 4 && xhr.status == 200) {
           let jsonResponse = JSON.parse(this.responseText);
           if (jsonResponse[appId].success == true) {
             tradingCards =
               jsonResponse[appId].data.categories != undefined
-                ? jsonResponse[appId].data.categories.some(function(data) {
+                ? jsonResponse[appId].data.categories.some(function (data) {
                     return data.id == 29;
                   })
                 : false;
@@ -1391,11 +1371,7 @@ function getSteamPackageId(giveaway) {
 }
 
 function removeGiveaway(type, id, giveaway) {
-  if (
-    $(giveaway)
-      .parent()
-      .hasClass('pinned-giveaways__inner-wrap') == false
-  ) {
+  if ($(giveaway).parent().hasClass('pinned-giveaways__inner-wrap') == false) {
     console.log(`hidden ${type}: ${id}`);
     $(giveaway).remove();
   }
@@ -1462,13 +1438,13 @@ function secToTime(x) {
   const minutes = Math.floor(sec / 60);
   sec %= 60;
   if (days !== 0) {
-    return `${days}d ${hours}:${minutes
+    return `${days}d ${hours}:${minutes.toString().padStart(2, '0')}:${sec
       .toString()
-      .padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+      .padStart(2, '0')}`;
   } else if (hours !== 0) {
-    return `${hours}:${minutes
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${sec
       .toString()
-      .padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+      .padStart(2, '0')}`;
   } else if (minutes !== 0) {
     return `${minutes.toString().padStart(2, '0')}:${sec
       .toString()

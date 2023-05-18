@@ -55,7 +55,7 @@ function loadSettings() {
       PreciseTime: false,
       AutoRedeemKey: false,
     },
-    settings => {
+    (settings) => {
       fillSettingsDiv(settings);
     }
   );
@@ -265,17 +265,18 @@ function settingsAttachEventListeners() {
   }
 
   // to show 0.5 when value goes below 1 in hoursFieldBG field
-  document.getElementById('hoursFieldBG').addEventListener('input', function() {
-    if (this.value === 0) this.value = 0.5;
-    else if (this.value % 1 !== 0 && this.value > 1) {
-      this.value = parseInt(this.value, 10);
-    }
-  });
+  document
+    .getElementById('hoursFieldBG')
+    .addEventListener('input', function () {
+      if (this.value === 0) this.value = 0.5;
+      else if (this.value % 1 !== 0 && this.value > 1) {
+        this.value = parseInt(this.value, 10);
+      }
+    });
 
-  const settingsCancelElements = document.getElementsByClassName(
-    'settingsCancel'
-  );
-  Array.from(settingsCancelElements).forEach(element => {
+  const settingsCancelElements =
+    document.getElementsByClassName('settingsCancel');
+  Array.from(settingsCancelElements).forEach((element) => {
     element.addEventListener('click', () => {
       const settingsShadeEl = document.getElementById('settingsShade');
       const settingsDivEl = document.getElementById('settingsDiv');
@@ -322,11 +323,11 @@ function processDependentSettings() {
       '.dependsOnBackgroundAutoJoin'
     );
 
-    DependOnAutoJoinButton.forEach(li => {
+    DependOnAutoJoinButton.forEach((li) => {
       li.style.display = AutoJoinButton.checked ? 'block' : 'none';
     });
 
-    DependOnBackgroundAutoJoin.forEach(li => {
+    DependOnBackgroundAutoJoin.forEach((li) => {
       li.style.display = EnableBG.checked ? 'block' : 'none';
     });
 
