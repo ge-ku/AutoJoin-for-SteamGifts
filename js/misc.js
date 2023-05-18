@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ajFooterArrowWrap.appendChild(ajFooterArrow);
   ajFooter.appendChild(ajFooterArrowWrap);
 
-  const sgFooter = document.querySelector('.footer__outer-wrap');
+  const sgFooter = document.querySelector('footer');
   sgFooter.parentElement.insertBefore(ajFooter, sgFooter);
   ajFooter.appendChild(sgFooter);
 

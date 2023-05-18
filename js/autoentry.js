@@ -2,7 +2,7 @@ let giveaways = [];
 let settingsInjected = false;
 let settings;
 let token;
-const thisVersion = 20220612;
+const thisVersion = 20230517;
 const currentState = {
   amountOfPoints: 0,
   set points(n) {
@@ -260,6 +260,13 @@ function modifyPageDOM(pageDOM, timeLoaded) {
       }
       giveawayInnerWrap.appendChild(joinBtn);
     }
+    
+    //Replaces the More Giveaways '/game/*' url with 'search?q=', retaining extension features
+    //.substring(0,35) because steamgifts adds extra characters (...) to the headings
+    const giveawayNameURI = encodeURIComponent(giveaway.querySelector('.giveaway__heading__name').textContent.substring(0,35));
+    const MoreGiveawaysBtn = giveaway.querySelector('.giveaway__icon[href^="/game/"]');
+    if(MoreGiveawaysBtn) MoreGiveawaysBtn.href = `/giveaways/search?q=`+giveawayNameURI;
+
     const giveawayHideEl = giveaway.querySelector('.giveaway__hide');
     if (giveawayHideEl) giveawayHideEl.dataset.popup = '';
     if (

@@ -80,7 +80,7 @@
     "*://store.steampowered.com/*"
   ],
   "optional_permissions": ["*://steamcommunity.com/profiles/*"],
-  "version": "1.9.3",
+  "version": "1.9.4",
   "web_accessible_resources": [
     "html/settings.html",
     "css/night.css",
