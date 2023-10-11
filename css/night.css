@@ -9,7 +9,8 @@ div.page__outer-wrap .giveaway_image_avatar,
 .table_image_thumbnail,
 .table_image_avatar,
 .comment__summary img,
-.markdown img
+.markdown img,
+.widget-container img
 {
     filter: invert(100%);
 }
