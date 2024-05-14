@@ -199,6 +199,7 @@ function modifyPageDOM(pageDOM, timeLoaded) {
       level = parseInt(levelEl.textContent.match(/\d+/)[0], 10);
     }
     if (level < settings.HideLevelsBelow) giveaway.remove();
+    if (level > settings.HideLevelsAbove) giveaway.remove();
 
     if (settings.HideCostsBelow > 0) {
       const copiesAndCostElements = giveaway.querySelectorAll(
@@ -357,6 +358,7 @@ function getSettings() {
           HideWhitelist: false,
           HideLevelsBelow: 0,
           HideCostsBelow: 0,
+          HideLevelsAbove: 10,
           PriorityGroup: false,
           PriorityRegion: false,
           PriorityWhitelist: false,
