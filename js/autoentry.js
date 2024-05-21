@@ -937,20 +937,25 @@ function onPageLoad() {
             updateButtons();
             /* Post Comment */
             if (settings.AutoComment && settings.Comment) {
-              const formData = new FormData();
-              formData.append('xsrf_token', token);
-              formData.append('do', 'comment_new');
-              formData.append('description', settings.Comment);
-              formData.append('parent_id', '');
-              fetch(`${window.location.origin}${giveawayUrlPath}`, {
-                method: 'post',
-                credentials: 'include',
-                body: formData,
-              })
-                .then((resp) => resp.json())
-                .then((jsonResponse) => {
-                  console.debug('Comment response', jsonResponse);
-                });
+              /* parse comment settings */
+              let comments = settings.Comment.split('#').map(comment => comment.trim());
+              let chosenComment = comments[Math.floor(Math.random() * comments.length)];
+              if (chosenComment) { // checks if an empty comment has been selected
+                const formData = new FormData();
+                formData.append('xsrf_token', token);
+                formData.append('do', 'comment_new');
+                formData.append('description', chosenComment);
+                formData.append('parent_id', '');
+                fetch(`${window.location.origin}${giveawayUrlPath}`, {
+                  method: 'post',
+                  credentials: 'include',
+                  body: formData,
+                })
+                  .then((resp) => resp.json())
+                  .then((jsonResponse) => {
+                    console.debug('Comment response', jsonResponse);
+                  });
+              }
             }
           } else {
             thisWrap.toggleClass('is-faded');
