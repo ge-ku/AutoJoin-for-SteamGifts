@@ -199,6 +199,7 @@ function modifyPageDOM(pageDOM, timeLoaded) {
       level = parseInt(levelEl.textContent.match(/\d+/)[0], 10);
     }
     if (level < settings.HideLevelsBelow) giveaway.remove();
+    if (level > settings.HideLevelsAbove) giveaway.remove();
 
     if (settings.HideCostsBelow > 0) {
       const copiesAndCostElements = giveaway.querySelectorAll(
@@ -212,6 +213,19 @@ function modifyPageDOM(pageDOM, timeLoaded) {
       }
       const cost = Number.parseInt(costElement.textContent.match(/\d+/)[0], 10);
       if (cost < settings.HideCostsBelow) giveaway.remove();
+    }
+    if (settings.HideCostsAbove < 50) {
+      const copiesAndCostElements = giveaway.querySelectorAll(
+        '.giveaway__heading__thin'
+      );
+      let costElement;
+      if (copiesAndCostElements.length > 1) {
+        costElement = copiesAndCostElements[1];
+      } else {
+        costElement = copiesAndCostElements[0];
+      }
+      const cost = Number.parseInt(costElement.textContent.match(/\d+/)[0], 10);
+      if (cost > settings.HideCostsAbove) giveaway.remove();
     }
 
     if (giveawayInnerWrap.classList.contains('is-faded')) {
@@ -357,6 +371,8 @@ function getSettings() {
           HideWhitelist: false,
           HideLevelsBelow: 0,
           HideCostsBelow: 0,
+          HideLevelsAbove: 10,
+          HideCostsAbove: 50,
           PriorityGroup: false,
           PriorityRegion: false,
           PriorityWhitelist: false,

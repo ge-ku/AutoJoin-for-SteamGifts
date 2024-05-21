@@ -29,6 +29,8 @@ function loadSettings() {
       HideWhitelist: false,
       HideLevelsBelow: 0,
       HideCostsBelow: 0,
+      HideLevelsAbove: 10,
+      HideCostsAbove: 50,
       PriorityGroup: false,
       PriorityRegion: false,
       PriorityWhitelist: false,
@@ -81,6 +83,8 @@ function fillSettingsDiv(settings) {
   document.getElementById('chkHideWhitelist').checked = settings.HideWhitelist;
   document.getElementById('hideLevelsBelow').value = settings.HideLevelsBelow;
   document.getElementById('hideCostsBelow').value = settings.HideCostsBelow;
+  document.getElementById('hideLevelsAbove').value = settings.HideLevelsAbove;
+  document.getElementById('hideCostsAbove').value = settings.HideCostsAbove;
   document.getElementById('chkNightTheme').checked = settings.NightTheme;
   // document.getElementById("chkLevelPriority").checked = settings.LevelPriority;
   document.getElementById('chkRepeatIfOnPage').checked =
@@ -163,6 +167,14 @@ function settingsAttachEventListeners() {
         ),
         HideCostsBelow: parseInt(
           document.getElementById('hideCostsBelow').value,
+          10
+        ),
+        HideLevelsAbove: parseInt(
+          document.getElementById('hideLevelsAbove').value,
+          10
+        ),
+        HideCostsAbove: parseInt(
+          document.getElementById('hideCostsAbove').value,
           10
         ),
         RepeatIfOnPage: document.getElementById('chkRepeatIfOnPage').checked,
