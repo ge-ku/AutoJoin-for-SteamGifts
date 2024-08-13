@@ -15,7 +15,7 @@ mkdir temp/js;
 
 echo "Creating AutoJoin_[BROWSER]_${VERSION}.zip with icons, mp3 file, manifest and jquery...";
 
-zip "temp/AutoJoin_Chrome_${VERSION}.zip" css/* media/* html/* js/jquery.min.js;
+zip "temp/AutoJoin_Chrome_${VERSION}.zip" css/* media/* html/*;
 cp js/* temp/js;
 cd temp;
 

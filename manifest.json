@@ -7,7 +7,6 @@
       "run_at": "document_start",
       "css": ["css/general.css"],
       "js": [
-        "js/jquery.min.js",
         "js/autoentry.js",
         "js/misc.js",
         "js/settings.js"
