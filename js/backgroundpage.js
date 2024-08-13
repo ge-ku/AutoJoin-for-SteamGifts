@@ -1,176 +1,76 @@
-/* How about make a human readable script, then pass it to jsmin or closure for release?
-  https://developers.google.com/closure/compiler/
+/* 
   This script page is the background script. autoentry.js is the autojoin button and other page
-  modifications */
+  modifications
+*/
 
-function findAndRedeemKeys(wonPage) {
-  $(wonPage)
-    .find('.view_key_btn')
-    .each(function () {
-      // Get necessary data
-      var dataForm = $(this).parent().next().find('form');
-      var winnerId = dataForm.find("input[name='winner_id']").val();
-      var xsrfToken = dataForm.find("input[name='xsrf_token']").val();
-      var latestSteamKeyRedeemResponse = ''; // for debugging
-      var latestSteamGiftsKeyRequestResponse = ''; // for debugging
+/* Offscreen weirdness, to use DOMParser and Audio with manifest v3...*/
+let creating;
+const setupOffscreenDocument = async (path) => {
+  const offscreenUrl = chrome.runtime.getURL(path);
+  const existingContexts = await chrome.runtime.getContexts({
+    contextTypes: ['OFFSCREEN_DOCUMENT'],
+    documentUrls: [offscreenUrl],
+  });
 
-      // Request the won key
-      $.post(
-        'https://www.steamgifts.com/ajax.php',
-        {
-          do: 'view_key',
-          winner_id: winnerId,
-          xsrf_token: xsrfToken,
-        },
-        function (data) {
-          data = JSON.stringify(data);
-          var key = data.substr(
-            data.indexOf('?key=') + 5,
-            data.substr(data.indexOf('?key=')).indexOf('\\') - 5
-          ); // RIP
-          latestSteamGiftsKeyRequestResponse = data; // for debugging
-
-          // Check key format
-          if (
-            /^[a-zA-Z0-9]{4,6}\-[a-zA-Z0-9]{4,6}\-[a-zA-Z0-9]{4,6}$/.test(key)
-          ) {
-            $.get('http://store.steampowered.com', function (data) {
-              // Check if user is logged in on Steam
-              if (data.indexOf('playerAvatar') != -1) {
-                var steamSessionId = data.substr(
-                  data.indexOf('g_sessionID') + 15,
-                  24
-                );
-
-                $.post(
-                  'https://store.steampowered.com/account/ajaxregisterkey/',
-                  {
-                    product_key: key,
-                    sessionid: steamSessionId,
-                  },
-                  function (data) {
-                    latestSteamKeyRedeemResponse = JSON.stringify(data); // for debugging
-
-                    var redeemedGames = '';
-                    var itemsList = data.purchase_receipt_info.line_items;
-                    for (var i = 0; i < itemsList.length; i++) {
-                      if (!i) {
-                        redeemedGames += itemsList[i].line_item_description;
-                      } else {
-                        redeemedGames +=
-                          ', ' + itemsList[i].line_item_description;
-                      }
-                    }
-
-                    console.log(
-                      steamKeyRedeemResponses[data.purchase_result_details]
-                    );
-
-                    // Check response (success needs to be exactly 1, no more, no less)
-                    if (data.success === 1) {
-                      console.log(
-                        'Steam Code for ' +
-                          redeemedGames +
-                          ' was redeemed successfully!'
-                      );
-                      notifySteamCodeResponse(
-                        'Steam Code for ' +
-                          redeemedGames +
-                          ' was redeemed successfully!'
-                      );
-
-                      // Mark as received
-                      $.post('https://www.steamgifts.com/ajax.php', {
-                        xsrf_token: xsrfToken,
-                        do: 'received_feedback',
-                        action: '1',
-                        winner_id: winnerId,
-                      });
-                    } else if (
-                      steamKeyRedeemResponses[data.purchase_result_details] !=
-                      undefined
-                    ) {
-                      // In case there is an error but the names of the games failed to be redeemed are also returned
-                      if (redeemedGames != '') {
-                        console.log(
-                          '[!] Steam Code: ' +
-                            key +
-                            ' for ' +
-                            redeemedGames +
-                            ' was not redeemed! Error: ' +
-                            steamKeyRedeemResponses[
-                              data.purchase_result_details
-                            ]
-                        );
-                        notifySteamCodeResponse(
-                          'Steam Code: ' +
-                            key +
-                            ' for ' +
-                            redeemedGames +
-                            ' was not redeemed!\nError: ' +
-                            steamKeyRedeemResponses[
-                              data.purchase_result_details
-                            ]
-                        );
-                      } else {
-                        console.log(
-                          '[!] Steam Code: ' +
-                            key +
-                            ' was not redeemed! Error: ' +
-                            steamKeyRedeemResponses[
-                              data.purchase_result_details
-                            ]
-                        );
-                        notifySteamCodeResponse(
-                          'Steam Code: ' +
-                            key +
-                            ' was not redeemed!\nError: ' +
-                            steamKeyRedeemResponses[
-                              data.purchase_result_details
-                            ]
-                        );
-                      }
-                    } else {
-                      console.log(
-                        '[!] Steam Code: ' +
-                          key +
-                          ' was not redeemed! Unknown Error. Debug: ' +
-                          latestSteamKeyRedeemResponse
-                      );
-                      notifySteamCodeResponse(
-                        'Steam Code: ' +
-                          key +
-                          ' was not redeemed!\nUnknown Error.'
-                      );
-                    }
-                  }
-                );
-              } else {
-                console.log(
-                  '[!] Not logged in on Steam! Code: ' +
-                    key +
-                    ' was not redeemed!'
-                );
-                notifySteamCodeResponse(
-                  'Not logged in on Steam!\nCode: ' + key + ' was not redeemed!'
-                );
-              }
-            });
-          } else {
-            console.log('[!] Invalid Format!');
-            notifySteamCodeResponse(
-              'Invalid Format!\nCode: ' + key + ' was not redeemed!'
-            );
-          }
-        }
-      );
-    });
-
-  // Notifies about the steams response of a key sent to be redeemed
-  function notifySteamCodeResponse(info) {
-    notify('key', info);
+  if (existingContexts.length > 0) {
+    return;
   }
-}
+
+  if (creating) {
+    await creating;
+  } else {
+    creating = chrome.offscreen.createDocument({
+      url: path,
+      reasons: ['DOM_PARSER', 'AUDIO_PLAYBACK'],
+      justification:
+        'Parsing HTML returned by fetch request to get useful data',
+    });
+    await creating;
+    creating = null;
+  }
+};
+
+const parseHTML = (html) => {
+  return new Promise(async (resolve, reject) => {
+    await setupOffscreenDocument('html/offscreen.html');
+
+    const onDone = (result) => {
+      resolve(result);
+    };
+    chrome.runtime.onMessage.addListener(onDone);
+    // Send message to offscreen document
+    chrome.runtime.sendMessage({
+      type: 'parse',
+      target: 'offscreen',
+      data: html,
+    });
+  });
+};
+
+const playAudio = async (volume) => {
+  await setupOffscreenDocument('html/offscreen.html');
+  chrome.runtime.sendMessage({
+    type: 'audio',
+    target: 'offscreen',
+    data: volume,
+  });
+};
+
+/* Variables declaration */
+let arr = [];
+let settings;
+let link = 'https://www.steamgifts.com/giveaways/search?page=';
+let pages = 1;
+let pagestemp = pages;
+let token = '';
+let mylevel = 0;
+let timepassed = 0;
+let timetopass = 100;
+let justLaunched = true;
+let thisVersion = 20170929;
+let totalWishlistGAcnt = 0;
+let useWishlistPriorityForMainBG = false;
+let currPoints = 0;
 
 const steamKeyRedeemResponses = {
   0: 'NoDetail',
@@ -243,93 +143,231 @@ const steamKeyRedeemResponses = {
   67: 'BundleTypeCannotBeGifted',
 };
 
-function Giveaway(code, level, appid, odds, cost, timeleft) {
-  this.code = code;
-  this.level = level;
-  this.steamlink = appid;
-  this.odds = odds;
-  this.cost = cost;
-  this.timeleft = timeleft;
-  this.showInfo = function () {
-    console.log(`
+const findAndRedeemKeys = async (wonPage) => {
+  // Notifies about the steams response of a key sent to be redeemed
+  const notifySteamCodeResponse = (info) => {
+    notify('key', info);
+  };
+
+  for (const keyBtn of wonPage.querySelectorAll('.view_key_btn')) {
+    // Get necessary data
+    const dataForm =
+      keyBtn.parentElement.nextElementSibling.querySelector('form');
+    const winnerId = dataForm.querySelector("input[name='winner_id']").value;
+    const xsrfToken = dataForm.querySelector("input[name='xsrf_token']").value;
+    let latestSteamKeyRedeemResponse = ''; // for debugging
+    let latestSteamGiftsKeyRequestResponse = ''; // for debugging
+
+    // Request the won key
+    const formData = new FormData();
+    formData.append('do', 'view_key');
+    formData.append('winner_id', winnerId);
+    formData.append('xsrf_token', xsrfToken);
+
+    const res = await fetch('https://www.steamgifts.com/ajax.php', {
+      method: 'post',
+      body: formData,
+    });
+    if (res.ok) {
+      const json = await res.json();
+
+      // This should be remade
+      const data = JSON.stringify(json);
+      const key = data.substr(
+        data.indexOf('?key=') + 5,
+        data.substr(data.indexOf('?key=')).indexOf('\\') - 5
+      ); // RIP
+      latestSteamGiftsKeyRequestResponse = data; // for debugging
+
+      // Check key format
+      if (/^[a-zA-Z0-9]{4,6}\-[a-zA-Z0-9]{4,6}\-[a-zA-Z0-9]{4,6}$/.test(key)) {
+        const res = await fetch('//store.steampowered.com');
+        const data = await res.text();
+
+        // Check if user is logged in on Steam
+        if (data.indexOf('playerAvatar') != -1) {
+          const steamSessionId = data.substr(
+            data.indexOf('g_sessionID') + 15,
+            24
+          );
+
+          const formData = new FormData();
+          formData.append('product_key', key);
+          formData.append('sessionid', steamSessionId);
+          const res = await fetch(
+            'https://store.steampowered.com/account/ajaxregisterkey/',
+            {
+              method: 'post',
+              body: formData,
+            }
+          );
+          if (res.ok) {
+            const data = res.json();
+            latestSteamKeyRedeemResponse = JSON.stringify(data); // for debugging
+
+            const itemsList = data.purchase_receipt_info.line_items.map(
+              (item) => item.line_item_description
+            );
+            const redeemedGames = itemsList.join(',');
+
+            console.log(steamKeyRedeemResponses[data.purchase_result_details]);
+
+            // Check response (success needs to be exactly 1, no more, no less)
+            if (data.success === 1) {
+              console.log(
+                'Steam Code for ' +
+                  redeemedGames +
+                  ' was redeemed successfully!'
+              );
+              notifySteamCodeResponse(
+                'Steam Code for ' +
+                  redeemedGames +
+                  ' was redeemed successfully!'
+              );
+
+              // Mark as received
+              const formData = new FormData();
+              formData.append('xsrf_token', xsrfToken);
+              formData.append('do', 'received_feedback');
+              formData.append('action', '1');
+              formData.append('winner_id', 'winnerId');
+              const res = await fetch('https://www.steamgifts.com/ajax.php', {
+                method: 'post',
+                body: formData,
+              });
+              if (!res.ok)
+                console.error(
+                  `Error while trying to mark giveaway as received: HTTP ${res.status}`
+                );
+            } else if (
+              steamKeyRedeemResponses[data.purchase_result_details] != undefined
+            ) {
+              // In case there is an error but the names of the games failed to be redeemed are also returned
+              if (redeemedGames != '') {
+                console.log(
+                  '[!] Steam Code: ' +
+                    key +
+                    ' for ' +
+                    redeemedGames +
+                    ' was not redeemed! Error: ' +
+                    steamKeyRedeemResponses[data.purchase_result_details]
+                );
+                notifySteamCodeResponse(
+                  'Steam Code: ' +
+                    key +
+                    ' for ' +
+                    redeemedGames +
+                    ' was not redeemed!\nError: ' +
+                    steamKeyRedeemResponses[data.purchase_result_details]
+                );
+              } else {
+                console.log(
+                  '[!] Steam Code: ' +
+                    key +
+                    ' was not redeemed! Error: ' +
+                    steamKeyRedeemResponses[data.purchase_result_details]
+                );
+                notifySteamCodeResponse(
+                  'Steam Code: ' +
+                    key +
+                    ' was not redeemed!\nError: ' +
+                    steamKeyRedeemResponses[data.purchase_result_details]
+                );
+              }
+            } else {
+              console.log(
+                '[!] Steam Code: ' +
+                  key +
+                  ' was not redeemed! Unknown Error. Debug: ' +
+                  latestSteamKeyRedeemResponse
+              );
+              notifySteamCodeResponse(
+                'Steam Code: ' + key + ' was not redeemed!\nUnknown Error.'
+              );
+            }
+          } else {
+            `Error registering key on Steam: HTTP ${res.status}`;
+          }
+        } else {
+          console.log(
+            '[!] Not logged in on Steam! Code: ' + key + ' was not redeemed!'
+          );
+          notifySteamCodeResponse(
+            'Not logged in on Steam!\nCode: ' + key + ' was not redeemed!'
+          );
+        }
+      } else {
+        console.log('[!] Invalid Format!');
+        notifySteamCodeResponse(
+          'Invalid Format!\nCode: ' + key + ' was not redeemed!'
+        );
+      }
+    } else {
+      console.error(`Error while trying to fetch a key: HTTP ${res.status}`);
+    }
+  }
+};
+
+class Giveaway {
+  constructor(code, level, appid, odds, cost, timeleft) {
+    this.code = code;
+    this.level = level;
+    this.steamlink = appid;
+    this.odds = odds;
+    this.cost = cost;
+    this.timeleft = timeleft;
+    this.showInfo = function () {
+      console.log(`
     Giveaway https://www.steamgifts.com/giveaway/${this.code}/ (${this.cost} P) | Level: ${this.level} | Time left: ${this.timeleft} s
     Steam: http://store.steampowered.com/app/"${this.steamlink} Odds of winning: ${this.odds}`);
-  };
-}
-
-function compareLevel(a, b) {
-  return b.level - a.level;
-}
-
-function compareOdds(a, b) {
-  return b.odds - a.odds;
-}
-
-function calculateWinChance(giveaway, timeLoaded) {
-  const timeLeft =
-    parseInt(
-      $(giveaway).find('.fa.fa-clock-o').next('span').attr('data-timestamp'),
-      10
-    ) - timeLoaded; // time left in seconds
-  const timePassed =
-    timeLoaded -
-    parseInt(
-      $(giveaway)
-        .find('.giveaway__username')
-        .prev('span')
-        .attr('data-timestamp'),
-      10
-    ); // time passed in seconds
-  const numberOfEntries = parseInt(
-    $(giveaway).find('.fa-tag').next('span').text().replace(',', ''),
-    10
-  );
-  let numberOfCopies = 1;
-  if (
-    $(giveaway)
-      .find('.giveaway__heading__thin:first')
-      .text()
-      .replace(',', '')
-      .match(/\(\d+ Copies\)/)
-  ) {
-    // if more than one copy there's a text field "(N Copies)"
-    numberOfCopies = parseInt(
-      $(giveaway)
-        .find('.giveaway__heading__thin:first')
-        .text()
-        .replace(',', '')
-        .match(/\d+/)[0],
-      10
-    );
+    };
   }
-  // calculate rate of entries and multiply on time left,
+}
+
+const compareLevel = (a, b) => b.level - a.level;
+const compareOdds = (a, b) => b.odds - a.odds;
+
+const calculateWinChance = (
+  timeLeft,
+  timeStart,
+  numberOfEntries,
+  numberOfCopies,
+  timeLoaded
+) => {
+  const timePassed = timeLoaded - timeStart; // time passed in seconds
+  // calculate rate of entries and multiply by time left,
   // probably not very accurate as we assume linear rate
   const predictionOfEntries = (numberOfEntries / timePassed) * timeLeft;
   const chance =
     (1 / (numberOfEntries + 1 + predictionOfEntries)) * 100 * numberOfCopies;
   return chance;
-}
+};
 
-function notify(type, msg) {
+const notify = async (type, msg) => {
   switch (type) {
     case 'win':
-      $.get('https://www.steamgifts.com/giveaways/won', (wonPage) => {
-        const name = $(wonPage).find('.table__column__heading')[0].innerText;
+      const response = await fetch('https://www.steamgifts.com/giveaways/won');
+      if (response.ok) {
+        wonPageHtml = await res.text();
+        const parser = new DOMParser();
+        const wonPage = parser.parseFromString(text, 'text/html');
+        const name = wonPage.querySelector(
+          '.table__column__heading'
+        ).textContent;
+
         chrome.notifications.clear('won_notification', () => {
           const e = {
             type: 'basic',
             title: 'AutoJoin',
             message: `You won ${name}! Click here to open Steamgifts.com`,
-            iconUrl: 'media/autologosteam.png',
+            iconUrl: chrome.runtime.getURL('./media/autologosteam.png'),
           };
           chrome.notifications.create('won_notification', e, () => {
             chrome.storage.sync.get(
               { PlayAudio: 'true', AudioVolume: 1 },
               (data) => {
                 if (data.PlayAudio === true) {
-                  const audio = new Audio('media/audio.mp3');
-                  audio.volume = data.AudioVolume;
-                  audio.play();
+                  playAudio(data.AudioVolume);
                 }
               }
             );
@@ -338,7 +376,11 @@ function notify(type, msg) {
         if (settings.AutoRedeemKey) {
           findAndRedeemKeys(wonPage);
         }
-      });
+      } else {
+        console.error(
+          `Could not fetch /giveaways/won page: HTTP ${response.status}`
+        );
+      }
       break;
     case 'points':
       chrome.notifications.clear('points_notification', () => {
@@ -346,7 +388,7 @@ function notify(type, msg) {
           type: 'basic',
           title: 'AutoJoin',
           message: `You have ${msg} points on Steamgifts.com. Time to spend!`,
-          iconUrl: 'media/autologosteam.png',
+          iconUrl: chrome.runtime.getURL('./media/autologosteam.png'),
         };
         chrome.notifications.create('points_notification', e);
       });
@@ -357,85 +399,53 @@ function notify(type, msg) {
           type: 'basic',
           title: 'AutoJoin',
           message: msg,
-          iconUrl: 'media/autologosteam.png',
+          iconUrl: chrome.runtime.getURL('./media/autologosteam.png'),
         };
         chrome.notifications.create('key_notification', e);
       });
     default:
       console.log('Unknown notification type');
   }
-}
+};
 
 /* This function scans the pages and calls the function pagesloaded() once it finished
    All giveaways that must be entered are pushed in an array called "arr"
    Remember once scanpage is over, pagesloaded is called */
-function scanpage(e) {
+const scanpage = async (html) => {
   const timePageLoaded = Math.round(Date.now() / 1000);
-  const postsDiv = $(e)
-    .find(':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap')
-    .parent();
-  (settings.IgnorePinnedBG === true ||
-  (useWishlistPriorityForMainBG && pagestemp === pages)
-    ? postsDiv
-    : $(e)
-  )
-    .find('.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name')
-    .each(function () {
-      const ga = $(this).parent().parent().parent();
-      const t = this.href.match(/giveaway\/(.+)\//);
-      if (t.length > 0) {
-        const GAcode = t[1];
-        if (
-          !(
-            (settings.IgnoreGroupsBG &&
-              $(this).find('.giveaway__column--group').length) ||
-            $(ga).find('.giveaway__column--contributor-level--negative').length
-          )
-        ) {
-          let GAlevel = 0;
-          if (
-            $(ga).find('.giveaway__column--contributor-level--positive').length
-          ) {
-            GAlevel = $(ga)
-              .find('.giveaway__column--contributor-level--positive')
-              .html()
-              .match(/(\d+)/)[1];
-          }
-          let GAsteamAppID = '0';
-          const s = $(ga)
-            .find('.giveaway_image_thumbnail')
-            .css('background-image');
-          if (s !== undefined) {
-            // undefined when no thumbnail is available (mostly non-steam bundles)
-            const c = s.match(/.+(?:apps|subs)\/(\d+)\/cap.+/);
-            if (s && c) {
-              GAsteamAppID = c[1]; // TODO: differentiate between sub ID and app ID
-            }
-          }
-          const cost = $(ga)
-            .find('.giveaway__heading__thin')
-            .last()
-            .html()
-            .match(/\d+/)[0];
-          const oddsOfWinning = calculateWinChance(ga, timePageLoaded);
-          const timeleft =
-            parseInt(
-              $(ga).find('.fa.fa-clock-o').next('span').attr('data-timestamp'),
-              10
-            ) - timePageLoaded;
-          arr.push(
-            new Giveaway(
-              GAcode,
-              parseInt(GAlevel, 10),
-              GAsteamAppID,
-              oddsOfWinning,
-              parseInt(cost, 10),
-              timeleft
-            )
-          );
-        }
-      }
-    });
+
+  let result = { giveaways: [], giveawaysWithoutPinned: [] };
+  result = await parseHTML({ items: Object.keys(result), html });
+
+  const giveaways =
+    settings.IgnorePinnedBG === true ||
+    (useWishlistPriorityForMainBG && pagestemp === pages)
+      ? result.giveawaysWithoutPinned
+      : result.giveaways;
+  for (const giveaway of giveaways) {
+    if (giveaway.levelTooHigh) continue;
+    if (giveaway.isGroupGA && settings.IgnoreGroupsBG) continue;
+
+    giveaway.timeLeft = giveaway.timeEnd - timePageLoaded;
+    const oddsOfWinning = calculateWinChance(
+      giveaway.timeLeft,
+      giveaway.timeStart,
+      giveaway.numberOfEntries,
+      giveaway.numberOfCopies,
+      timePageLoaded
+    );
+    arr.push(
+      new Giveaway(
+        giveaway.GAcode,
+        parseInt(giveaway.GAlevel, 10),
+        giveaway.GAsteamAppID,
+        oddsOfWinning,
+        parseInt(giveaway.cost, 10),
+        giveaway.timeLeft
+      )
+    );
+  }
+
   if (pagestemp === pages) {
     totalWishlistGAcnt = arr.length;
   }
@@ -450,7 +460,7 @@ function scanpage(e) {
     pagestemp = 0;
     pagesloaded();
   }
-}
+};
 
 /* This function is called once all pages have been parsed
    this sends the requests to steamgifts */
@@ -476,101 +486,80 @@ function pagesloaded() {
   }
 
   let timeouts = [];
-  $.each(arr, (e) => {
-    if (arr[e].level < settings.MinLevelBG) {
+
+  for (const ga of arr) {
+    if (ga.level < settings.MinLevelBG) {
       // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
-      return true;
+      continue;
     }
-    if (arr[e].cost < settings.MinCostBG) {
-      arr[e].showInfo();
+    if (ga.cost < settings.MinCostBG) {
+      ga.showInfo();
       console.log(
-        `^Skipped, cost: ${arr[e].cost}, your settings.MinCostBG is ${settings.MinCostBG}`
+        `^Skipped, cost: ${ga.cost}, your settings.MinCostBG is ${settings.MinCostBG}`
       );
-      return true;
+      continue;
     }
-    if (settings.MaxCostBG != -1 && arr[e].cost > settings.MaxCostBG) {
-      arr[e].showInfo();
+    if (settings.MaxCostBG != -1 && ga.cost > settings.MaxCostBG) {
+      ga.showInfo();
       console.log(
-        `^Skipped, cost: ${arr[e].cost}, your settings.MaxCostBG is ${settings.MaxCostBG}`
+        `^Skipped, cost: ${ga.cost}, your settings.MaxCostBG is ${settings.MaxCostBG}`
       );
-      return true;
+      continue;
     }
-    if (
-      arr[e].timeleft > settings.MaxTimeLeftBG &&
-      settings.MaxTimeLeftBG !== 0
-    ) {
-      arr[e].showInfo();
+    if (ga.timeleft > settings.MaxTimeLeftBG && settings.MaxTimeLeftBG !== 0) {
+      ga.showInfo();
       console.log(
-        `^Skipped, timeleft: ${arr[e].timeleft}, your settings.MaxTimeLeftBG is ${settings.MaxTimeLeftBG}`
+        `^Skipped, timeleft: ${ga.timeleft}, your settings.MaxTimeLeftBG is ${settings.MaxTimeLeftBG}`
       );
-      return true;
+      continue;
     }
+
     timeouts.push(
-      setTimeout(() => {
-        $.post(
-          'https://www.steamgifts.com/ajax.php',
-          {
-            xsrf_token: token,
-            do: 'entry_insert',
-            code: arr[e].code,
-          },
-          (response) => {
-            arr[e].showInfo();
-            const jsonResponse = JSON.parse(response);
+      setTimeout(async () => {
+        const formData = new FormData();
+        formData.append('xsrf_token', token);
+        formData.append('do', 'entry_insert');
+        formData.append('code', ga.code);
 
-            let clearTimeouts = false;
-            if (jsonResponse.msg === 'Not Enough Points') {
-              clearTimeouts = true;
-            } else if (
-              jsonResponse.points < settings.PointsToPreserve &&
-              useWishlistPriorityForMainBG &&
-              settings.IgnorePreserveWishlistOnMainBG
-            ) {
-              if (totalWishlistGAcnt === 1 || e > totalWishlistGAcnt - 2) {
-                clearTimeouts = true;
-              }
-            }
+        const res = await fetch('https://www.steamgifts.com/ajax.php', {
+          method: 'post',
+          body: formData,
+        });
+        const jsonResponse = await res.json();
+        ga.showInfo();
 
-            if (clearTimeouts) {
-              console.log(
-                "^Not Enough Points or your PointsToPreserve limit reached, we're done for now"
-              );
-              for (let i = 0; i < timeouts.length; i++) {
-                clearTimeout(timeouts[i]);
-              }
-              timeouts = [];
-            } else {
-              console.log('^Entered');
-            }
+        let clearTimeouts = false;
+        if (jsonResponse.msg === 'Not Enough Points') {
+          clearTimeouts = true;
+        } else if (
+          jsonResponse.points < settings.PointsToPreserve &&
+          useWishlistPriorityForMainBG &&
+          settings.IgnorePreserveWishlistOnMainBG
+        ) {
+          if (totalWishlistGAcnt === 1 || e > totalWishlistGAcnt - 2) {
+            clearTimeouts = true;
+          }
+        }
 
-            /* For easier understanding of the above if check.
-        var clearTimeouts = function(){
-          for (var i = 0; i < timeouts.length; i++) {
+        if (clearTimeouts) {
+          console.log(
+            "^Not Enough Points or your PointsToPreserve limit reached, we're done for now"
+          );
+          for (let i = 0; i < timeouts.length; i++) {
             clearTimeout(timeouts[i]);
           }
           timeouts = [];
+        } else {
+          console.log('^Entered');
         }
-
-        if(jsonResponse.points < settings.PointsToPreserve
-          && useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG){
-          if(totalWishlistGAcnt == 1){
-            clearTimeouts();
-          }else if (e > totalWishlistGAcnt - 2){
-            clearTimeouts();
-          }
-        } else if (jsonResponse.msg == "Not Enough Points"){
-          clearTimeouts();
-        } */
-          }
-        );
       }, (timeouts.length + 1) * settings.DelayBG * 1000 + Math.floor(Math.random() * 2001))
     );
-  });
+  }
 }
 
 /* This function checks for a won gift, then calls the scanpage function */
 /* e is the whole html page */
-function settingsloaded() {
+const settingsloaded = async () => {
   if (settings.IgnoreGroupsBG && settings.PageForBG === 'all') {
     settings.IgnoreGroupsBG = true;
   }
@@ -592,35 +581,34 @@ function settingsloaded() {
     timepassed += 5;
   }
 
+  let result = { won: false, myPoints: 0, myLevel: 0, token: '' };
+
   /* If background autojoin is disabled or not enough time passed only check if won */
   if (settings.BackgroundAJ === false || timepassed < timetopass) {
-    $.get(link + 1, (data) => {
-      if ($(data).filter('.popup--gift-received').length) {
-        notify('win');
-      } else {
-        currPoints = parseInt(
-          $(data).find('a[href="/account"]').find('span.nav__points').text(),
-          10
-        );
-        if (currPoints >= settings.NotifyLimitAmount && settings.NotifyLimit) {
-          console.log(
-            `Sending notification about accumulated points: ${currPoints} > ${settings.NotifyLimitAmount}`
-          );
-          notify('points', currPoints);
-        }
-        console.log(`Current Points: ${currPoints}`);
-      }
-      // check level and save if changed
-      mylevel = $(data)
-        .find('a[href="/account"]')
-        .find('span')
-        .next()
-        .html()
-        .match(/(\d+)/)[1];
-      if (settings.LastKnownLevel !== parseInt(mylevel, 10)) {
-        chrome.storage.sync.set({ LastKnownLevel: parseInt(mylevel, 10) });
-      }
+    const res = await fetch(link + 1);
+    const html = await res.text();
+    result = await parseHTML({
+      items: Object.keys(result),
+      html,
     });
+
+    if (result.won) {
+      notify('win');
+    } else {
+      currPoints = result.myPoints;
+      if (currPoints >= settings.NotifyLimitAmount && settings.NotifyLimit) {
+        console.log(
+          `Sending notification about accumulated points: ${currPoints} > ${settings.NotifyLimitAmount}`
+        );
+        notify('points', currPoints);
+      }
+      console.log(`Current Points: ${currPoints}`);
+    }
+    // check level and save if changed
+    mylevel = result.myLevel;
+    if (settings.LastKnownLevel !== mylevel) {
+      chrome.storage.sync.set({ LastKnownLevel: mylevel });
+    }
   } else {
     /* Else check if won first (since pop-up disappears after first view), then start scanning pages */
     timepassed = 0; // reset timepassed
@@ -630,68 +618,68 @@ function settingsloaded() {
     if (useWishlistPriorityForMainBG) linkToUse = wishLink;
     else linkToUse = link;
     arr.length = 0;
-    $.get(linkToUse + 1, (data) => {
-      currPoints = parseInt(
-        $(data).find('a[href="/account"]').find('span.nav__points').text(),
-        10
-      );
-      if ($(data).filter('.popup--gift-received').length) {
-        notify('win');
-      } else {
-        if (currPoints >= settings.NotifyLimitAmount && settings.NotifyLimit) {
-          console.log(
-            `Sending notification about accumulated points: ${currPoints} > ${settings.NotifyLimitAmount}`
-          );
-          notify('points', currPoints);
-        }
-      }
-      if (pages > 5 || pages < 1) {
-        pagestemp = 3;
-      } else {
-        pagestemp = pages;
-      } // in case someone has old setting with more than 5 pages to load or somehow set this value to <1 use 3 (default)
-      token = $(data).find('input[name=xsrf_token]').val();
-      mylevel = $(data)
-        .find('a[href="/account"]')
-        .find('span')
-        .next()
-        .html()
-        .match(/(\d+)/)[1];
-      // save new level if it changed
-      if (settings.LastKnownLevel !== parseInt(mylevel, 10)) {
-        chrome.storage.sync.set({ LastKnownLevel: parseInt(mylevel, 10) });
-      }
 
-      // var numOfGAsOnPage = parseInt($(data).find('.pagination__results').children().next().text(), 10);
-      if (
-        currPoints >= settings.PointsToPreserve ||
-        (useWishlistPriorityForMainBG &&
-          settings.IgnorePreserveWishlistOnMainBG)
-      ) {
-        scanpage(data); // scan this page that was already loaded to get info above
-        let i = 0;
-        if (useWishlistPriorityForMainBG) {
-          linkToUse = link;
-          i = 1;
-        }
-        if (currPoints >= settings.PointsToPreserve) {
-          for (let n = 2 - i; n <= pages - i; n++) {
-            // scan next pages
-            if (n > 3 - i) {
-              break;
-            } // no more than 3 pages at a time since the ban wave
-            $.get(linkToUse + n, (newPage) => {
-              scanpage(newPage);
-            });
-          }
+    const res = await fetch(linkToUse + 1);
+    const html = await res.text();
+    result = await parseHTML({
+      items: Object.keys(result),
+      html,
+    });
+
+    currPoints = result.myPoints;
+    if (result.won) {
+      notify('win');
+    } else if (
+      currPoints >= settings.NotifyLimitAmount &&
+      settings.NotifyLimit
+    ) {
+      console.log(
+        `Sending notification about accumulated points: ${currPoints} > ${settings.NotifyLimitAmount}`
+      );
+      notify('points', currPoints);
+    }
+
+    if (pages > 5 || pages < 1) {
+      pagestemp = 3;
+    } else {
+      pagestemp = pages;
+    } // in case someone has old setting with more than 5 pages to load or somehow set this value to <1 use 3 (default)
+
+    token = result.token;
+    mylevel = result.myLevel;
+    // save new level if it changed
+    if (settings.LastKnownLevel !== mylevel) {
+      chrome.storage.sync.set({ LastKnownLevel: mylevel });
+    }
+
+    // var numOfGAsOnPage = parseInt($(data).find('.pagination__results').children().next().text(), 10);
+    if (
+      currPoints >= settings.PointsToPreserve ||
+      (useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG)
+    ) {
+      scanpage(html); // scan this page that was already loaded to get info above
+      let i = 0;
+      if (useWishlistPriorityForMainBG) {
+        linkToUse = link;
+        i = 1;
+      }
+      if (currPoints >= settings.PointsToPreserve) {
+        for (let n = 2 - i; n <= pages - i; n++) {
+          // scan next pages
+          if (n > 3 - i) {
+            break;
+          } // no more than 3 pages at a time since the ban wave
+          const res = await fetch(linkToUse + n);
+          const newPage = await res.text();
+          scanpage(newPage);
         }
       }
-    });
+    }
   }
-}
+};
 
 /* Load settings, then call settingsloaded() */
-function loadsettings() {
+const loadsettings = () => {
   chrome.storage.sync.get(
     {
       PageForBG: 'wishlist',
@@ -721,9 +709,7 @@ function loadsettings() {
       settingsloaded();
     }
   );
-}
-
-/* Function declarations over */
+};
 
 /* It all begins with the loadsettings call */
 chrome.alarms.onAlarm.addListener((alarm) => {
@@ -735,22 +721,6 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     });
   }
 });
-
-/* Variables declaration */
-let arr = [];
-let settings;
-let link = 'https://www.steamgifts.com/giveaways/search?page=';
-let pages = 1;
-let pagestemp = pages;
-let token = '';
-let mylevel = 0;
-let timepassed = 0;
-let timetopass = 100;
-let justLaunched = true;
-let thisVersion = 20170929;
-let totalWishlistGAcnt = 0;
-let useWishlistPriorityForMainBG = false;
-let currPoints = 0;
 
 /* Create first alarm as soon as possible */
 chrome.alarms.create('routine', {
