@@ -307,7 +307,7 @@ function settingsAttachEventListeners() {
 
 function setAudioVolume() {
   // play audio when changing volume
-  const audio = new Audio(chrome.extension.getURL('/media/audio.mp3'));
+  const audio = new Audio(chrome.runtime.getURL('/media/audio.mp3'));
   audio.volume = document.getElementById('audioVolume').value;
   audio.play();
 }

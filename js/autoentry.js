@@ -574,7 +574,7 @@ function onPageLoad() {
         .classList.replace('fadeOut', 'fadeIn');
     } else {
       settingsInjected = true;
-      fetch(chrome.extension.getURL('/html/settings.html'))
+      fetch(chrome.runtime.getURL('/html/settings.html'))
         .then((resp) => resp.text())
         .then((settingsHTML) => {
           const parser = new DOMParser();
@@ -954,9 +954,13 @@ function onPageLoad() {
             /* Post Comment */
             if (settings.AutoComment && settings.Comment) {
               /* parse comment settings */
-              let comments = settings.Comment.split('#').map(comment => comment.trim());
-              let chosenComment = comments[Math.floor(Math.random() * comments.length)];
-              if (chosenComment) { // checks if an empty comment has been selected
+              let comments = settings.Comment.split('#').map((comment) =>
+                comment.trim()
+              );
+              let chosenComment =
+                comments[Math.floor(Math.random() * comments.length)];
+              if (chosenComment) {
+                // checks if an empty comment has been selected
                 const formData = new FormData();
                 formData.append('xsrf_token', token);
                 formData.append('do', 'comment_new');
