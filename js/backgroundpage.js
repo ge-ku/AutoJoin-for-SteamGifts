@@ -800,10 +800,9 @@ chrome.runtime.onInstalled.addListener((updateInfo) => {
   }
 });
 
-// Check if we have "*://steamcommunity.com/profiles/*" permission, ask for them if not
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  chrome.runtime.sendMessage({ task: 'checkPermission' });
   if (request.task === 'checkPermission') {
+    // Check if we have "*://steamcommunity.com/profiles/*" permission, ask for them if not
     console.log(
       'Got a request for "*://steamcommunity.com/profiles/*" permission'
     );
@@ -838,4 +837,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       }
     );
   }
+
+  if (request.task === 'fetch') {
+    // Fetch in background script to bypass CORS (content scripts can't do it anymore)
+    const url = request.url;
+    fetchHelper(url).then(sendResponse);
+    return true;
+  }
 });
+
+const fetchHelper = async (url) => {
+  // using this helper function until https://crbug.com/40753031 is implemented
+  const result = {
+    status: null,
+    text: '',
+  };
+  const res = await fetch(url);
+  result.status = res.status;
+  if (res.ok) {
+    const text = await res.text();
+    result.text = text;
+  }
+  return result;
+};
