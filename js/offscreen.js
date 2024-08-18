@@ -38,7 +38,9 @@ const parse = (data) => {
         break;
       case 'myPoints':
         result.myPoints = parseInt(
-          dom.querySelector('a[href="/account"] span.nav__points')?.textContent,
+          dom
+            .querySelector('a[href="/account"] span.nav__points')
+            ?.textContent.replace(',', ''),
           10
         );
         break;

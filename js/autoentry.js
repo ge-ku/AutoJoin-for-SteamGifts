@@ -503,7 +503,9 @@ function loadCache() {
 function onPageLoad() {
   token = document.querySelector('input[name="xsrf_token"]').value;
   let pagesLoaded = 1;
-  currentState.points = document.querySelector('.nav__points').textContent;
+  currentState.points = document
+    .querySelector('.nav__points')
+    .textContent.replace(',', '');
   // parsePage(document.querySelector('html')); // parse this page first
   /* Add AutoJoin and cog button */
   const info = document.createElement('div');
@@ -734,7 +736,10 @@ function onPageLoad() {
                   .then((jsonResponse) => {
                     if (jsonResponse.type === 'success') {
                       current.classList.toggle('is-faded');
-                      currentState.points = jsonResponse.points;
+                      currentState.points = jsonResponse.points.replace(
+                        ',',
+                        ''
+                      );
                       entered++;
                       const btnEl = current.querySelector('.btnSingle');
                       btnEl.setAttribute('walkState', 'leave');
@@ -971,7 +976,7 @@ function onPageLoad() {
             thisButton.disabled = false;
             thisButton.textContent = 'Leave';
           }
-          currentState.points = json.points;
+          currentState.points = json.points.replace(',', '');
           updateButtons();
           /* Post Comment */
           if (settings.AutoComment && settings.Comment) {
@@ -1019,7 +1024,7 @@ function onPageLoad() {
         const json = await res.json();
         if (json.type === 'success') {
           thisWrap.classList.toggle('is-faded');
-          currentState.points = json.points;
+          currentState.points = json.points.replace(',', '');
           thisButton.setAttribute('walkState', 'join');
           thisButton.disabled = false;
           thisButton.textContent = 'Join';
