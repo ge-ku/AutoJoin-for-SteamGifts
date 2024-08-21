@@ -83,7 +83,7 @@
     "*://store.steampowered.com/*"
   ],
   "optional_host_permissions": ["*://steamcommunity.com/profiles/*"],
-  "version": "1.10.0",
+  "version": "1.10.1",
   "web_accessible_resources": [{
     "use_dynamic_url": true,
     "resources": ["html/settings.html", "css/night.css", "media/audio.mp3"],
