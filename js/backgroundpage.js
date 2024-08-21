@@ -756,7 +756,17 @@ chrome.notifications.onClicked.addListener((notificationId) => {
 });
 
 chrome.runtime.onInstalled.addListener((updateInfo) => {
-  if (updateInfo.previousVersion < '1.5.0') {
+  const parseVersion = (version) =>
+    Number(
+      version
+        .split('.')
+        .map((v) => v.padStart(3, 0))
+        .join('')
+        .padEnd(9, 0)
+    );
+  const prevVersion = parseVersion(updateInfo.previousVersion);
+
+  if (prevVersion < parseVersion('1.5.0')) {
     console.log('Changing settings to prevent mass ban of extension users...');
     chrome.storage.sync.set(
       {
@@ -771,13 +781,13 @@ chrome.runtime.onInstalled.addListener((updateInfo) => {
           type: 'basic',
           title: 'Steamgifts Guidelines Update',
           message: 'Your settings were changed. Click here to read more...',
-          iconUrl: 'autologosteam.png',
+          iconUrl: chrome.runtime.getURL('./media/autologosteam.png'),
         };
         chrome.notifications.create('1.5.0 announcement', e);
       }
     );
   }
-  if (updateInfo.previousVersion <= '1.6.2') {
+  if (prevVersion < parseVersion('1.6.2')) {
     console.log('Changing settings of minCost to minCostBG');
     chrome.storage.sync.get(
       {
