@@ -96,8 +96,8 @@ const parse = (data) => {
           }
 
           // steam app id
-          const s = ga.querySelector('.giveaway_image_thumbnail').style
-            .backgroundImage;
+          const s = ga.querySelector('.giveaway_image_thumbnail')?.style
+            ?.backgroundImage;
           if (s !== undefined) {
             // undefined when no thumbnail is available (mostly non-steam bundles)
             const c = s.match(/.+(?:apps|subs)\/(\d+)\/cap.+/);
