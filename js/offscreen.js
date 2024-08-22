@@ -10,6 +10,9 @@ chrome.runtime.onMessage.addListener((msg) => {
       audio.play();
       console.log(audio);
       break;
+    case 'fetch':
+    case 'checkPermission':
+      break;
     default:
       console.log(`Unknown message type for offscreen document: ${msg.type}`);
   }
@@ -48,9 +51,10 @@ const parse = (data) => {
         result.token = dom.querySelector('input[name=xsrf_token]').value;
         break;
       case 'giveawaysWithoutPinned':
-        dom = dom.querySelector(
+        const withoutPinned = dom.querySelector(
           ':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap'
-        ).parentElement;
+        )?.parentElement;
+        dom = withoutPinned || document.createElement('empty');
       case 'giveaways':
         const gaElements = [
           ...dom.querySelectorAll(

@@ -585,9 +585,17 @@ function onPageLoad() {
     }
   });
 
-  document.querySelector(
+  const postsElement = document.querySelector(
     ':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap'
-  ).parentNode.id = 'posts'; // give div with giveaways id "posts"
+  )?.parentNode;
+  if (postsElement) {
+    postsElement.id = 'posts'; // give div with giveaways id "posts"
+  } else {
+    // this shouldn't happen often but in case opened page doesn't have giveaways
+    const dummyElement = document.createElement('div');
+    dummyElement.id = 'posts';
+    document.body.append(dummyElement);
+  }
 
   let accountInfo = null;
   if (settings.ShowPoints) {
