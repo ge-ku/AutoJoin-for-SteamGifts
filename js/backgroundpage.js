@@ -756,6 +756,8 @@ chrome.notifications.onClicked.addListener((notificationId) => {
 });
 
 chrome.runtime.onInstalled.addListener((updateInfo) => {
+  if (!updateInfo.previousVersion) return;
+
   const parseVersion = (version) =>
     Number(
       version
