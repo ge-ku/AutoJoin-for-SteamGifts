@@ -864,6 +864,28 @@ const fetchHelper = async (url) => {
     status: null,
     text: '',
   };
+
+  if (url.includes('steamcommunity.com')) {
+    const havePermissions = await chrome.permissions.contains({
+      origins: ['*://steamcommunity.com/profiles/*'],
+    });
+
+    if (!havePermissions) {
+      console.log(
+        'Disabling settings that require optional permission which is not granted.'
+      );
+
+      chrome.storage.sync.set({
+        PriorityWishlist: false,
+        HideNonTradingCards: false,
+        HideDlc: false,
+      });
+
+      result.status = 403;
+      return result;
+    }
+  }
+
   const res = await fetch(url);
   result.status = res.status;
   if (res.ok) {
