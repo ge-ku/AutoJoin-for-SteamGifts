@@ -40,7 +40,7 @@ const parseHTML = (html) => {
     chrome.runtime.onMessage.addListener(onDone);
     // Send message to offscreen document
     chrome.runtime.sendMessage({
-      type: 'parse',
+      task: 'parse',
       target: 'offscreen',
       data: html,
     });
@@ -50,7 +50,7 @@ const parseHTML = (html) => {
 const playAudio = async (volume) => {
   await setupOffscreenDocument('html/offscreen.html');
   chrome.runtime.sendMessage({
-    type: 'audio',
+    task: 'audio',
     target: 'offscreen',
     data: volume,
   });
@@ -422,6 +422,15 @@ const scanpage = async (html) => {
     (useWishlistPriorityForMainBG && pagestemp === pages)
       ? result.giveawaysWithoutPinned
       : result.giveaways;
+
+  if (!Array.isArray(giveaways)) {
+    console.error('This should always be an array, something went wrong.');
+    console.error('IgnorePinnedBG: ', settings.IgnorePinnedBG);
+    console.error('WishlistPriority: ', useWishlistPriorityForMainBG);
+    console.error(`Pages: ${pagestemp} | ${pages}`);
+    console.error(giveaways);
+  }
+
   for (const giveaway of giveaways) {
     if (giveaway.levelTooHigh) continue;
     if (giveaway.isGroupGA && settings.IgnoreGroupsBG) continue;

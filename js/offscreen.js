@@ -1,5 +1,5 @@
 chrome.runtime.onMessage.addListener((msg) => {
-  switch (msg.type) {
+  switch (msg.task) {
     case 'parse':
       const data = parse(msg.data);
       chrome.runtime.sendMessage(data);
@@ -8,13 +8,15 @@ chrome.runtime.onMessage.addListener((msg) => {
       const audio = new Audio('/media/audio.mp3');
       audio.volume = msg.data;
       audio.play();
-      console.log(audio);
       break;
     case 'fetch':
     case 'checkPermission':
       break;
     default:
-      console.log(`Unknown message type for offscreen document: ${msg.type}`);
+      console.log(
+        `Unknown message type for offscreen document: ${msg.task}`,
+        msg
+      );
   }
 });
 
