@@ -319,7 +319,7 @@ class Giveaway {
     this.showInfo = function () {
       console.log(`
     Giveaway https://www.steamgifts.com/giveaway/${this.code}/ (${this.cost} P) | Level: ${this.level} | Time left: ${this.timeleft} s
-    Steam: http://store.steampowered.com/app/"${this.steamlink} Odds of winning: ${this.odds}`);
+    Steam: https://store.steampowered.com/app/${this.steamlink} Odds of winning: ${this.odds}`);
     };
   }
 }
