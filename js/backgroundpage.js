@@ -722,19 +722,23 @@ const loadsettings = () => {
 
 /* It all begins with the loadsettings call */
 chrome.alarms.onAlarm.addListener((alarm) => {
-  console.log('Alarm fired.');
+  console.log(`Alarm fired. ${new Date().toLocaleString()}`);
   if (alarm.name === 'routine') {
     loadsettings();
-    chrome.alarms.create('routine', {
-      delayInMinutes: 30,
-    });
   }
 });
 
-/* Create first alarm as soon as possible */
-chrome.alarms.create('routine', {
-  delayInMinutes: 0.1,
-});
+/* Create first alarm as soon as possible, repeat every 30 minutes */
+chrome.alarms.create(
+  'routine',
+  {
+    delayInMinutes: 0.5,
+    periodInMinutes: 30,
+  },
+  () => {
+    console.log('Alarm set.');
+  }
+);
 
 /* Creating a new tab if notification is clicked */
 chrome.notifications.onClicked.addListener((notificationId) => {
