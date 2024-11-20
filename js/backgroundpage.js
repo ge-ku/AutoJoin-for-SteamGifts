@@ -728,17 +728,29 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
-/* Create first alarm as soon as possible, repeat every 30 minutes */
-chrome.alarms.create(
-  'routine',
-  {
-    delayInMinutes: 0.5,
-    periodInMinutes: 30,
-  },
-  () => {
-    console.log('Alarm set.');
-  }
-);
+const createAlarm = () => {
+  /* Create first alarm as soon as possible, repeat every 30 minutes */
+  chrome.alarms.get('routine', (alarm) => {
+    if (!alarm) {
+      chrome.alarms.create(
+        'routine',
+        {
+          delayInMinutes: 0.5,
+          periodInMinutes: 30,
+        },
+        () => {
+          console.log('Alarm set.');
+        }
+      );
+    }
+  });
+};
+createAlarm();
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.alarms.clearAll(createAlarm);
+});
+chrome.runtime.onStartup.addListener(createAlarm);
 
 /* Creating a new tab if notification is clicked */
 chrome.notifications.onClicked.addListener((notificationId) => {
