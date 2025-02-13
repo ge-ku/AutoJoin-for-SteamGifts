@@ -142,7 +142,9 @@ function parsePage(pageHTML) {
       ? Number.parseInt(levelMatch.textContent.match(/Level (\d)/)[1], 10)
       : 0;
     const numberOfEntries = Number.parseInt(
-      giveawayDOM.querySelector('.fa-tag + span').textContent,
+      giveawayDOM
+        .querySelector('.giveaway__links a[href$="/entries"]')
+        ?.textContent.replace(',', ''),
       10
     );
     const timeleft =
@@ -1091,7 +1093,9 @@ function calculateWinChance(giveaway, timeLoaded) {
       10
     ); // time passed in seconds
   const numberOfEntries = parseInt(
-    giveaway.querySelector('.fa-tag + span').textContent.replace(',', ''),
+    giveaway
+      .querySelector('.giveaway__links a[href$="/entries"]')
+      ?.textContent.replace(',', ''),
     10
   );
   let numberOfCopies = 1;

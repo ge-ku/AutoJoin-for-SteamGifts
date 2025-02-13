@@ -127,9 +127,8 @@ const parse = (data) => {
           // number of entries
           resultGA.numberOfEntries = parseInt(
             ga
-              .querySelector('.fa-tag')
-              .parentElement.querySelector('span')
-              .textContent.replace(',', ''),
+              .querySelector('.giveaway__links a[href$="/entries"]')
+              ?.textContent.replace(',', ''),
             10
           );
 
