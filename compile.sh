@@ -2,35 +2,66 @@
 
 # This script will pack everything into AutoJoin_[BROWSER]_{VERSION}.zip ready for publishing.
 # This way we can use unpacked extension while developing without changing any filename or manifest.json or manually replacing files.
-# Use WSL or cygwin to run on Windows.
 
 clear
 
 VERSION=$(grep '"version":' manifest.json | sed 's/^.*: //;s/"//g' | tr -d ',\r\n');
 echo -e "AutoJoin version in manifest.json: $VERSION.\nThis script will pack everything into AutoJoin_[BROWSER]_${VERSION}.zip";
 
-echo "Creating temp folder that will hold scripts and manifest.json, it'll be deleted in the end...";
-mkdir temp;
-mkdir temp/js;
+python3 - "$VERSION" <<'PYEOF'
+import json, os, sys, zipfile
 
-echo "Creating AutoJoin_[BROWSER]_${VERSION}.zip with icons, mp3 file, manifest and jquery...";
+VERSION = sys.argv[1]
+chrome_zip_name = f"AutoJoin_Chrome_{VERSION}.zip"
+firefox_zip_name = f"AutoJoin_Firefox_{VERSION}.zip"
 
-zip "temp/AutoJoin_Chrome_${VERSION}.zip" css/* media/* html/*;
-cp js/* temp/js;
-cd temp;
+# Collect files to include (same for both browsers)
+def collect_files():
+    files = []
+    for folder in ('css', 'media', 'html', 'js'):
+        for f in sorted(os.listdir(folder)):
+            path = os.path.join(folder, f)
+            if os.path.isfile(path):
+                files.append(path)
+    return files
 
-echo "Adding js files into AutoJoin_${VERSION}.zip...";
-zip "AutoJoin_Chrome_${VERSION}.zip" js/*;
-mv "AutoJoin_Chrome_${VERSION}.zip" ../;
-cd ..;
+files = collect_files()
 
-echo "Adding extra lines into manifest file needed for Firefox...";
-cp "AutoJoin_Chrome_${VERSION}.zip" "AutoJoin_Firefox_${VERSION}.zip";
-zip "AutoJoin_Chrome_${VERSION}.zip" manifest.json;
-cp manifest.json temp/manifest.json;
-firefox_specific_bits='\   \"applications\": {\n\      \"gecko\": {\n\         \"id\": \"jid1-VSlWBGe0y6Q0Iw@jetpack\",\n\         \"strict_min_version\": \"48.0\"\n\      }\n\   },';
-sed -i "/\"manifest_version\": 2/i $firefox_specific_bits" temp/manifest.json;
-zip -j "AutoJoin_Firefox_${VERSION}.zip" temp/manifest.json;
+# --- Chrome zip ---
+print(f"Creating {chrome_zip_name}...")
+with zipfile.ZipFile(chrome_zip_name, 'w', compression=zipfile.ZIP_DEFLATED) as z:
+    for f in files:
+        z.write(f)
+    z.write('manifest.json')
+print(f"  {chrome_zip_name} created.")
 
-rm -rf temp;
-echo "Done!";
+# --- Firefox manifest ---
+print("Generating Firefox manifest...")
+with open('manifest.json') as f:
+    m = json.load(f)
+
+m.pop('key', None)
+m['permissions'] = [p for p in m.get('permissions', []) if p != 'offscreen']
+for res in m.get('web_accessible_resources', []):
+    res.pop('use_dynamic_url', None)
+m['background'] = {
+    'scripts': ['js/settingsManager.js', 'js/parseHTML.js', 'js/backgroundpage.js']
+}
+m['browser_specific_settings'] = {
+    'gecko': {
+        'id': 'autojoin-for-steamgifts@rafaelhgo',
+        'strict_min_version': '115.0'
+    }
+}
+firefox_manifest = json.dumps(m, indent=2)
+
+# --- Firefox zip (same files, different manifest) ---
+print(f"Creating {firefox_zip_name}...")
+with zipfile.ZipFile(firefox_zip_name, 'w', compression=zipfile.ZIP_DEFLATED) as z:
+    for f in files:
+        z.write(f)
+    z.writestr('manifest.json', firefox_manifest)
+print(f"  {firefox_zip_name} created.")
+
+print("Done!")
+PYEOF
