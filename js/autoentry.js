@@ -588,7 +588,7 @@ function onPageLoad() {
   });
 
   const postsElement = document.querySelector(
-    ':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap'
+    ':not(.pinned-giveaways) > .giveaway__row-outer-wrap'
   )?.parentNode;
   if (postsElement) {
     postsElement.id = 'posts'; // give div with giveaways id "posts"
