@@ -991,7 +991,7 @@ function onPageLoad() {
           } else {
             thisButton.setAttribute('walkState', 'leave');
             thisButton.disabled = false;
-            thisButton.textContent = 'Leave';
+            thisButton.value = 'Leave';
           }
           currentState.points = json.points.replace(',', '');
           updateButtons();
@@ -1025,7 +1025,7 @@ function onPageLoad() {
           }
         } else {
           thisWrap.classList.toggle('is-faded');
-          thisButton.textContent = `Error: ${json.msg}`;
+          thisButton.value = `Error: ${json.msg}`;
         }
       } else {
         formData.append('do', 'entry_delete');
@@ -1044,10 +1044,10 @@ function onPageLoad() {
           currentState.points = json.points.replace(',', '');
           thisButton.setAttribute('walkState', 'join');
           thisButton.disabled = false;
-          thisButton.textContent = 'Join';
+          thisButton.value = 'Join';
           updateButtons();
         } else {
-          thisButton.textContent = `Error: ${json.msg}`;
+          thisButton.value = `Error: ${json.msg}`;
         }
       }
     }
