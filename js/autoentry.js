@@ -315,11 +315,10 @@ function modifyPageDOM(pageDOM, timeLoaded) {
     descriptionDiv.appendChild(descriptionA);
     giveaway.querySelector('.giveaway__links').appendChild(descriptionDiv);
     if (
-      document.querySelector('.pinned-giveaways__inner-wrap') &&
-      document.querySelector('.pinned-giveaways__inner-wrap').children
-        .length === 0
+      document.querySelector('.pinned-giveaways') &&
+      document.querySelector('.pinned-giveaways').children.length === 0
     ) {
-      document.querySelector('.pinned-giveaways__inner-wrap').remove();
+      document.querySelector('.pinned-giveaways').remove();
     }
     let timeRemaining =
       giveaway.querySelector('.fa-clock-o + span').dataset.timestamp -
@@ -642,7 +641,7 @@ function onPageLoad() {
       const dom = domParser.parseFromString(html, 'text/html');
 
       const gaElements = dom.querySelectorAll(
-        ':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap'
+        ':not(.pinned-giveaways) > .giveaway__row-outer-wrap'
       );
       const containerEl = document.createElement('div');
       containerEl.append(`Page ${pageNumber}`);
@@ -1416,9 +1415,7 @@ function getSteamPackageId(giveaway) {
 }
 
 function removeGiveaway(type, id, giveaway) {
-  if (
-    !giveaway.parentElement?.classList.contains('pinned-giveaways__inner-wrap')
-  ) {
+  if (!giveaway.parentElement?.classList.contains('pinned-giveaways')) {
     console.log(`hidden ${type}: ${id}`);
     giveaway.remove();
   }

@@ -54,7 +54,7 @@ const parse = (data) => {
         break;
       case 'giveawaysWithoutPinned':
         const withoutPinned = dom.querySelector(
-          ':not(.pinned-giveaways__inner-wrap) > .giveaway__row-outer-wrap'
+          ':not(.pinned-giveaways) > .giveaway__row-outer-wrap'
         )?.parentElement;
         dom = withoutPinned || document.createElement('empty');
       case 'giveaways':
