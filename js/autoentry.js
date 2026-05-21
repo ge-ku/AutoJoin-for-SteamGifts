@@ -653,7 +653,12 @@ function onPageLoad() {
         document.querySelector('.pagination').display = 'none';
       }
       modifyPageDOM(containerEl, timeLoaded);
-      [...document.querySelectorAll('#posts')].at(-1).append(containerEl);
+      const paginationEl = document.querySelector('.pagination');
+      if (paginationEl) {
+        paginationEl.insertAdjacentElement('beforebegin', containerEl);
+      } else {
+        document.querySelector('#posts').parentElement.append(containerEl);
+      }
       pageNumber++;
       pagesLoaded++;
       loadingNextPage = false;
@@ -729,53 +734,55 @@ function onPageLoad() {
             (settings.MaxCost == -1 || cost <= settings.MaxCost)
           ) {
             timeouts.push(
-              setTimeout(function () {
-                const code = current
-                  .querySelector('a.giveaway__heading__name')
-                  .href.match(/.+giveaway\/(.+)\//)[1];
-                const formData = new FormData();
-                formData.append('xsrf_token', token);
-                formData.append('do', 'entry_insert');
-                formData.append('code', code);
-                fetch(`${window.location.origin}/ajax.php`, {
-                  method: 'post',
-                  credentials: 'include',
-                  body: formData,
-                })
-                  .then((resp) => resp.json())
-                  .then((jsonResponse) => {
-                    if (jsonResponse.type === 'success') {
-                      current.classList.toggle('is-faded');
-                      currentState.points = jsonResponse.points.replace(
-                        ',',
-                        ''
-                      );
-                      entered++;
-                      const btnEl = current.querySelector('.btnSingle');
-                      btnEl.setAttribute('walkState', 'leave');
-                      btnEl.disabled = false;
-                      btnEl.textContent = 'Leave';
-                      updateButtons();
-                    }
-                    if (jsonResponse.points < 5) {
-                      for (let i = 0; i < timeouts.length; i++) {
-                        clearTimeout(timeouts[i]);
+              setTimeout(
+                function () {
+                  const code = current
+                    .querySelector('a.giveaway__heading__name')
+                    .href.match(/.+giveaway\/(.+)\//)[1];
+                  const formData = new FormData();
+                  formData.append('xsrf_token', token);
+                  formData.append('do', 'entry_insert');
+                  formData.append('code', code);
+                  fetch(`${window.location.origin}/ajax.php`, {
+                    method: 'post',
+                    credentials: 'include',
+                    body: formData,
+                  })
+                    .then((resp) => resp.json())
+                    .then((jsonResponse) => {
+                      if (jsonResponse.type === 'success') {
+                        current.classList.toggle('is-faded');
+                        currentState.points = jsonResponse.points.replace(
+                          ',',
+                          ''
+                        );
+                        entered++;
+                        const btnEl = current.querySelector('.btnSingle');
+                        btnEl.setAttribute('walkState', 'leave');
+                        btnEl.disabled = false;
+                        btnEl.textContent = 'Leave';
+                        updateButtons();
                       }
-                      timeouts = [];
-                    }
-                    if (entered < 1) {
-                      document.querySelector('#info').textContent =
-                        'No giveaways entered.';
-                    } else {
-                      document.querySelector(
-                        '#info'
-                      ).textContent = `Entered ${entered} giveaway${
-                        entered !== 1 ? 's' : ''
-                      }.`;
-                    }
-                  });
-              }, timeouts.length * settings.Delay * 1000 +
-                Math.floor(Math.random() * 1000))
+                      if (jsonResponse.points < 5) {
+                        for (let i = 0; i < timeouts.length; i++) {
+                          clearTimeout(timeouts[i]);
+                        }
+                        timeouts = [];
+                      }
+                      if (entered < 1) {
+                        document.querySelector('#info').textContent =
+                          'No giveaways entered.';
+                      } else {
+                        document.querySelector('#info').textContent =
+                          `Entered ${entered} giveaway${
+                            entered !== 1 ? 's' : ''
+                          }.`;
+                      }
+                    });
+                },
+                timeouts.length * settings.Delay * 1000 +
+                  Math.floor(Math.random() * 1000)
+              )
             );
           } else {
             if (cost < settings.MinCost) {
