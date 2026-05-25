@@ -31,18 +31,21 @@ const setupOffscreenDocument = async (path) => {
 };
 
 const parseHTML = (html) => {
-  return new Promise(async (resolve, reject) => {
+  return new Promise(async (resolve) => {
     await setupOffscreenDocument('html/offscreen.html');
 
-    const onDone = (result) => {
-      resolve(result);
+    const requestId = crypto.randomUUID();
+    const onDone = (msg) => {
+      if (!msg || msg._parseRequestId !== requestId) return;
+      chrome.runtime.onMessage.removeListener(onDone);
+      resolve(msg._parseResult);
     };
     chrome.runtime.onMessage.addListener(onDone);
-    // Send message to offscreen document
     chrome.runtime.sendMessage({
       task: 'parse',
       target: 'offscreen',
       data: html,
+      requestId,
     });
   });
 };
@@ -64,10 +67,6 @@ let pages = 1;
 let pagestemp = pages;
 let token = '';
 let mylevel = 0;
-let timepassed = 0;
-let timetopass = 100;
-let justLaunched = true;
-let thisVersion = 20170929;
 let totalWishlistGAcnt = 0;
 let useWishlistPriorityForMainBG = false;
 let currPoints = 0;
@@ -143,18 +142,13 @@ const steamKeyRedeemResponses = {
   67: 'BundleTypeCannotBeGifted',
 };
 
-const findAndRedeemKeys = async (wonPage) => {
+const findAndRedeemKeys = async (keys) => {
   // Notifies about the steams response of a key sent to be redeemed
   const notifySteamCodeResponse = (info) => {
     notify('key', info);
   };
 
-  for (const keyBtn of wonPage.querySelectorAll('.view_key_btn')) {
-    // Get necessary data
-    const dataForm =
-      keyBtn.parentElement.nextElementSibling.querySelector('form');
-    const winnerId = dataForm.querySelector("input[name='winner_id']").value;
-    const xsrfToken = dataForm.querySelector("input[name='xsrf_token']").value;
+  for (const { winner_id: winnerId, xsrf_token: xsrfToken } of keys) {
     let latestSteamKeyRedeemResponse = ''; // for debugging
     let latestSteamGiftsKeyRequestResponse = ''; // for debugging
 
@@ -171,25 +165,20 @@ const findAndRedeemKeys = async (wonPage) => {
     if (res.ok) {
       const json = await res.json();
 
-      // This should be remade
-      const data = JSON.stringify(json);
-      const key = data.substr(
-        data.indexOf('?key=') + 5,
-        data.substr(data.indexOf('?key=')).indexOf('\\') - 5
-      ); // RIP
-      latestSteamGiftsKeyRequestResponse = data; // for debugging
+      latestSteamGiftsKeyRequestResponse = JSON.stringify(json); // for debugging
+      const key = json?.key ?? (JSON.stringify(json).match(/\?key=([A-Za-z0-9-]+)/)?.[1] ?? '');
 
       // Check key format
       if (/^[a-zA-Z0-9]{4,6}\-[a-zA-Z0-9]{4,6}\-[a-zA-Z0-9]{4,6}$/.test(key)) {
-        const res = await fetch('//store.steampowered.com');
+        const res = await fetch('https://store.steampowered.com/', {
+          credentials: 'include',
+        });
         const data = await res.text();
 
         // Check if user is logged in on Steam
         if (data.indexOf('playerAvatar') != -1) {
-          const steamSessionId = data.substr(
-            data.indexOf('g_sessionID') + 15,
-            24
-          );
+          const sessionMatch = data.match(/g_sessionID\s*=\s*"([^"]+)"/);
+          const steamSessionId = sessionMatch ? sessionMatch[1] : '';
 
           const formData = new FormData();
           formData.append('product_key', key);
@@ -198,11 +187,12 @@ const findAndRedeemKeys = async (wonPage) => {
             'https://store.steampowered.com/account/ajaxregisterkey/',
             {
               method: 'post',
+              credentials: 'include',
               body: formData,
             }
           );
           if (res.ok) {
-            const data = res.json();
+            const data = await res.json();
             latestSteamKeyRedeemResponse = JSON.stringify(data); // for debugging
 
             const itemsList = data.purchase_receipt_info.line_items.map(
@@ -230,7 +220,7 @@ const findAndRedeemKeys = async (wonPage) => {
               formData.append('xsrf_token', xsrfToken);
               formData.append('do', 'received_feedback');
               formData.append('action', '1');
-              formData.append('winner_id', 'winnerId');
+              formData.append('winner_id', winnerId);
               const res = await fetch('https://www.steamgifts.com/ajax.php', {
                 method: 'post',
                 body: formData,
@@ -286,7 +276,7 @@ const findAndRedeemKeys = async (wonPage) => {
               );
             }
           } else {
-            `Error registering key on Steam: HTTP ${res.status}`;
+            console.error(`Error registering key on Steam: HTTP ${res.status}`);
           }
         } else {
           console.log(
@@ -345,21 +335,19 @@ const calculateWinChance = (
 
 const notify = async (type, msg) => {
   switch (type) {
-    case 'win':
+    case 'win': {
       const response = await fetch('https://www.steamgifts.com/giveaways/won');
       if (response.ok) {
-        wonPageHtml = await res.text();
-        const parser = new DOMParser();
-        const wonPage = parser.parseFromString(text, 'text/html');
-        const name = wonPage.querySelector(
-          '.table__column__heading'
-        ).textContent;
-
+        const wonPageHtml = await response.text();
+        const result = await parseHTML({
+          items: ['wonPageGameName', 'wonPageKeys'],
+          html: wonPageHtml,
+        });
         chrome.notifications.clear('won_notification', () => {
           const e = {
             type: 'basic',
             title: 'AutoJoin',
-            message: `You won ${name}! Click here to open Steamgifts.com`,
+            message: `You won ${result.wonPageGameName}! Click here to open Steamgifts.com`,
             iconUrl: chrome.runtime.getURL('./media/autologosteam.png'),
           };
           chrome.notifications.create('won_notification', e, () => {
@@ -374,7 +362,7 @@ const notify = async (type, msg) => {
           });
         });
         if (settings.AutoRedeemKey) {
-          findAndRedeemKeys(wonPage);
+          findAndRedeemKeys(result.wonPageKeys);
         }
       } else {
         console.error(
@@ -382,6 +370,7 @@ const notify = async (type, msg) => {
         );
       }
       break;
+    }
     case 'points':
       chrome.notifications.clear('points_notification', () => {
         const e = {
@@ -403,14 +392,14 @@ const notify = async (type, msg) => {
         };
         chrome.notifications.create('key_notification', e);
       });
+      break;
     default:
       console.log('Unknown notification type');
   }
 };
 
-/* This function scans the pages and calls the function pagesloaded() once it finished
-   All giveaways that must be entered are pushed in an array called "arr"
-   Remember once scanpage is over, pagesloaded is called */
+/* This function scans a page and pushes eligible giveaways into arr[].
+   pagesloaded() must be called by the caller after all scanpage() calls complete. */
 const scanpage = async (html) => {
   const timePageLoaded = Math.round(Date.now() / 1000);
 
@@ -459,16 +448,6 @@ const scanpage = async (html) => {
     totalWishlistGAcnt = arr.length;
   }
   pagestemp--;
-  if (
-    pagestemp === 0 ||
-    (currPoints < settings.PointsToPreserve &&
-      useWishlistPriorityForMainBG &&
-      settings.IgnorePreserveWishlistOnMainBG &&
-      totalWishlistGAcnt !== 0)
-  ) {
-    pagestemp = 0;
-    pagesloaded();
-  }
 };
 
 /* This function is called once all pages have been parsed
@@ -496,7 +475,7 @@ function pagesloaded() {
 
   let timeouts = [];
 
-  for (const ga of arr) {
+  for (const [e, ga] of arr.entries()) {
     if (ga.level < settings.MinLevelBG) {
       // this may be unnecessary since level_min search parameter https://www.steamgifts.com/discussion/5WsxS/new-search-parameters
       continue;
@@ -581,19 +560,14 @@ const settingsloaded = async () => {
   if (pages < 2 && useWishlistPriorityForMainBG) {
     pages = 2;
   }
-  timetopass = 10 * settings.RepeatHoursBG;
-  if (justLaunched || settings.RepeatHoursBG === 0) {
-    // settings.RepeatHoursBG == 0 means it should autojoin every time
-    justLaunched = false;
-    timepassed = timetopass;
-  } else {
-    timepassed += 5;
-  }
+  const { lastAutoJoinTime = 0 } = await chrome.storage.local.get('lastAutoJoinTime');
+  const shouldAutojoin = settings.RepeatHoursBG === 0 ||
+    (Date.now() - lastAutoJoinTime) >= settings.RepeatHoursBG * 3600 * 1000;
 
   let result = { won: false, myPoints: 0, myLevel: 0, token: '' };
 
   /* If background autojoin is disabled or not enough time passed only check if won */
-  if (settings.BackgroundAJ === false || timepassed < timetopass) {
+  if (settings.BackgroundAJ === false || !shouldAutojoin) {
     const res = await fetch(link + 1);
     const html = await res.text();
     result = await parseHTML({
@@ -620,12 +594,12 @@ const settingsloaded = async () => {
     }
   } else {
     /* Else check if won first (since pop-up disappears after first view), then start scanning pages */
-    timepassed = 0; // reset timepassed
-    const link = `https://www.steamgifts.com/giveaways/search?type=${settings.PageForBG}&level_min=${settings.MinLevelBG}&level_max=${settings.LastKnownLevel}&page=`;
+    await chrome.storage.local.set({ lastAutoJoinTime: Date.now() });
+    const bgLink = `https://www.steamgifts.com/giveaways/search?type=${settings.PageForBG}&level_min=${settings.MinLevelBG}&level_max=${settings.LastKnownLevel}&page=`;
     const wishLink = `https://www.steamgifts.com/giveaways/search?type=wishlist&level_min=${settings.MinLevelBG}&level_max=${settings.LastKnownLevel}&page=`;
     let linkToUse = '';
     if (useWishlistPriorityForMainBG) linkToUse = wishLink;
-    else linkToUse = link;
+    else linkToUse = bgLink;
     arr.length = 0;
 
     const res = await fetch(linkToUse + 1);
@@ -666,10 +640,10 @@ const settingsloaded = async () => {
       currPoints >= settings.PointsToPreserve ||
       (useWishlistPriorityForMainBG && settings.IgnorePreserveWishlistOnMainBG)
     ) {
-      scanpage(html); // scan this page that was already loaded to get info above
+      await scanpage(html); // scan this page that was already loaded to get info above
       let i = 0;
       if (useWishlistPriorityForMainBG) {
-        linkToUse = link;
+        linkToUse = bgLink;
         i = 1;
       }
       if (currPoints >= settings.PointsToPreserve) {
@@ -680,9 +654,10 @@ const settingsloaded = async () => {
           } // no more than 3 pages at a time since the ban wave
           const res = await fetch(linkToUse + n);
           const newPage = await res.text();
-          scanpage(newPage);
+          await scanpage(newPage);
         }
       }
+      pagesloaded();
     }
   }
 };

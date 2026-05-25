@@ -27,163 +27,6 @@ let loadingNextPage;
 let pageLink;
 let thirdPart;
 
-class Giveaway {
-  constructor(
-    code,
-    appid,
-    name,
-    cost,
-    timeleft,
-    level,
-    numberOfCopies,
-    numberOfEntries,
-    status
-  ) {
-    this.code = code;
-    this.appid = appid;
-    this.name = name;
-    this.cost = cost;
-    this.timeleft = timeleft;
-    this.level = level;
-    this.numberOfCopies = numberOfCopies;
-    this.numberOfEntries = numberOfEntries;
-    this.status = status; // { Entered, NoPoints, NoLevel }
-  }
-
-  async join() {
-    const formData = new FormData();
-    formData.append('xsrf_token', token);
-    formData.append('do', 'entry_insert');
-    formData.append('code', this.code);
-    return fetch('https://www.steamgifts.com/ajax.php', {
-      method: 'post',
-      credentials: 'include',
-      body: formData,
-    })
-      .then((resp) => resp.json())
-      .then((jsonResponse) => {
-        if (jsonResponse.type === 'success') {
-          this.status = 'Entered';
-        } else {
-          this.status = 'Error';
-          this.errorMsg = jsonResponse.msg;
-        }
-        // updateButtons();
-      });
-  }
-
-  async leave() {
-    const formData = new FormData();
-    formData.append('xsrf_token', token);
-    formData.append('do', 'entry_delete');
-    formData.append('code', this.code);
-    return fetch('https://www.steamgifts.com/ajax.php', {
-      method: 'post',
-      credentials: 'include',
-      body: formData,
-    })
-      .then((resp) => resp.json())
-      .then((jsonResponse) => {
-        if (jsonResponse.type === 'success') {
-          this.status = 'Ready';
-        } else {
-          this.status = 'Error';
-          this.errorMsg = jsonResponse.msg;
-        }
-        // updateButtons();
-      });
-  }
-}
-
-function parsePage(pageHTML) {
-  const timePageLoaded = Date.now();
-  const parser = new DOMParser();
-  const pageDOM = parser.parseFromString(pageHTML, 'text/html'); // contains DOM of a whole page
-  const pageGiveawaysDiv = pageDOM.querySelector('.page__heading + div');
-  const giveawaysDOM = pageGiveawaysDiv.querySelectorAll(
-    '.giveaway__row-outer-wrap'
-  );
-  const pageGiveaways = [];
-
-  giveawaysDOM.forEach((giveawayDOM) => {
-    const giveawayHeadingName = giveawayDOM.querySelector(
-      '.giveaway__heading__name'
-    );
-    const code = giveawayHeadingName.href.match(/giveaway\/(.+)\//)[1];
-    const name = giveawayHeadingName.textContent;
-    const appid = giveawayDOM
-      .querySelector('.fa.fa-steam')
-      .parentNode.href.match(/\/(\d+)\//)[1];
-    const copiesAndCostElements = giveawayDOM.querySelectorAll(
-      '.giveaway__heading__thin'
-    );
-    let cost;
-    let numberOfCopies;
-    if (copiesAndCostElements.length > 1) {
-      numberOfCopies = Number.parseInt(
-        copiesAndCostElements[0].textContent.replace(',', '').match(/\d+/)[0],
-        10
-      );
-      cost = Number.parseInt(
-        copiesAndCostElements[1].textContent.match(/\d+/)[0],
-        10
-      );
-    } else {
-      numberOfCopies = 1;
-      cost = Number.parseInt(
-        copiesAndCostElements[0].textContent.match(/\d+/)[0],
-        10
-      );
-    }
-    const levelMatch = giveawayDOM.querySelector(
-      '.giveaway__column--contributor-level'
-    );
-    const level = levelMatch
-      ? Number.parseInt(levelMatch.textContent.match(/Level (\d)/)[1], 10)
-      : 0;
-    const numberOfEntries = Number.parseInt(
-      giveawayDOM
-        .querySelector('.giveaway__links a[href$="/entries"]')
-        ?.textContent.replace(',', ''),
-      10
-    );
-    const timeleft =
-      giveawayDOM.querySelector('.fa-clock-o + span').dataset.timestamp * 1000 -
-      timePageLoaded;
-    const status = { NoPoints: false, NoLevel: false, Entered: false };
-    if (currentState.points < cost) {
-      status.NoPoints = true;
-    }
-    if (
-      levelMatch &&
-      levelMatch.classList.contains(
-        'giveaway__column--contributor-level--negative'
-      )
-    ) {
-      status.NoLevel = true;
-    }
-    if (
-      giveawayDOM
-        .querySelector('.giveaway__row-inner-wrap')
-        .classList.contains('is-faded')
-    ) {
-      status.Entered = true; // doesn't work for some reason
-    }
-    const giveaway = new Giveaway(
-      code,
-      appid,
-      name,
-      cost,
-      timeleft,
-      level,
-      numberOfCopies,
-      numberOfEntries,
-      status
-    );
-    pageGiveaways.push(giveaway);
-  });
-  return pageGiveaways;
-}
 
 function modifyPageDOM(pageDOM, timeLoaded) {
   pageDOM.querySelectorAll('.giveaway__row-outer-wrap').forEach((giveaway) => {
@@ -486,7 +329,7 @@ function loadCache() {
         let matches;
         wishList = [];
         while ((matches = regex.exec(response.text)) != null) {
-          wishList.push(parseInt(matches[1]), 10);
+          wishList.push(parseInt(matches[1], 10));
         }
         let ownedSteamAppsObj = {};
         ownedSteamAppsObj[steamProfileID] = {
@@ -709,7 +552,7 @@ function onPageLoad() {
           ? parseInt(
               current
                 .querySelector('.giveaway__column--contributor-level')
-                .textContent.match(/Level (\d)/)[1]
+                .textContent.match(/Level (\d+)/)[1]
             )
           : 0;
         if (
@@ -810,20 +653,6 @@ function onPageLoad() {
       thirdPart = pageNumber.substr(pageNumber.indexOf('&'));
       pageNumber = pageNumber.substr(0, pageNumber.indexOf('&'));
     }
-    // This is a work-around since steamgifts.com stopped showing last page number.
-    // Proper fix is to check every new page's pagination, last page doesn't have "Next" link.
-    // lastPage = 100;
-    // try {
-    //   lastPage = ($('.pagination__navigation')
-    //     .find('a:contains("Last")')
-    //     .attr('href')
-    //     .split('page='))[1];
-    //   if (!$.isNumeric(lastPage)) {
-    //     lastPage = lastPage.substr(0, lastPage.indexOf('&'));
-    //   }
-    // } catch (e) {
-    //   lastPage = 100;
-    // }
     loadingNextPage = false;
     if (settings.InfiniteScrolling) {
       const spinnerEl = document.createElement('div');
@@ -1018,7 +847,7 @@ function onPageLoad() {
                 console.error(`Error leaving comment: HTTP ${res.status}`);
               } else {
                 const json = await res.json();
-                console.debug('Comment response', jsonResponse);
+                console.debug('Comment response', json);
               }
             }
           }

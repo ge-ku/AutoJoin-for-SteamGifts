@@ -21,10 +21,6 @@
       ]
     },
     {
-      "js": ["js/autojoinSteamQueue.js"],
-      "matches": ["*://store.steampowered.com/*"]
-    },
-    {
       "css": ["css/general.css"],
       "js": ["js/misc.js"],
       "matches": [

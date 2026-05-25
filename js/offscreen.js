@@ -2,7 +2,7 @@ chrome.runtime.onMessage.addListener((msg) => {
   switch (msg.task) {
     case 'parse':
       const data = parse(msg.data);
-      chrome.runtime.sendMessage(data);
+      chrome.runtime.sendMessage({ _parseRequestId: msg.requestId, _parseResult: data });
       break;
     case 'audio':
       const audio = new Audio('/media/audio.mp3');
@@ -152,6 +152,18 @@ const parse = (data) => {
           giveaways.push(resultGA);
         }
         result[item] = giveaways;
+        break;
+      case 'wonPageKeys':
+        result.wonPageKeys = [...dom.querySelectorAll('.view_key_btn')].map((btn) => {
+          const form = btn.parentElement.nextElementSibling.querySelector('form');
+          return {
+            winner_id: form.querySelector("input[name='winner_id']").value,
+            xsrf_token: form.querySelector("input[name='xsrf_token']").value,
+          };
+        });
+        break;
+      case 'wonPageGameName':
+        result.wonPageGameName = dom.querySelector('.table__column__heading')?.textContent ?? '';
         break;
       default:
         console.log(

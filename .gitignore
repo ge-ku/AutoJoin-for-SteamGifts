@@ -1,2 +1,5 @@
 # Ignore compiled zip files
 AutoJoin_*.zip
+
+# macOS metadata
+.DS_Store
