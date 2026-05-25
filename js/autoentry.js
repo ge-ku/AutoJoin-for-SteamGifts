@@ -2,7 +2,7 @@ let giveaways = [];
 let settingsInjected = false;
 let settings;
 let token;
-const thisVersion = 20230517;
+const thisVersion = 20260525;
 const currentState = {
   amountOfPoints: 0,
   set points(n) {
@@ -508,57 +508,19 @@ function onPageLoad() {
     .querySelector('.nav__points')
     .textContent.replace(',', '');
   // parsePage(document.querySelector('html')); // parse this page first
-  /* Add AutoJoin and cog button */
+  /* Add AutoJoin Settings button */
   const info = document.createElement('div');
   info.id = 'info';
   document.querySelector('.featured__summary').prepend(info);
-  if (settings.AutoJoinButton) {
-    const buttonsAJ = document.createElement('div');
-    buttonsAJ.id = 'buttonsAJ';
-    const btnSettings = document.createElement('button');
-    btnSettings.id = 'btnSettings';
-    btnSettings.className = 'AutoJoinButtonEnabled';
-    const cog = document.createElement('i');
-    cog.className = 'fa fa-cog fa-4x fa-inverse';
-    btnSettings.appendChild(cog);
-
-    const btnAutoJoin = document.createElement('input');
-    btnAutoJoin.id = 'btnAutoJoin';
-    btnAutoJoin.type = 'button';
-    btnAutoJoin.value = 'AutoJoin';
-    btnAutoJoin.addEventListener('click', () => {
-      btnAutoJoin.disabled = true;
-      if (settings.LoadFive && pagesLoaded < 5) {
-        btnAutoJoin.value = 'Loading Pages..';
-      }
-      fireAutoJoin();
-    });
-
-    const suspensionNotice = document.createElement('div');
-    suspensionNotice.id = 'suspensionNotice';
-    const linkToAnnouncement = document.createElement('a');
-    linkToAnnouncement.href =
-      'http://steamcommunity.com/groups/autojoin#announcements/detail/1485483400577229657';
-    linkToAnnouncement.target = '_blank';
-    linkToAnnouncement.innerHTML =
-      '<p>By using AutoJoin button and AutoJoin in background you risk getting a suspension.</p><p>Click to read more...</p>';
-    suspensionNotice.appendChild(linkToAnnouncement);
-
-    buttonsAJ.appendChild(btnAutoJoin);
-    buttonsAJ.appendChild(btnSettings);
-    buttonsAJ.appendChild(suspensionNotice);
-    document.querySelector('.featured__summary').prepend(buttonsAJ);
-  } else {
-    const navbar = document.querySelector('.nav__left-container');
-    const buttonContainer = document.createElement('div');
-    buttonContainer.className = 'nav__button-container';
-    const button = document.createElement('a');
-    button.className = 'nav__button';
-    button.id = 'btnSettings';
-    button.textContent = 'AutoJoin Settings';
-    buttonContainer.appendChild(button);
-    navbar.appendChild(buttonContainer);
-  }
+  const navbar = document.querySelector('.nav__left-container');
+  const buttonContainer = document.createElement('div');
+  buttonContainer.className = 'nav__button-container';
+  const button = document.createElement('a');
+  button.className = 'nav__button';
+  button.id = 'btnSettings';
+  button.textContent = 'AutoJoin Settings';
+  buttonContainer.appendChild(button);
+  navbar.appendChild(buttonContainer);
 
   /* First time cog/settings button is pressed inject part of settings.html and show it
      If settings already injected just show them */
@@ -662,142 +624,6 @@ function onPageLoad() {
       pagesLoaded++;
       loadingNextPage = false;
     }
-  }
-
-  function fireAutoJoin() {
-    if (settings.LoadFive && pagesLoaded < settings.PagesToLoad) {
-      loadPage();
-      setTimeout(() => {
-        fireAutoJoin();
-      }, 50);
-      return;
-    }
-    let entered = 0;
-    let timeouts = [];
-
-    let selectItems =
-      '.giveaway__row-inner-wrap:not(.is-faded) .giveaway__heading__name';
-
-    // Here I'm filtering the giveaways to enter only those created by regular users in the #posts div
-    // which means featured giveaways won't be autojoined if user decides so in the options
-
-    if (settings.IgnorePinned) {
-      selectItems = `#posts ${selectItems}`;
-    }
-
-    const myLevel = parseInt(
-      document
-        .querySelector('a[href="/account"] span:nth-child(2)')
-        .textContent.match(/(\d+)/)[1],
-      10
-    );
-    for (let level = myLevel; level >= 0; level--) {
-      document.querySelectorAll(selectItems).forEach((el) => {
-        const current = el.closest('.giveaway__row-inner-wrap');
-        let whiteListGiveaway = Boolean(
-          current.querySelector('.giveaway__column--whitelist')
-        );
-        let regionLockedGiveaway = Boolean(
-          current.querySelector('.giveaway__column--region-restricted')
-        );
-        let steamGroupGiveaway = Boolean(
-          current.querySelector('.giveaway__column--group')
-        );
-        let giveawayLevel = Boolean(
-          current.querySelector('.giveaway__column--contributor-level')
-        )
-          ? parseInt(
-              current
-                .querySelector('.giveaway__column--contributor-level')
-                .textContent.match(/Level (\d)/)[1]
-            )
-          : 0;
-        if (
-          giveawayLevel == level ||
-          (priorityGiveaway(
-            current,
-            steamGroupGiveaway,
-            regionLockedGiveaway,
-            whiteListGiveaway
-          ) &&
-            !ignoreGiveaway(steamGroupGiveaway, whiteListGiveaway))
-        ) {
-          const cost = parseInt(
-            [...current.querySelectorAll('.giveaway__heading__thin')]
-              .at(-1)
-              .textContent.match(/\d+/)[0],
-            10
-          );
-          if (
-            cost >= settings.MinCost &&
-            (settings.MaxCost == -1 || cost <= settings.MaxCost)
-          ) {
-            timeouts.push(
-              setTimeout(
-                function () {
-                  const code = current
-                    .querySelector('a.giveaway__heading__name')
-                    .href.match(/.+giveaway\/(.+)\//)[1];
-                  const formData = new FormData();
-                  formData.append('xsrf_token', token);
-                  formData.append('do', 'entry_insert');
-                  formData.append('code', code);
-                  fetch(`${window.location.origin}/ajax.php`, {
-                    method: 'post',
-                    credentials: 'include',
-                    body: formData,
-                  })
-                    .then((resp) => resp.json())
-                    .then((jsonResponse) => {
-                      if (jsonResponse.type === 'success') {
-                        current.classList.toggle('is-faded');
-                        currentState.points = jsonResponse.points.replace(
-                          ',',
-                          ''
-                        );
-                        entered++;
-                        const btnEl = current.querySelector('.btnSingle');
-                        btnEl.setAttribute('walkState', 'leave');
-                        btnEl.disabled = false;
-                        btnEl.textContent = 'Leave';
-                        updateButtons();
-                      }
-                      if (jsonResponse.points < 5) {
-                        for (let i = 0; i < timeouts.length; i++) {
-                          clearTimeout(timeouts[i]);
-                        }
-                        timeouts = [];
-                      }
-                      if (entered < 1) {
-                        document.querySelector('#info').textContent =
-                          'No giveaways entered.';
-                      } else {
-                        document.querySelector('#info').textContent =
-                          `Entered ${entered} giveaway${
-                            entered !== 1 ? 's' : ''
-                          }.`;
-                      }
-                    });
-                },
-                timeouts.length * settings.Delay * 1000 +
-                  Math.floor(Math.random() * 1000)
-              )
-            );
-          } else {
-            if (cost < settings.MinCost) {
-              console.log(
-                `^Skipped, cost: ${cost}, your settings.MinCost is ${settings.MinCost}`
-              );
-            } else {
-              console.log(
-                `^Skipped, cost: ${cost}, your settings.MaxCost is ${settings.MaxCost}`
-              );
-            }
-          }
-        }
-      });
-    }
-    document.querySelector('#btnAutoJoin').textContent = 'Good luck!';
   }
 
   if (splitPageHasNext) {
@@ -1051,37 +877,6 @@ function onPageLoad() {
       }
     }
   });
-
-  /* I wonder if anyone actually uses this.. */
-  if (settings.RepeatIfOnPage) {
-    setInterval(() => {
-      if (onlyOnePage) {
-        pageLink = window.location.href;
-        loadingNextPage = false;
-        pageNumber = '';
-        thirdPart = '';
-        lastPage = true;
-        pagesLoaded = 0;
-        document.querySelector('#posts').replaceChildren();
-        loadPage();
-      } else {
-        pagesLoaded = 0;
-        pageNumber = 1;
-        if (settings.InfiniteScrolling) {
-          settings.InfiniteScrolling = false;
-          document.querySelector('#posts').replaceChildren();
-          loadPage();
-          setTimeout(() => {
-            settings.InfiniteScrolling = true;
-          }, 5000);
-        } else {
-          document.querySelector('#posts').replaceChildren();
-          loadPage();
-        }
-      }
-      fireAutoJoin();
-    }, 3600000 * settings.RepeatHours);
-  }
 }
 
 function calculateWinChance(giveaway, timeLoaded) {
